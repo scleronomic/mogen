@@ -87,7 +87,7 @@ def test_start_end_sampling(par, robot, feasibility_check):
 
         q = InitialGuess.path.q0_random(start=q_start, end=q_end, n_waypoints=100, n_random_points=0,
                                         robot=robot, order_random=True)
-        f[i] = feasibility_check(q=q[np.newaxis, :, :], par=par)
+        f[i] = feasibility_check(q0q[np.newaxis, :, :], par=par)
         d[i] = np.linalg.norm(q_end-q_start)
 
     from wzk.mpl import new_fig, plt

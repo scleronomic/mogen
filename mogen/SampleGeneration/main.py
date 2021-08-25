@@ -62,7 +62,7 @@ def sample_path(gen, i_world, i_sample):
 
     parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img='perlin')  # TODO
 
-    q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda q: feasibility_check(q=q, par=par),
+    q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                         acceptance_rate=gen.bee_rate)
 
     get_q0 = InitialGuess.path.q0_random_wrapper(robot=par.robot, n_multi_start=gen.n_multi_start,
@@ -72,19 +72,20 @@ def sample_path(gen, i_world, i_sample):
     from wzk import tic, toc
 
     tic()
-    q, o = gradient_descent.gd_chomp(q0=q0, q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
+    q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
     toc()
     f = feasibility_check(q=q, par=par) == 1
 
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
     q = inner2full(inner=q, start=q_start, end=q_end)
-
+    print(q[:2])
     n = len(q)
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
     q0 = [qq0.tobytes() for qq0 in q0]
     q = [qq.tobytes() for qq in q]
+    print(q[:2])
 
     return create_path_df(i_world=i_world, i_sample=i_sample,
                           q0=q0, q=q, objective=o, feasible=f)
@@ -107,8 +108,7 @@ def main():
             futures.append(sample_ray.remote(i_w, i_s))
 
     df = ray.get(futures)
-    print(len(df))
-    print(df[0])
+
     dff = df[0]
     for dfff in df[1:]:
         dff = dff.append(dfff)
