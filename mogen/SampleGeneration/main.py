@@ -2,14 +2,14 @@ import numpy as np
 
 from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
+from wzk.image import compressed2img
 
 from rokin.Robots import StaticArm
 from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql
-
+from mogen.Loading.load_sql import df2sql, get_values_sql
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
 
@@ -18,6 +18,9 @@ class Generation:
                  'gd',
                  'bee_rate',
                  'n_multi_start')
+
+
+db_file = '/volume/USERSTORE/tenh_jo/Samples/StaticArm04'
 
 
 def init_par():
@@ -53,14 +56,15 @@ def init_par():
     return gen
 
 
-def sample_path(gen, i_world, i_sample):
+def sample_path(gen, i_world, i_sample, img_cmp):
     print(i_world, i_sample)
     np.random.seed()
 
     par = gen.par
     gd = gen.gd
 
-    parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img='perlin')  # TODO
+    obstacle_img = compressed2img(img_cmp=img_cmp, n_voxels=par.world.voxel_size)
+    parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=obstacle_img)
 
     q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                         acceptance_rate=gen.bee_rate)
@@ -78,14 +82,12 @@ def sample_path(gen, i_world, i_sample):
 
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
     q = inner2full(inner=q, start=q_start, end=q_end)
-    print(q[:2])
     n = len(q)
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
     q0 = [qq0.tobytes() for qq0 in q0]
     q = [qq.tobytes() for qq in q]
-    print(q[:2])
 
     return create_path_df(i_world=i_world, i_sample=i_sample,
                           q0=q0, q=q, objective=o, feasible=f)
@@ -97,37 +99,27 @@ def main():
     from wzk.ray2 import ray
     ray.init(address='auto')
 
+    worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par()
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s)
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
     for i_w in range(n_worlds):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
-    df = ray.get(futures)
+    df_list = ray.get(futures)
 
-    dff = df[0]
-    for dfff in df[1:]:
-        dff = dff.append(dfff)
+    df = df_list[0]
+    for df_i in df_list[1:]:
+        df = df.append(df_i)
 
-    print(dff.shape)
-    print(dff)
-    df2sql(df=dff, file='datadata.db', table_name='path', if_exists='replace')
+    df2sql(df=df, file='StaticArm04.db', table_name='path', if_exists='replace')
     return df
 
 
 if __name__ == '__main__':
     pass
-    # df = main()
-    # print(len(df))
 
-# df = create_path_df(i_world=np.zeros(10), i_sample=np.ones(10),
-#                     q0=np.ones((10, 100, 20)).tolist(), q=np.ones((10, 100, 20)).tolist(),
-#                     feasible=np.zeros(10), objective=np.ones(10),)
-# df2sql(df=df, file='datadata.db', table_name='path', if_exists='replace')
-
-# ~1s per path per core
-# 3600*24*60 ~ 5 Million samples in one day
