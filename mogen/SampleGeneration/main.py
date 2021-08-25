@@ -6,7 +6,9 @@ from wzk.gd.Optimizer import Naive
 from rokin.Robots import StaticArm
 from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
+
 from mogen.Loading.load_pandas import create_path_df
+from mogen.Loading.load_sql import df2sql
 
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
@@ -52,6 +54,8 @@ def init_par():
 
 
 def sample_path(gen, i_world, i_sample):
+    np.random.seed()
+
     par = gen.par
     gd = gen.gd
 
@@ -97,13 +101,20 @@ def main():
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
-    return ray.get(futures)
+    df = ray.get(futures)
+    print(len(df))
+    print(df[0])
+    dff = df[0]
+    for dfff in df[1]:
+        dff = dff.append(dfff)
+
+    df2sql(df=dff, file='datadata.db', table_name='path')
+    return df
 
 
 if __name__ == '__main__':
     df = main()
     print(len(df))
-    print(df[0])
 
 # ~1s per path per core
 # 3600*24*60 ~ 5 Million samples in one day
