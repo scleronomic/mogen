@@ -20,7 +20,7 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/Samples/StaticArm04.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
 
 
 def init_par():
