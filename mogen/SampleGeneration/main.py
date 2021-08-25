@@ -37,7 +37,7 @@ def init_par():
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 1000
+    gd.n_steps = 100
 
     gd.clipping = np.concatenate([np.ones(gd.n_steps//2)*np.deg2rad(1),
                                   np.ones(gd.n_steps//3)*np.deg2rad(0.1),
@@ -82,8 +82,12 @@ def sample_path(gen, i_world, i_sample):
     n = len(q)
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
+
+    q0 = [qq0.tobytes() for qq0 in q0]
+    q = [qq.tobytes() for qq in q]
+
     return create_path_df(i_world=i_world, i_sample=i_sample,
-                          q0=q0.reshape(n, -1).tolist(), q=q.reshape(n, -1).tolist(), objective=o, feasible=f)
+                          q0=q0, q=q, objective=o, feasible=f)
 
 
 def main():
@@ -109,13 +113,21 @@ def main():
     for dfff in df[1:]:
         dff = dff.append(dfff)
 
+    print(dff.shape)
+    print(dff)
     df2sql(df=dff, file='datadata.db', table_name='path')
     return df
 
 
 if __name__ == '__main__':
-    df = main()
-    print(len(df))
+    pass
+    # df = main()
+    # print(len(df))
+
+df = create_path_df(i_world=np.zeros(10), i_sample=np.ones(10),
+                    q0=np.ones((10, 100, 20)).tolist(), q=np.ones((10, 100, 20)).tolist(),
+                    feasible=np.zeros(10), objective=np.ones(10),)
+df2sql(df=df, file='datadata.db', table_name='path')
 
 # ~1s per path per core
 # 3600*24*60 ~ 5 Million samples in one day
