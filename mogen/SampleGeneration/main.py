@@ -57,7 +57,7 @@ def sample_path(gen, i_world, i_sample):
 
     parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img='perlin')  # TODO
 
-    q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
+    q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda q: feasibility_check(q=q, par=par),
                                         acceptance_rate=gen.bee_rate)
 
     get_q0 = InitialGuess.path.q0_random_wrapper(robot=par.robot, n_multi_start=gen.n_multi_start,
