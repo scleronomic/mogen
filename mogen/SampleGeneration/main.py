@@ -54,6 +54,7 @@ def init_par():
 
 
 def sample_path(gen, i_world, i_sample):
+    print(i_world, i_sample)
     np.random.seed()
 
     par = gen.par
@@ -105,7 +106,7 @@ def main():
     print(len(df))
     print(df[0])
     dff = df[0]
-    for dfff in df[1]:
+    for dfff in df[1:]:
         dff = dff.append(dfff)
 
     df2sql(df=dff, file='datadata.db', table_name='path')
