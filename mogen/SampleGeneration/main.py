@@ -115,7 +115,7 @@ def main():
 
     print(dff.shape)
     print(dff)
-    df2sql(df=dff, file='datadata.db', table_name='path')
+    df2sql(df=dff, file='datadata.db', table_name='path', if_exists='replace')
     return df
 
 
@@ -124,10 +124,10 @@ if __name__ == '__main__':
     # df = main()
     # print(len(df))
 
-df = create_path_df(i_world=np.zeros(10), i_sample=np.ones(10),
-                    q0=np.ones((10, 100, 20)).tolist(), q=np.ones((10, 100, 20)).tolist(),
-                    feasible=np.zeros(10), objective=np.ones(10),)
-df2sql(df=df, file='datadata.db', table_name='path')
+# df = create_path_df(i_world=np.zeros(10), i_sample=np.ones(10),
+#                     q0=np.ones((10, 100, 20)).tolist(), q=np.ones((10, 100, 20)).tolist(),
+#                     feasible=np.zeros(10), objective=np.ones(10),)
+df2sql(df=df, file='datadata.db', table_name='path', if_exists='replace')
 
 # ~1s per path per core
 # 3600*24*60 ~ 5 Million samples in one day

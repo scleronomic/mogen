@@ -179,7 +179,7 @@ def df2sql(*, df, file, table_name, if_exists='fail', lock=None):
                    - append: If table exists, insert Measurements. Create if does not exist.
     """
     with open_db_connection(file=file, close=True, lock=lock) as con:
-        df.to_sql(name=table_name, con=con, if_exists=if_exists, index=False,)
+        df.to_sql(name=table_name, con=con, if_exists=if_exists, index=False)
 
 
 # def __test_speed_get_values():
