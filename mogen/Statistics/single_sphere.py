@@ -4,7 +4,7 @@ import Optimizer.InitialGuess.path as path_i
 import Optimizer.gradient_descent as gd_ms
 import Optimizer.choose_optimum as choose_optimum
 import Optimizer.path as path
-import SampleGeneration.StartEnd.start_end_sampling as se_sampling
+import mogen.SampleGeneration.sample_start_end as se_sampling
 import Util.Visualization.plotting_2 as plt2
 import GridWorld.random_obstacles as randrect
 import GridWorld.swept_volume as w2i
