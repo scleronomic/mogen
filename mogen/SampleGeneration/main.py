@@ -40,7 +40,7 @@ def init_par():
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 100
+    gd.n_steps = 1000
 
     gd.clipping = np.concatenate([np.ones(gd.n_steps//2)*np.deg2rad(1),
                                   np.ones(gd.n_steps//3)*np.deg2rad(0.1),
@@ -57,7 +57,6 @@ def init_par():
 
 
 def sample_path(gen, i_world, i_sample, img_cmp):
-    print(i_world, i_sample)
     np.random.seed()
 
     par = gen.par
@@ -77,7 +76,7 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
     tic()
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
-    toc()
+    toc(name=f"{i_world}, {i_sample}")
     f = feasibility_check(q=q, par=par) == 1
 
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
@@ -94,12 +93,13 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
 
 def main():
-    n_worlds = 2
-    n_samples_per_world = 10
+    n_worlds = 5
+    n_samples_per_world = 100
     from wzk.ray2 import ray
     ray.init(address='auto')
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
+
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par()
