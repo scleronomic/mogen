@@ -20,7 +20,7 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
 
 
 def init_robot():
@@ -107,8 +107,8 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
 
 def main():
-    n_worlds = 2
-    n_samples_per_world = 100
+    n_worlds = 5
+    n_samples_per_world = 50
     from wzk.ray2 import ray
     ray.init(address='auto')
 
@@ -136,5 +136,8 @@ def main():
 
 
 if __name__ == '__main__':
+    from wzk import tic, toc
+    tic()
     main()
+    toc()
 
