@@ -20,8 +20,8 @@ class Generation:
                  'n_multi_start')
 
 
-# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
-db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
+# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
 
 
 def init_robot():
