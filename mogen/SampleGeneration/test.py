@@ -13,19 +13,16 @@ from mogen.Loading.load_sql import df2sql, get_values_sql
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
 
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
+db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
+
+
+
 class Generation:
     __slots__ = ('par',
                  'gd',
                  'bee_rate',
                  'n_multi_start')
-
-
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
-# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
-
-
-def init_robot():
-    robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
 
 
 def set_sc_on(par):
@@ -106,42 +103,36 @@ def sample_path(gen, i_world, i_sample, img_cmp):
                           q0=q0, q=q, objective=o, feasible=f)
 
 
-def main():
-    # 5000
-    n_worlds = 50
-    n_samples_per_world = 100
-    from wzk.ray2 import ray
-    ray.init(address='auto')
+par = init_par().par
 
-    worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
+worlds = get_values_sql(rows=np.arange(100), file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    # gen = init_par()
-    # df = sample_path(gen=gen, i_world=0, i_sample=1, img_cmp=worlds[0])
+i_w, i_s, q0, q, o, f = get_values_sql(file=db_file, table='paths',
+                                       rows=np.arange(1000),
+                                       columns=['i_world', 'i_sample', 'q0', 'q', 'objective', 'feasible'],
+                                       values_only=True)
 
-    @ray.remote
-    def sample_ray(_i_w, _i_s):
-        gen = init_par()
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
+q0 = q0.reshape((-1, 20, 19))
+q = q.reshape((-1, 20, 19))
 
-    futures = []
-    for i_w in range(n_worlds):
-        for i_s in range(n_samples_per_world):
-            futures.append(sample_ray.remote(i_w, i_s))
+i = 77
+from rokin.Vis import robot_3d
+obstacle_img = compressed2img(img_cmp=worlds[i_w[i]], n_voxels=par.world.n_voxels, dtype=bool)
+robot_3d.robot_path_interactive(q=q[i], robot=par.robot, mode='mesh',
+                                img_mode='mesh',
+                                obstacle_img=obstacle_img,
+                                voxel_size=par.world.voxel_size, lower_left=par.world.limits[:, 0],
+                                additional_frames=np.eye(4)[np.newaxis, :, :])
 
-    df_list = ray.get(futures)
+from rokin.Vis.configuration_space import q_path
+q_path(q[i])
 
-    df = df_list[0]
-    for df_i in df_list[1:]:
-        df = df.append(df_i)
+parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=obstacle_img)
+feasibility_check(q=q[50:51], par=par)
 
-    df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
-    print(df)
-    return df
+i_w, i_s, q0, q, o, f = get_values_sql(file=db_file, table='paths',
+                                       rows=np.arange(1000),
+                                       columns=-1,
+                                       values_only=True)
 
-
-if __name__ == '__main__':
-    from wzk import tic, toc
-    tic()
-    df = main()
-    toc()
-
+df2sql(df=df, file=db_file, table_name='paths', if_exists='append')
