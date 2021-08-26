@@ -90,7 +90,7 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
     tic()
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
-    toc(name=f"{i_world}, {i_sample}")
+    toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
     f = feasibility_check(q=q, par=par) == 1
 
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
@@ -120,7 +120,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(n_worlds):
+    for i_w in range(10, 15):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
