@@ -30,7 +30,7 @@ def init_robot():
 def set_sc_on(par):
     par.check.self_collision = True
     par.planning.self_collision = True
-    par.sc.n_substeps_check = 3
+    par.sc.n_substeps_check = 5
     par.sc.n_substeps = 3
 
 
