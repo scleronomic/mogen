@@ -83,6 +83,8 @@ def test():
     robot = Justin19()
 
     par = parameter.Parameter(robot=robot, obstacle_img=None)
+    par.check.self_collision = True
+    par.check.obstacle_collision = True
     df = sample_worlds(par=par, n_worlds=1000,
                        mode='perlin', kwargs_perlin=dict(threshold=0.4))
     # df = sample_worlds(par=par, n_worlds=1000,
