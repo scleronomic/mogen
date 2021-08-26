@@ -93,7 +93,7 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
 
 def main():
-    n_worlds = 5
+    n_worlds = 200
     n_samples_per_world = 100
     from wzk.ray2 import ray
     ray.init(address='auto')
@@ -116,10 +116,10 @@ def main():
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file='StaticArm04.db', table_name='path', if_exists='replace')
+    df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
     return df
 
 
 if __name__ == '__main__':
-    pass
+    main()
 
