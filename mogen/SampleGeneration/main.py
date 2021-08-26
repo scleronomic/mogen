@@ -4,7 +4,7 @@ from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
 
-from rokin.Robots import StaticArm
+from rokin.Robots import StaticArm, Justin19
 from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
@@ -23,8 +23,20 @@ class Generation:
 db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
 
 
-def init_par():
+def init_robot():
     robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+
+
+def set_sc_on(par):
+    par.check.self_collision = True
+    par.planning.self_collision = True
+    par.sc.n_substeps_check = 3
+    par.sc.n_substeps = 3
+
+
+def init_par():
+    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+    robot = Justin19()
 
     bee_rate = 0.05
     n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
@@ -36,6 +48,8 @@ def init_par():
     par.planning.obstacle_collision = True
     par.oc.n_substeps = 3
     par.oc.n_substeps_check = 5
+
+    set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
@@ -93,7 +107,7 @@ def sample_path(gen, i_world, i_sample, img_cmp):
 
 
 def main():
-    n_worlds = 200
+    n_worlds = 2
     n_samples_per_world = 100
     from wzk.ray2 import ray
     ray.init(address='auto')
@@ -117,6 +131,7 @@ def main():
         df = df.append(df_i)
 
     df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
+    print(df)
     return df
 
 
