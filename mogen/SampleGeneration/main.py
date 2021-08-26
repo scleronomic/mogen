@@ -110,37 +110,37 @@ def main():
     n_worlds = 5
     n_samples_per_world = 50
     from wzk.ray2 import ray
-    # ray.init(address='auto')
+    ray.init(address='auto')
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    gen = init_par()
-    df = sample_path(gen=gen, i_world=0, i_sample=1, img_cmp=worlds[0])
-    #
-    # @ray.remote
-    # def sample_ray(_i_w, _i_s):
-    #     gen = init_par()
-    #     return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
-    #
-    # futures = []
-    # for i_w in range(0, 1):
-    #     for i_s in range(n_samples_per_world):
-    #         futures.append(sample_ray.remote(i_w, i_s))
-    #
-    # df_list = ray.get(futures)
-    #
-    # df = df_list[0]
-    # for df_i in df_list[1:]:
-    #     df = df.append(df_i)
-    #
-    # df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
-    # print(df)
+    # gen = init_par()
+    # df = sample_path(gen=gen, i_world=0, i_sample=1, img_cmp=worlds[0])
+
+    @ray.remote
+    def sample_ray(_i_w, _i_s):
+        gen = init_par()
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
+
+    futures = []
+    for i_w in range(0, 1):
+        for i_s in range(n_samples_per_world):
+            futures.append(sample_ray.remote(i_w, i_s))
+
+    df_list = ray.get(futures)
+
+    df = df_list[0]
+    for df_i in df_list[1:]:
+        df = df.append(df_i)
+
+    df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
+    print(df)
     return df
 
 
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    main()
+    df = main()
     toc()
 
