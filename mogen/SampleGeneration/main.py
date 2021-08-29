@@ -20,7 +20,7 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
 # db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
 
 
@@ -36,8 +36,8 @@ def set_sc_on(par):
 
 
 def init_par():
-    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
-    robot = Justin19()
+    robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+    # robot = Justin19()
 
     bee_rate = 0.05
     n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
@@ -50,7 +50,7 @@ def init_par():
     par.oc.n_substeps = 3
     par.oc.n_substeps_check = 5
 
-    set_sc_on(par)
+    # set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
@@ -124,7 +124,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(n_worlds):
+    for i_w in range(200, 400):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
