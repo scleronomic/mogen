@@ -1,10 +1,12 @@
 import numpy as np
 
 from mogen.Loading import load_sql as load_sql
-from wzk.training import n2train_test, train_test_split
+from wzk.training import n2train_test, train_test_split  # noqa
+
+n_samples_per_world = 1000
 
 
-def arg_wrapper__i_world(i_worlds, directory=None):
+def arg_wrapper__i_world(i_worlds, file=None):
     """
     Return an numpy array of world indices.
     - if i_worlds is an integer
@@ -17,7 +19,7 @@ def arg_wrapper__i_world(i_worlds, directory=None):
     if isinstance(i_worlds, (int, np.int32, np.int64)):
         i_worlds = int(i_worlds)
         if i_worlds == -1:
-            n_worlds = load_sql.get_n_rows(file=directory + WORLD_DB)
+            n_worlds = load_sql.get_n_rows(file=file)
             i_worlds = list(range(n_worlds))
         else:
             i_worlds = [i_worlds]
@@ -25,18 +27,18 @@ def arg_wrapper__i_world(i_worlds, directory=None):
     return np.array(i_worlds)
 
 
-def get_sample_indices(i_worlds=-1, directory=None, validation_split=0.2, validation_split_random=True):
+def get_sample_indices(i_worlds=-1, file=None, validation_split=0.2, validation_split_random=True):
     """
     Calculates the indices for training and testing.
     Splits the indices for whole worlds, so the test set is more difficult/ closer to reality.
     """
 
-    i_world_list = arg_wrapper__i_world(i_worlds, directory=directory)
+    i_world_list = arg_wrapper__i_world(i_worlds, file=file)
 
     # Split the samples for training and validation, separate the two sets by worlds -> test set contains unseen worlds
     if validation_split_random:
         np.random.shuffle(i_world_list)
-    sample_indices = np.array([get_i_samples_world(iw, directory=directory) for iw in i_world_list]).flatten()
+    sample_indices = np.array([get_i_samples_world(iw, file=file) for iw in i_world_list]).flatten()
 
     # Divide in trainings and test Measurements
     n_worlds = len(i_world_list)
@@ -91,18 +93,18 @@ def get_i_world(i_sample_global):
     return i_sample_global // n_samples_per_world
 
 
-def get_i_samples_world(i_worlds, directory):
+def get_i_samples_world(i_worlds, file):
     """
     Get the global sample-indices corresponding to the world numbers.
     Assumes that the number of samples per world (ie 1000) is correct -> see definitions
     """
 
-    i_world_list = arg_wrapper__i_world(i_worlds=i_worlds, directory=directory)
+    i_world_list = arg_wrapper__i_world(i_worlds=i_worlds, file=file)
 
     if np.size(i_world_list) == 1:
         return np.arange(n_samples_per_world * i_world_list[0], n_samples_per_world * (i_world_list[0] + 1))
     else:
-        return np.array([get_i_samples_world(iw, directory=directory) for iw in i_world_list])
+        return np.array([get_i_samples_world(iw, file=file) for iw in i_world_list])
 
 
 def get_i_samples_global(i_worlds, i_samples_local):

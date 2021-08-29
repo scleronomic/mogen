@@ -51,11 +51,6 @@ import platform
 # If something is marked as '# Correct', I wondered myself is this passage is correct and checked it thoroughly,
 # so it 'should' be correct and does not need to be checked again
 
-# General settings
-n_samples_per_world = 1000  # TODO maybe good to make this more general
-
-SAMPLES_CUR = '/2D/2dof_redo'
-
 # Project directory names
 DATA = '/0_Data'
 IMAGES = '/Images'
@@ -66,7 +61,6 @@ POSES = '/Poses'
 REAL_SCENES = '/Real_Scenes'
 CALIBRATION = '/Calibration'
 TMP = '/mopla_tmp'
-COMET_TMP = '/comet_tmp'
 
 # USERNAME = os.path.expanduser("~").split(sep='/')[-1]
 USERNAME = 'tenh_jo'
@@ -86,7 +80,6 @@ PROJECT_DATA_NETS = PROJECT_DATA + NETS
 PROJECT_DATA_IMAGES = PROJECT_DATA + IMAGES
 PROJECT_DATA_SAMPLES = PROJECT_DATA + SAMPLES
 PROJECT_DATA_UTIL = PROJECT_DATA + UTIL
-PROJECT_COMET_TMP = PROJECT_ROOT + COMET_TMP
 
 DLR_USERSTORE_DATA = DLR_USERSTORE + DATA
 DLR_USERSTORE_DATA_NETS = DLR_USERSTORE_DATA + NETS
@@ -152,32 +145,9 @@ X_WARM = 'x_warm'
 IMG_BOOL = 'bool'
 IMG_EDT = 'edt'
 IMG_LATENT = 'latent'
+IMG_FB = 'fixed-basis'
 
 IMG_TYPE_TYPE_DICT = {IMG_BOOL: bool,
                       IMG_EDT: float,
-                      IMG_LATENT: float}
-
-#######################################################################################################################
-# Model types
-W_IMG2P_IMG = 'world_img2path_img'
-W_IMG2P_Q = 'world_img2path_q'
-W_IMG2P_QEQ = 'world_img2x_eq'
-W_IMG_P_IMG2P_Q = 'world_path_img2x'
-W_IMG2P_IMG2P_Q = 'world_img22path_img__x'
-W_IMG2V = 'world_img2v'
-W_IMG2Z = 'world_img2z'
-W_IMG2P_Q_reinf = 'world_img2x_reinf'
-
-P_IMG2Q = 'path_img2x'
-P_Q2IMG = 'x2path_img'
-
-Q2X_SPHERES = 'x2x_warm'
-W_IMG2W_IMG = 'vae_world_img2world_img'
-P_IMG2P_IMG = 'vae_path_img2path_img'
-P_Q2P_Q = 'vae_x2x'
-
-RECT2W_IMG = 'rectangle2world_img'
-
-#######################################################################################################################
-# COMET_WORKSPACES
-COMET_DEFAULT_WORKSPACE = 'scleronomic'
+                      IMG_LATENT: float,
+                      IMG_FB: float}
