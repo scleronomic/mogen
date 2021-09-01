@@ -1,13 +1,10 @@
 import numpy as np
 
-import Kinematic.forward as forward
+from wzk.trajectory import get_substeps
+import rokin.Vis.robot_2d as plt2
+from rokin.forward import get_frames_x
 
-import Optimizer.InitialGuess.path as path_i
-import Optimizer.path as path
-import Visualization.plotting_2 as plt2
-
-
-from definitions import START_Q, END_Q, PATH_Q, PATH_DB
+import mopla.Optimizer.InitialGuess.path as path_i
 
 
 def get_path_sample(robot, directory=None, i_sample_global=0):
@@ -19,6 +16,7 @@ def get_path_sample(robot, directory=None, i_sample_global=0):
                                   robot=robot, order_random=True)
     else:
         raise NotImplementedError
+        # from mogen.definitions import START_Q, END_Q, PATH_Q, PATH_DB
         # q_start, q_end, q_path, = \
         #     ld_sql.get_values_sql(file=directory + PATH_DB,
         #                           columns=[START_Q, END_Q, PATH_Q], rows=i_sample_global, values_only=True)
@@ -28,7 +26,7 @@ def get_path_sample(robot, directory=None, i_sample_global=0):
 
 class SpherePath:
 
-    def __init__(self, *, i_sample=0, ax, directory=None,
+    def __init__(self, *, i_sample=0, ax, file=None,
                  exp, gd, par):
 
         # Sample
@@ -59,17 +57,18 @@ class SpherePath:
         self.q2x_spheres()
 
     def update_path(self, q_start, q_end):
-        q_start = q_start.reshape((1, 1, -1))
-        q_end = q_end.reshape((1, 1, -1))
-        pass
+        q_start = q_start.reshape((1, -1))
+        q_end = q_end.reshape((1, -1))
+
         # linear
+        print(q_start.shape)
+        print(q_end.shape)
+        self.q = get_substeps(x=np.concatenate([q_start, q_end], axis=0), n=self.par.n_waypoints - 1,
+                              is_periodic=self.par.robot.infinity_joints, include_start=True)
+
         # random
         # optimizer
         # net
-
-        # linear
-        self.q = path.get_substeps(q=np.concatenate([q_start, q_end], axis=1), n=self.par.size.n_waypoints - 1,
-                                   infinity_joints=self.par.robot.infinity_joints, include_start=True)
 
         self.q2x_spheres()
 
@@ -81,9 +80,8 @@ class SpherePath:
         return q_start, q_end
 
     def q2x_spheres(self):
-        self.x_spheres = forward.get_frames_x(q=self.q, robot=self.par.robot)[0]
+        self.x_spheres = get_frames_x(q=self.q, robot=self.par.robot)
 
-        print(self.x_spheres.shape)
         if self.h_path is None:
             self.h_path = plt2.plot_x_spheres(x_spheres=self.x_spheres, ax=self.ax)
         else:
@@ -91,9 +89,8 @@ class SpherePath:
 
 
 def test():
-    from parameter import Parameter
-    par = Parameter(robot='SingleSphere02')
-
+    from mopla.parameter import Parameter
+    par = Parameter(robot='StaticArm04')
     sp = SpherePath(par=par, exp=None, gd=None, ax=None)
 
 

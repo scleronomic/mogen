@@ -21,12 +21,18 @@ class TextBoxSafe(widgets.TextBox):
         super().on_submit(func_safe)
 
 
-def get_world_sample(directory, i_world, n_voxels):
-    if directory is None:
-        rect_pos, rect_size = random_obstacles.create_rectangles(n=10, n_voxels=n_voxels)
-        obstacle_img = random_obstacles.rectangles2image(rect_pos=rect_pos, rect_size=rect_size, n_voxels=n_voxels)
-
+def get_world_sample(n_voxels,
+                     mode='rectangles',
+                     file=None, i_world=None):
+    if file is None:
+        if mode == 'rectangles':
+            obstacle_img = random_obstacles.create_rectangle_image(n_voxels=n_voxels, n=10)
+        elif mode == 'perlin':
+            obstacle_img = random_obstacles.create_perlin_image(n_voxels=n_voxels)
+        else:
+            raise ValueError
     else:
+        # i_world += 1
         raise NotImplementedError
         # obstacle_img_cmp = ld_sql.get_values_sql(file=directory + WORLD_DB, rows=i_world, columns=obstacle_img_CMP,
         #                                          values_only=True)
@@ -109,10 +115,10 @@ def get_selected_rectangle(e_click, e_release):
 
 class WorldViewer:
 
-    def __init__(self, par, ax=None, i_world=0, directory=None):
-        self.par = par
+    def __init__(self, world, ax=None, i_world=0, file=None):
+        self.world = world
 
-        self.directory = directory
+        self.file = file
         self.i_world = i_world
 
         self.face_color = '0.3'
@@ -120,16 +126,16 @@ class WorldViewer:
         self.edge_color = 'k'
 
         if ax is None:
-            self.fig, self.ax = plt2.new_world_fig(limits=self.par.world.limits,
+            self.fig, self.ax = plt2.new_world_fig(limits=self.world.limits,
                                                    title=f"world={self.i_world} | sample=?")
         else:
             self.fig, self.ax = ax.get_figure(), ax
         pass
 
-        self.obstacle_img = np.zeros(par.world.n_voxels, dtype=bool)
+        self.obstacle_img = np.zeros(self.world.n_voxels, dtype=bool)
         self.obstacle_pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.obstacle_img,
-                                                         voxel_size=self.par.world.voxel_size,
-                                                         lower_left=self.par.world.limits[:, 0])
+                                                         voxel_size=self.world.voxel_size,
+                                                         lower_left=self.world.limits[:, 0])
         self.change_sample(i_world=self.i_world)
 
         # self.cid_click = self.fig.canvas.mpl_connect('button_press_event', self.on_click_obstacle)
@@ -143,15 +149,15 @@ class WorldViewer:
 
     def on_click_obstacle(self, event):
         i, j = grid_x2i(x=[event.xdata, event.ydata],
-                        cell_size=self.par.world.voxel_size, lower_left=self.par.world.limits[:, 0])
+                        cell_size=self.world.voxel_size, lower_left=self.world.limits[:, 0])
         switch_img_values(bool_img=self.obstacle_img, i=i, j=j, value=None)
         self.update_obstacle_image()
 
     def on_select_obstacle(self, e_click, e_release):
         (x_ll), (x_ur) = get_selected_rectangle(e_click=e_click, e_release=e_release)
 
-        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), cell_size=self.par.world.voxel_size,
-                              lower_left=self.par.world.limits[:, 0])
+        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), cell_size=self.world.voxel_size,
+                              lower_left=self.world.limits[:, 0])
 
         switch_img_values(bool_img=self.obstacle_img, value=None,
                           i=slice(i_ll[0], i_ur[0] + 1), j=slice(i_ll[1], i_ur[1] + 1))
@@ -164,8 +170,8 @@ class WorldViewer:
 
     def change_sample(self, i_world):
         self.i_world = i_world
-        self.obstacle_img = get_world_sample(directory=self.directory, i_world=self.i_world,
-                                             n_voxels=self.par.world.n_voxels)
+        self.obstacle_img = get_world_sample(file=self.file, i_world=self.i_world,
+                                             n_voxels=self.world.n_voxels)
         self.update_obstacle_image()
 
     def toggle_activity(self):
@@ -175,9 +181,10 @@ class WorldViewer:
     def __submit(self, text):
         try:
             self.change_sample(i_world=int(text))
+
         except ValueError:
             text = [t.strip() for t in text.split(',')]
-            self.obstacle_img = templates.create_template_2d(n_voxels=self.par.world.n_voxels, world=text)
+            self.obstacle_img = templates.create_template_2d(n_voxels=self.world.n_voxels, world=text)
             self.update_obstacle_image()
 
 
@@ -186,11 +193,11 @@ def test():
 
     par = Parameter(robot='SingleSphere02', obstacle_img=None)
 
-    wv = WorldViewer(par=par, ax=None)
-    set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linestyle=('-', '--'))
-    set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linewidth=(1, 2))
-    set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, alpha=0.5)
-    wv.obstacle_pixel_grid.set_hatch('x')
+    wv = WorldViewer(world=par.world, ax=None)
+    # set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linestyle=('-', '--'))
+    # set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linewidth=(1, 2))
+    # wv.obstacle_pixel_grid.set_hatch('x')
+    return wv
 
 
 if __name__ == '__main__':

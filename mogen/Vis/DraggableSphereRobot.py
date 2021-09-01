@@ -42,10 +42,12 @@ def spheres2joints(x_spheres, robot):
 
     q[n_dim:] = abs2rel_angles(q=q[n_dim:])
 
-    if robot.id == 'Single_Sphere_02':
+    if robot.id == 'SingleSphere02':
         q = q[:n_dim]
-    elif 'Stat_Arm_' in robot.id:
+    elif 'StaticArm' in robot.id:
         q = q[n_dim:]
+    else:
+        raise ValueError
 
     return q, x_spheres
 
@@ -109,7 +111,12 @@ def test():
     fig, ax = new_fig(aspect=1)
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
-    DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot, style_arm=dict(color='k', lw=3), style_path={})
+    dsr = DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot, style_arm=dict(color='k', lw=3), style_path={})
+
+    def cb(*args):
+        print(dsr.get_q())
+
+    dsr.add_callback(cb)
 
 
 if __name__ == '__main__':
