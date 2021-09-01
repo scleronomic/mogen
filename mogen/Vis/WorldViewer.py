@@ -1,12 +1,9 @@
 import numpy as np
 from matplotlib import widgets, patches, collections
-
-from GridWorld import templates, random_obstacles
-import Visualization.plotting_2 as plt2
-
-from wzk.image import compressed2img
 from wzk.numpy2 import grid_i2x, grid_x2i
-from definitions import WORLD_DB, obstacle_img_CMP
+
+import rokin.Vis.robot_2d as plt2
+from mopla.GridWorld import templates, random_obstacles
 
 
 class TextBoxSafe(widgets.TextBox):
@@ -28,6 +25,7 @@ def get_world_sample(directory, i_world, n_voxels):
     if directory is None:
         rect_pos, rect_size = random_obstacles.create_rectangles(n=10, n_voxels=n_voxels)
         obstacle_img = random_obstacles.rectangles2image(rect_pos=rect_pos, rect_size=rect_size, n_voxels=n_voxels)
+
     else:
         raise NotImplementedError
         # obstacle_img_cmp = ld_sql.get_values_sql(file=directory + WORLD_DB, rows=i_world, columns=obstacle_img_CMP,
@@ -184,7 +182,7 @@ class WorldViewer:
 
 
 def test():
-    from parameter import Parameter
+    from mopla.parameter import Parameter
 
     par = Parameter(robot='SingleSphere02', obstacle_img=None)
 

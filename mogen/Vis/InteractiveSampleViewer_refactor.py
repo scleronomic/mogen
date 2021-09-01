@@ -1,12 +1,10 @@
 import numpy as np
 
-import parameter
-import Visualization.plotting_2 as plt2
-from Visualization.InteractiveViewer.WorldViewer import WorldViewer
-from Visualization.InteractiveViewer.DraggableSphereRobot import DraggableSphereRobot
-from Visualization.InteractiveViewer.SpherePath import SpherePath
+from mopla import parameter
+from mogen.Vis.WorldViewer import WorldViewer
+from mogen.Vis.DraggableSphereRobot import DraggableSphereRobot
+from mogen.Vis.SpherePath import SpherePath
 
-from definitions import WORLD_DB
 
 
 style_dict_start = {'style_path': {'facecolor': 'g',
@@ -183,9 +181,7 @@ class InteractiveSampleViewer:
 
 
 if __name__ == '__main__':
-    # par = parameter.initialize_par(robot_id='Single_Sphere_02')
-    par = parameter.initialize_par(robot_id='Single_Sphere_02')
-    par = parameter.initialize_par(robot_id='Stat_Arm_03')
+    par = parameter.Pa(robot_id='StatArm03')
 
     par.size.n_waypoints = 10
     print(par.world.limits, par.robot.limits)
