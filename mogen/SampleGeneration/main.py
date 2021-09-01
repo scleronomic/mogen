@@ -1,5 +1,6 @@
 import numpy as np
 
+from wzk import tic, toc
 from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
@@ -20,12 +21,8 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
-# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/Justin19.db'
-
-
-def init_robot():
-    robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
+# db_file = '/StaticArm04_global.db'
 
 
 def set_sc_on(par):
@@ -36,8 +33,8 @@ def set_sc_on(par):
 
 
 def init_par():
-    robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
-    # robot = Justin19()
+    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+    robot = Justin19()
 
     bee_rate = 0.05
     n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
@@ -50,17 +47,16 @@ def init_par():
     par.oc.n_substeps = 3
     par.oc.n_substeps_check = 5
 
-    # set_sc_on(par)
+    set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 1000
+    gd.n_steps = 750
 
-    gd.clipping = np.concatenate([np.ones(gd.n_steps//2)*np.deg2rad(1),
-                                  np.ones(gd.n_steps//3)*np.deg2rad(0.1),
-                                  np.ones(gd.n_steps-(gd.n_steps//2 - gd.n_steps//3))*np.deg2rad(0.01),
-                                  ])
+    n0, n1 = gd.n_steps//2, gd.n_steps//3
+    n2 = gd.n_steps - (n0 + n1)
+    gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(1), np.ones(n1)*np.deg2rad(0.1), np.ones(n2)*np.deg2rad(0.01)])
 
     gen = Generation()
     gen.par = par
@@ -86,7 +82,6 @@ def sample_path(gen, i_world, i_sample, img_cmp):
                                                  n_waypoints=par.n_waypoints, order_random=True, mode='inner')
     q0 = get_q0(start=q_start, end=q_end)
 
-    from wzk import tic, toc
 
     tic()
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
@@ -99,11 +94,12 @@ def sample_path(gen, i_world, i_sample, img_cmp):
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
-    q0 = [qq0.tobytes() for qq0 in q0]
-    q = [qq.tobytes() for qq in q]
-
     return create_path_df(i_world=i_world, i_sample=i_sample,
                           q0=q0, q=q, objective=o, feasible=f)
+
+
+def test_samples():
+    pass
 
 
 def main():
@@ -116,7 +112,7 @@ def main():
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
     # gen = init_par()
-    # df = sample_path(gen=gen, i_world=0, i_sample=1, img_cmp=worlds[0])
+    # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
 
     @ray.remote
     def sample_ray(_i_w, _i_s):
@@ -124,7 +120,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(200, 400):
+    for i_w in range(50, 52):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
@@ -134,7 +130,7 @@ def main():
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file=db_file, table_name='paths', if_exists='replace')
+    df2sql(df=df, file=db_file, table_name='paths', if_exists='append')
     print(df)
     return df
 

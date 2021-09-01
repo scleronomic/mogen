@@ -10,7 +10,7 @@ _CMP = '_cmp'
 
 @contextmanager
 def open_db_connection(*, file, close=True,
-                       lock=None, check_same_thread=False):
+                       lock=None, check_same_thread=False, isolation_level=None):
     """
     Safety wrapper for the database call.
     """
@@ -18,7 +18,7 @@ def open_db_connection(*, file, close=True,
     if lock is not None:
         lock.acquire()
 
-    con = sql.connect(database=file, check_same_thread=check_same_thread)
+    con = sql.connect(database=file, check_same_thread=check_same_thread, isolation_level=isolation_level)
 
     try:
         yield con
@@ -28,6 +28,15 @@ def open_db_connection(*, file, close=True,
             con.close()
         if lock is not None:
             lock.release()
+
+
+def execute(file, command):
+    with open_db_connection(file=file, close=True) as con:
+        con.execute(command)
+
+
+def vacuum(file):
+    execute(file=file, command='VACUUM')
 
 
 def get_table_name(file):

@@ -28,5 +28,8 @@ def create_world_df(i_world, img_cmp):
 
 
 def create_path_df(i_world, i_sample, q0, q, objective, feasible):
-    data = {key:value for key, value in zip(path_df_columns, [i_world, i_sample, q0, q, objective, feasible])}
+    q0 = [qq0.tobytes() for qq0 in q0]
+    q = [qq.tobytes() for qq in q]
+
+    data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q0, q, objective, feasible])}
     return pd.DataFrame(data)
