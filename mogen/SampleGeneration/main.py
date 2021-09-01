@@ -10,7 +10,8 @@ from rokin.Robots import StaticArm, Justin19
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql, get_values_sql
+from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
+
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
 
@@ -140,4 +141,5 @@ if __name__ == '__main__':
     tic()
     df = main()
     toc()
+    print('New DB:', get_n_rows(file=db_file, table_name='paths'))
 
