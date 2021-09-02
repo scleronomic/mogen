@@ -105,6 +105,7 @@ def test_samples():
 
 def main():
     # 5000
+    # 17 h for 40 worlds
     n_worlds = 50
     n_samples_per_world = 100
     from wzk.ray2 import ray
@@ -121,7 +122,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(60, 100):
+    for i_w in range(100, 300):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
