@@ -22,7 +22,7 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/StaticArm04_global.db'
 
 
@@ -42,7 +42,7 @@ def init_par():
     # n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
     n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
 
-    par = parameter.Parameter(robot=robot, obstacle_img='perlin')
+    par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.n_waypoints = 20
 
     par.check.obstacle_collision = True
