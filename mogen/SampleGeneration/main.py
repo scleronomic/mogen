@@ -40,23 +40,22 @@ def init_par():
     # robot = Justin19()
 
     bee_rate = 0.05
-    # n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
-    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
+    n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
 
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.n_waypoints = 20
 
     par.check.obstacle_collision = True
     par.planning.obstacle_collision = True
-    par.oc.n_substeps = 3
-    par.oc.n_substeps_check = 5
+    par.oc.n_substeps = 5  # was 3 for justin
+    par.oc.n_substeps_check = 7
 
     # set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 750
+    gd.n_steps = 1000  # was 750
 
     n0, n1 = gd.n_steps//2, gd.n_steps//3
     n2 = gd.n_steps - (n0 + n1)
@@ -106,7 +105,7 @@ def test_samples():
     pass
 
 
-def main():
+def main(iw0=None, iw1=None):
     # 5000
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
@@ -125,7 +124,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(0, 20):
+    for i_w in range(0, 100):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
@@ -135,7 +134,7 @@ def main():
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    df2sql(df=df, file=db_file, table='paths', if_exists='replace')
     print(df)
     return df
 
