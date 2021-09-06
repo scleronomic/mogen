@@ -22,7 +22,8 @@ class Generation:
                  'n_multi_start')
 
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
 # db_file = '/StaticArm04_global.db'
 
 
