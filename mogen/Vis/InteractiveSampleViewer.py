@@ -40,7 +40,7 @@ class InteractiveSampleViewer:
         self.par = par
         self.exp = exp_par
 
-        # GridWorld obstacles
+        # World obstacles
 
         self.file = file
 

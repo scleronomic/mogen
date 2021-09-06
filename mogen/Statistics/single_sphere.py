@@ -6,8 +6,8 @@ import Optimizer.choose_optimum as choose_optimum
 import Optimizer.path as path
 import mogen.SampleGeneration.sample_start_end as se_sampling
 import Util.Visualization.plotting_2 as plt2
-import GridWorld.random_obstacles as randrect
-import GridWorld.swept_volume as w2i
+import World.random_obstacles as randrect
+import World.swept_volume as w2i
 import parameter
 
 robot_id = 'Single_Sphere_02'

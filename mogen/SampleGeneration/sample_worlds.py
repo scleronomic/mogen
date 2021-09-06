@@ -5,7 +5,7 @@ from wzk.image import img2compressed
 from rokin.Vis import robot_3d
 from rokin.sample_configurations import sample_q
 
-from mopla.GridWorld import create_perlin_image, create_rectangle_image
+from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
 from mopla import parameter
 
@@ -95,7 +95,7 @@ def test():
     #                    kwargs_perlin=dict(threshold=0.45))
 
     # create_perlin_image()
-    df2sql(df=df, file=f"{robot.id}.db", table_name='worlds', if_exists='replace')
+    df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='replace')
 
 
 test()

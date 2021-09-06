@@ -7,9 +7,9 @@ import mopla.Optimizer.InitialGuess.path as path_i
 import mopla.Optimizer.gradient_descent as opt2
 import mopla.Optimizer.objectives as cost
 
-import mopla.GridWorld.obstacle_distance as cost_f
-import mopla.GridWorld.random_obstacles as randrect
-import mopla.GridWorld.swept_volume as sv
+import mopla.World.obstacle_distance as cost_f
+import mopla.World.random_obstacles as randrect
+import mopla.World.swept_volume as sv
 
 
 import mogen.Loading.load_pandas as ld

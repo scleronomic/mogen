@@ -135,4 +135,4 @@ i_w, i_s, q0, q, o, f = get_values_sql(file=db_file, table='paths',
                                        columns=-1,
                                        values_only=True)
 
-df2sql(df=df, file=db_file, table_name='paths', if_exists='append')
+df2sql(df=df, file=db_file, table='paths', if_exists='append')

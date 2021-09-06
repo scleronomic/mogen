@@ -3,7 +3,7 @@ from matplotlib import widgets, patches, collections
 from wzk.numpy2 import grid_i2x, grid_x2i
 
 import rokin.Vis.robot_2d as plt2
-from mopla.GridWorld import templates, random_obstacles
+from mopla.World import templates, random_obstacles
 
 
 class TextBoxSafe(widgets.TextBox):
@@ -144,7 +144,7 @@ class WorldViewer:
         self.rectangle_selector = widgets.RectangleSelector(self.ax, onselect=self.on_select_obstacle)
         self.rectangle_selector.set_active(True)
 
-        self.text_box = TextBoxSafe(plt2.plt.axes([0.85, 0.1, 0.1, 0.05]), 'GridWorld', initial='')
+        self.text_box = TextBoxSafe(plt2.plt.axes([0.85, 0.1, 0.1, 0.05]), 'World', initial='')
         self.text_box.on_submit(self.__submit)
 
     def on_click_obstacle(self, event):
@@ -176,7 +176,7 @@ class WorldViewer:
 
     def toggle_activity(self):
         self.rectangle_selector.set_active(not self.rectangle_selector.active)
-        print('GridWorld Viewer - RectangleSelector: ', self.rectangle_selector.active)
+        print('World Viewer - RectangleSelector: ', self.rectangle_selector.active)
 
     def __submit(self, text):
         try:

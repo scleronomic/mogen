@@ -1,4 +1,4 @@
-import GridWorld.random_obstacles as randrect
+import World.random_obstacles as randrect
 import Util.Loading.load
 
 import Util.Loading.load_sql as load_sql
@@ -62,9 +62,9 @@ def plot_sample(directory,
     if ax is None:
         fig, ax = plt2.new_world_fig(limits=limits, n_dim=n_dim)
         if title is None:
-            fig.suptitle('GridWorld: {}, Path: {} | Objective: {:.4}'.format(i_world, i_sample_local, objective))
+            fig.suptitle('World: {}, Path: {} | Objective: {:.4}'.format(i_world, i_sample_local, objective))
         else:
-            fig.suptitle('GridWorld: {}, Path: {} | Objective: {:.4} | {}'.
+            fig.suptitle('World: {}, Path: {} | Objective: {:.4} | {}'.
                          format(i_world, i_sample_local, objective, title))
 
     else:

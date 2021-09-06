@@ -46,7 +46,7 @@ def get_table_name(file):
         return res['name'].values
 
 
-def rename_table(*, file, tables):
+def rename_table(file, tables):
     old_names = get_table_name(file=file)
 
     with open_db_connection(file=file, close=True) as con:
@@ -57,12 +57,12 @@ def rename_table(*, file, tables):
                 cur.execute(f"ALTER TABLE `{old}` RENAME TO `{new}`")
 
 
-def get_n_rows(file, table_name='db'):
+def get_n_rows(file, table):
     """
     Only works if the rowid's are [0, ....i_max]
     """
     with open_db_connection(file=file, close=True) as con:
-        return pd.read_sql_query(con=con, sql=f"SELECT COALESCE(MAX(rowid), 0) FROM {table_name}").values[0, 0]
+        return pd.read_sql_query(con=con, sql=f"SELECT COALESCE(MAX(rowid), 0) FROM {table}").values[0, 0]
 
 
 def get_n_samples(file, i_worlds=-1):
@@ -85,7 +85,7 @@ def __decompress_values(value, col):
 
 
 # Get and Set SQL values
-def get_values_sql(*, file, table='db', columns=None, rows=-1,
+def get_values_sql(file, table, columns=None, rows=-1,
                    values_only=False, squeeze_col=True, squeeze_row=True):
     """
     'i_samples' == i_samples_global
@@ -140,7 +140,7 @@ def get_values_sql(*, file, table='db', columns=None, rows=-1,
         return df
 
 
-def set_values_sql(*, file, table_name='db',
+def set_values_sql(file, table,
                    values, columns, rows=-1, lock=None):
     """
     Important multidimensional numpy arrays have to be saved as flat to SQL otherwise the order is messed up
@@ -167,7 +167,7 @@ def set_values_sql(*, file, table_name='db',
 
     values_rows_sql = change_tuple_order(values + (rows_sql,))
     values_rows_sql = list(values_rows_sql)
-    query = f"UPDATE {table_name} SET {columns_str} WHERE ROWID=?"
+    query = f"UPDATE {table} SET {columns_str} WHERE ROWID=?"
 
     with open_db_connection(file=file, close=True, lock=lock) as con:
         cur = con.cursor()
@@ -179,7 +179,7 @@ def set_values_sql(*, file, table_name='db',
         con.commit()
 
 
-def df2sql(*, df, file, table_name, if_exists='fail', lock=None):
+def df2sql(df, file, table, if_exists='fail', lock=None):
     """
     From DataFrame.to_sql():
         if_exists : {'fail', 'replace', 'append'}, default 'fail'
@@ -188,7 +188,7 @@ def df2sql(*, df, file, table_name, if_exists='fail', lock=None):
                    - append: If table exists, insert Measurements. Create if does not exist.
     """
     with open_db_connection(file=file, close=True, lock=lock) as con:
-        df.to_sql(name=table_name, con=con, if_exists=if_exists, index=False)
+        df.to_sql(name=table, con=con, if_exists=if_exists, index=False)
 
 
 # def __test_speed_get_values():

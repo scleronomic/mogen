@@ -132,7 +132,7 @@ def main():
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file=db_file, table_name='paths', if_exists='append')
+    df2sql(df=df, file=db_file, table='paths', if_exists='append')
     print(df)
     return df
 
@@ -142,5 +142,5 @@ if __name__ == '__main__':
     tic()
     df = main()
     toc()
-    print('New DB:', get_n_rows(file=db_file, table_name='paths'))
+    print('New DB:', get_n_rows(file=db_file, table='paths'))
 

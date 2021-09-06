@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.patches import Circle
 from wzk.DraggableCircle import DraggableCircle, DraggableCircleList
 
-import GridWorld.world2grid
+import World.world2grid
 import Kinematic.forward as forward
 import Optimizer.InitialGuess.path as path_i
 import Optimizer.gradient_descent as opt2
@@ -16,9 +16,9 @@ import Util.Loading.load_pandas as ld
 import Util.Loading.load_sql as ld_sql
 import Visualization.plotting_2 as plt2
 import Visualization.visualize_net as visn
-import GridWorld.obstacle_distance as cost_f
-import GridWorld.swept_volume
-import GridWorld.swept_volume as w2i
+import World.obstacle_distance as cost_f
+import World.swept_volume
+import World.swept_volume as w2i
 import X_Tests.parameter_old as par
 import definitions as d
 
@@ -51,7 +51,7 @@ class InteractiveSampleViewer(object):
         self.gd_step_size = 0.001
         self.adjust_gd_step_size = True
 
-        # GridWorld obstacles
+        # World obstacles
         world_df = ld.load_world_df(directory=directory)
         self.n_worlds = len(world_df)
         self.obstacle_img_list = ld.add_obstacle_img_column(world_df, values_only=True, verbose=0)
@@ -206,7 +206,7 @@ class InteractiveSampleViewer(object):
     def on_click_obst(self, event):
         x = event.xdata
         y = event.ydata
-        i, j = GridWorld.world2grid.grid_x2i([x, y])
+        i, j = World.world2grid.grid_x2i([x, y])
         self.change_obstacle_pixel(i, j)
         plt.draw()
 
@@ -215,8 +215,8 @@ class InteractiveSampleViewer(object):
         xy_click = np.array([e_clickb.xdata, e_clickb.ydata])
         xy_release = np.array([e_release.xdata, e_release.ydata])
 
-        ij_click = GridWorld.world2grid.grid_x2i(xy_click)
-        ij_release = GridWorld.world2grid.grid_x2i(xy_release)
+        ij_click = World.world2grid.grid_x2i(xy_click)
+        ij_release = World.world2grid.grid_x2i(xy_release)
 
         i_low = min(ij_click[0], ij_release[0])
         i_high = max(ij_click[0], ij_release[0])

@@ -37,7 +37,7 @@ class SpherePath:
         self.par = par
         self.exp = exp
 
-        # GridWorld obstacles
+        # World obstacles
         self.directory = None  # get_sample_dir(directory=directory)
 
         self.q = None

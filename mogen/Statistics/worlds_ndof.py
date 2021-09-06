@@ -47,7 +47,7 @@ for iw in range(n_worlds):
     hist_list.append(np.histogram(objective[iw], bins=bins, range=hist_range)[0])
 
 fig, ax = new_fig()
-ax.set_title('Distribution of the Objective Costs per GridWorld')
+ax.set_title('Distribution of the Objective Costs per World')
 ax.set_xlabel('Objective Cost')
 ax.set_ylabel('Number of RandomRectangles')
 
@@ -64,7 +64,7 @@ save_fig(img_dir + 'hist__Objective_Costs_per_World', fig=fig, save=save_img)
 objective_pw = objective.mean(axis=1)
 
 fig, ax = new_fig()
-ax.set_title('Distribution of the Mean Objective Costs per GridWorld')
+ax.set_title('Distribution of the Mean Objective Costs per World')
 ax.set_xlabel('Mean Objective Cost')
 ax.set_ylabel('Number of RandomRectangles')
 hist_range = (1, 3)
@@ -79,42 +79,42 @@ save_fig(img_dir + 'hist__Mean_Objective_Costs_per_World', fig=fig, save=save_im
 obst_coverage = obstacle_img.mean(axis=(1, 2))
 obst_coverage_argsort = np.argsort(obst_coverage)
 
-# Obstacle Coverage vs. Mean GridWorld Objective
+# Obstacle Coverage vs. Mean World Objective
 fig, ax = new_fig()
-ax.set_title('Obstacle Coverage vs. Mean GridWorld Objective')
+ax.set_title('Obstacle Coverage vs. Mean World Objective')
 ax.set_xlabel('Obstacle Coverage')
-ax.set_ylabel('Mean GridWorld Objective')
+ax.set_ylabel('Mean World Objective')
 img = ax.hist2d(obst_coverage, objective_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
 fig.colorbar(img, ax=ax)
 save_fig(img_dir + 'hist2D__Obstacle_Coverage_vs_Mean_World_Objective', fig=fig, save=save_img)
 
 # SPECIAL WORLDS
-# Hardest (most expensive) GridWorld
+# Hardest (most expensive) World
 iw = np.argmax(objective_pw)
 fig, ax = plt2.new_world_fig(limits=world_size)
 ax.set_title(
-    'GridWorld: {}, Coverage: {}, Mean Objective: {} - most expensive'.format(iw, obst_coverage[iw], objective_pw[iw]))
+    'World: {}, Coverage: {}, Mean Objective: {} - most expensive'.format(iw, obst_coverage[iw], objective_pw[iw]))
 plt2.plot_img_patch_w_outlines(limits=world_size, n_voxels=n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
 save_fig(img_dir + 'world__most_expensive', fig=fig, save=save_img)
 
-# Easiest (Cheapest) GridWorld
+# Easiest (Cheapest) World
 iw = np.argmin(objective_pw)
 fig, ax = plt2.new_world_fig(limits=world_size)
-ax.set_title('GridWorld: {}, Coverage: {}, Mean Objective: {} - cheapest'.format(iw, obst_coverage[iw], objective_pw[iw]))
+ax.set_title('World: {}, Coverage: {}, Mean Objective: {} - cheapest'.format(iw, obst_coverage[iw], objective_pw[iw]))
 plt2.plot_img_patch_w_outlines(limits=world_size, n_voxels=n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
 save_fig(img_dir + 'world__cheapest', fig=fig, save=save_img)
 
-# Densest GridWorld
+# Densest World
 iw = obst_coverage_argsort[-1]
 fig, ax = plt2.new_world_fig(limits=world_size)
-ax.set_title('GridWorld: {}, Coverage: {}, Mean Objective: {} - densest'.format(iw, obst_coverage[iw], objective_pw[iw]))
+ax.set_title('World: {}, Coverage: {}, Mean Objective: {} - densest'.format(iw, obst_coverage[iw], objective_pw[iw]))
 plt2.plot_img_patch_w_outlines(limits=world_size, n_voxels=n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
 save_fig(img_dir + 'world__densest', fig=fig, save=save_img)
 
 iw = obst_coverage_argsort[-2]
 fig, ax = plt2.new_world_fig(limits=world_size)
 ax.set_title(
-    'GridWorld: {}, Coverage: {}, Mean Objective: {} - second densest'.format(iw, obst_coverage[iw], objective_pw[iw]))
+    'World: {}, Coverage: {}, Mean Objective: {} - second densest'.format(iw, obst_coverage[iw], objective_pw[iw]))
 plt2.plot_img_patch_w_outlines(limits=world_size, n_voxels=n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
 save_fig(img_dir + 'world__densest2', fig=fig, save=save_img)
 # TODO way cheaper because of advantageous map layout, edges ar blocked and only the center is free
@@ -174,19 +174,19 @@ path_length_pw = path_length.reshape(n_worlds, d.n_samples_per_world).mean(axis=
 direct_path_length_pw = direct_path_length.reshape(n_worlds, d.n_samples_per_world).mean(axis=1)
 relative_path_length_pw = relative_path_length.reshape(n_worlds, d.n_samples_per_world).mean(axis=1)
 
-# Mean GridWorld Relative Path Length vs. Mean GridWorld Objective
+# Mean World Relative Path Length vs. Mean World Objective
 fig, ax = new_fig()
-ax.set_xlabel('Mean GridWorld Relative Path Length')
-ax.set_ylabel('Mean GridWorld Objective')
+ax.set_xlabel('Mean World Relative Path Length')
+ax.set_ylabel('Mean World Objective')
 # ax.scatter(relative_path_length_pw, objective_pw, alpha=0.5)
 img = ax.hist2d(relative_path_length_pw, objective_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
 fig.colorbar(img, ax=ax)
 save_fig(img_dir + 'scatter__MW_Relative_Path_Length_vs_MW_Objective', fig=fig, save=save_img)
 
-# Mean GridWorld Direct Path Length vs. Mean GridWorld Objective
+# Mean World Direct Path Length vs. Mean World Objective
 fig, ax = new_fig()
-ax.set_xlabel('Mean GridWorld Direct Path Length')
-ax.set_ylabel('Mean GridWorld Objective')
+ax.set_xlabel('Mean World Direct Path Length')
+ax.set_ylabel('Mean World Objective')
 # ax.scatter(direct_path_length_pw, objective_pw, alpha=0.5)  # TODO switch between scatter and hist2d
 img = ax.hist2d(direct_path_length_pw, objective_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
 fig.colorbar(img, ax=ax)
@@ -208,20 +208,20 @@ if plot_prediction:
     save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__network_loss', fig=fig, save=save_img)
     save_fig(img_dir + 'hist__Network_Loss', fig=fig, save=save_img)
 
-    # Mean GridWorld Objective vs. Mean Network Loss
+    # Mean World Objective vs. Mean Network Loss
     fig, ax = new_fig()
-    ax.set_xlabel('Mean GridWorld Objective')
-    ax.set_ylabel('Mean GridWorld Network Loss')
+    ax.set_xlabel('Mean World Objective')
+    ax.set_ylabel('Mean World Network Loss')
     # ax.scatter(objective_pw, loss_pw, alpha=0.5)
     img = ax.hist2d(objective_pw, loss_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
     fig.colorbar(img, ax=ax)
     save_fig(img_dir + 'hist2D__MW_Objective_vs_MW_Network_Loss', fig=fig, save=save_img)
     # TODO look at the outliers, why is a expensive worlds easy for the network and the other way round
 
-    # Mean GridWorld Direct Path Length vs. Mean Network Loss
+    # Mean World Direct Path Length vs. Mean Network Loss
     fig, ax = new_fig()
     ax.set_xlabel('Mean Direct Path Length')
-    ax.set_ylabel('Mean GridWorld Network Loss')
+    ax.set_ylabel('Mean World Network Loss')
     # ax.scatter(direct_path_length_pw, loss_pw, alpha=0.5)
     img = ax.hist2d(direct_path_length_pw, loss_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
     fig.colorbar(img, ax=ax)
