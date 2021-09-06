@@ -26,6 +26,7 @@ db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/StaticArm04_global.db'
 
 
+
 def set_sc_on(par):
     par.check.self_collision = True
     par.planning.self_collision = True
