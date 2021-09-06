@@ -6,7 +6,7 @@ from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
 
 from mopla import parameter
-from rokin.Robots import StaticArm, Justin19
+from rokin.Robots import StaticArm, Justin19, SingleSphere02
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
@@ -34,11 +34,13 @@ def set_sc_on(par):
 
 
 def init_par():
+    robot = SingleSphere02(radius=0.25)
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
-    robot = Justin19()
+    # robot = Justin19()
 
     bee_rate = 0.05
-    n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    # n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
 
     par = parameter.Parameter(robot=robot, obstacle_img='perlin')
     par.n_waypoints = 20
@@ -48,7 +50,7 @@ def init_par():
     par.oc.n_substeps = 3
     par.oc.n_substeps_check = 5
 
-    set_sc_on(par)
+    # set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
@@ -106,7 +108,7 @@ def test_samples():
 def main():
     # 5000
     # 17 h for 40 worlds
-    n_worlds = 50
+    # Single sphere 0-1000 perlin, 1000-2000 rect
     n_samples_per_world = 100
     from wzk.ray2 import ray
     ray.init(address='auto')
@@ -122,7 +124,7 @@ def main():
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(100, 300):
+    for i_w in range(0, 20):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
