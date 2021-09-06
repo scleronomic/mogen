@@ -6,7 +6,7 @@ from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
 
 from mopla import parameter
-from rokin.Robots import StaticArm, Justin19, SingleSphere02
+from rokin.Robots import StaticArm, Justin19, SingleSphere02, JustinArm07
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
@@ -26,16 +26,16 @@ db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/StaticArm04_global.db'
 
 
-
 def set_sc_on(par):
     par.check.self_collision = True
     par.planning.self_collision = True
-    par.sc.n_substeps_check = 5
     par.sc.n_substeps = 3
+    par.sc.n_substeps_check = 5
 
 
 def init_par():
     robot = SingleSphere02(radius=0.25)
+    robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
 
@@ -47,15 +47,15 @@ def init_par():
 
     par.check.obstacle_collision = True
     par.planning.obstacle_collision = True
-    par.oc.n_substeps = 5  # was 3 for justin
-    par.oc.n_substeps_check = 7
+    par.oc.n_substeps = 3  # was 3 for justin
+    par.oc.n_substeps_check = 6
 
     # set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 1000  # was 750
+    gd.n_steps = 750  # was 750, was 1000 for StaticArm / SingleSphere02
 
     n0, n1 = gd.n_steps//2, gd.n_steps//3
     n2 = gd.n_steps - (n0 + n1)
@@ -124,7 +124,7 @@ def main(iw0=None, iw1=None):
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(100, 2000):
+    for i_w in range(0, 2):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 

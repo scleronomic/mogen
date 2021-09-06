@@ -52,7 +52,7 @@ def sample_worlds(par, n_worlds, mode='perlin',
             if par.robot.n_dim == 3:
                 robot_3d.robot_path_interactive(q=par.robot.sample_q(100), robot=par.robot, mode='mesh',
                                                 obstacle_img=par.oc.img,
-                                                voxel_size=par.world.voxel_size, lower_left=par.world.limits[:, 0])
+                                                limits=par.world.limits)
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
     world_df = create_world_df(i_world=np.arange(n_worlds).tolist(), img_cmp=img_list)
@@ -84,24 +84,26 @@ def get_robot_max_reach(robot):
 
 def test():
     from mogen.Loading.load_sql import df2sql
-    from rokin.Robots import Justin19, SingleSphere02
-    robot = SingleSphere02(radius=0.25)
+    from rokin.Robots import Justin19, SingleSphere02, JustinArm07
+    # robot = SingleSphere02(radius=0.25)
 
+    robot = JustinArm07()
+    # print(get_robot_max_reach(robot))
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    # df = sample_worlds(par=par, n_worlds=1000,
-    #                    mode='perlin', kwargs_perlin=dict(threshold=0.4), verbose=0)
-
     df = sample_worlds(par=par, n_worlds=1000,
-                       mode='rectangles', kwargs_rectangles=dict(n=20, size_limits=(1, 10)),
-                       verbose=0)  #  special_dim=((0, 1, 2), 20)
+                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=0)
+
+    # df = sample_worlds(par=par, n_worlds=1000,
+    #                    mode='rectangles', kwargs_rectangles=dict(n=20, size_limits=(1, 10)),
+    #                    verbose=0)  #  special_dim=((0, 1, 2), 20)
     # df = sample_worlds(par=par, n_worlds=1000,
     #                    mode='both',
     #                    kwargs_rectangles=dict(n=20, size_limits=(1, 20)),
     #                    kwargs_perlin=dict(threshold=0.45))
 
-    df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='append')
+    df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='replace')
     print(df)
 
 
