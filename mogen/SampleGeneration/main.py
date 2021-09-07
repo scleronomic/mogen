@@ -25,9 +25,9 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
-# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07_world.db'
-db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07_world.db'
+# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07_world.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
 
 
@@ -42,8 +42,8 @@ def set_sc_on(par):
 
 
 def init_par():
-    # robot = SingleSphere02(radius=0.25)
-    robot = JustinArm07()
+    robot = SingleSphere02(radius=0.25)
+    # robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
     bee_rate = 0.05
