@@ -24,6 +24,7 @@ class Generation:
 
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+print(db_file)
 # db_file = '/StaticArm04_global.db'
 
 
@@ -106,7 +107,7 @@ def test_samples():
     pass
 
 
-def main(iw0=None, iw1=None):
+def main(iw_list=None):
     # 5000
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
@@ -125,7 +126,7 @@ def main(iw0=None, iw1=None):
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
-    for i_w in range(0, 2):
+    for i_w in range(iw_list):
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
 
@@ -140,10 +141,15 @@ def main(iw0=None, iw1=None):
     return df
 
 
+def meta_main():
+    worlds = np.arange(2, 200)
+    for iw in np.split(worlds, 40):
+        main(iw)
+    
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    df = main()
+    df = meta_main()
     toc()
     print('New DB:', get_n_rows(file=db_file, table='paths'))
 
