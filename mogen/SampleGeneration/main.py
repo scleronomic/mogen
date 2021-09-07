@@ -1,5 +1,7 @@
 import numpy as np
 
+from wzk.ray2 import ray
+
 from wzk import tic, toc
 from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
@@ -13,6 +15,8 @@ from mogen.Loading.load_pandas import create_path_df
 from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
 
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
+
+ray.init(address='auto')
 
 
 class Generation:
@@ -112,8 +116,6 @@ def main(iw_list=None):
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
     n_samples_per_world = 100
-    from wzk.ray2 import ray
-    ray.init(address='auto')
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
@@ -142,14 +144,15 @@ def main(iw_list=None):
 
 
 def meta_main():
-    worlds = np.arange(2, 200)
+    worlds = np.arange(0, 200)
     for iw in np.array_split(worlds, 40):
         main(iw)
-    
+
+
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    df = meta_main()
+    meta_main()
     toc()
     print('New DB:', get_n_rows(file=db_file, table='paths'))
 
