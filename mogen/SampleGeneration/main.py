@@ -143,7 +143,7 @@ def main(iw_list=None):
 
 
 def meta_main():
-    worlds = np.arange(0, 2000)
+    worlds = np.arange(60, 200)
     for iw in np.array_split(worlds, 100):
         main(iw)
 
