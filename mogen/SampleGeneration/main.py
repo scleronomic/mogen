@@ -26,8 +26,8 @@ class Generation:
                  'n_multi_start')
 
 
-# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
 print(db_file)
 # db_file = '/StaticArm04_global.db'
 
@@ -36,12 +36,12 @@ def set_sc_on(par):
     par.check.self_collision = True
     par.planning.self_collision = True
     par.sc.n_substeps = 3
-    par.sc.n_substeps_check = 5
+    par.sc.n_substeps_check = 6
 
 
 def init_par():
     robot = SingleSphere02(radius=0.25)
-    robot = JustinArm07()
+    # robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
 
@@ -53,7 +53,7 @@ def init_par():
 
     par.check.obstacle_collision = True
     par.planning.obstacle_collision = True
-    par.oc.n_substeps = 3  # was 3 for justin
+    par.oc.n_substeps = 5  # was 3 for justin
     par.oc.n_substeps_check = 6
 
     # set_sc_on(par)
@@ -90,7 +90,6 @@ def sample_path(gen, i_world, i_sample, img_cmp):
     get_q0 = InitialGuess.path.q0_random_wrapper(robot=par.robot, n_multi_start=gen.n_multi_start,
                                                  n_waypoints=par.n_waypoints, order_random=True, mode='inner')
     q0 = get_q0(start=q_start, end=q_end)
-
 
     tic()
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
@@ -144,8 +143,8 @@ def main(iw_list=None):
 
 
 def meta_main():
-    worlds = np.arange(0, 200)
-    for iw in np.array_split(worlds, 40):
+    worlds = np.arange(0, 2000)
+    for iw in np.array_split(worlds, 100):
         main(iw)
 
 
