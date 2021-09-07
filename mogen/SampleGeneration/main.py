@@ -16,7 +16,7 @@ from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
 
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
-# ray.init(address='auto')
+ray.init(address='auto')
 
 
 class Generation:
@@ -120,28 +120,28 @@ def main(iw_list=None):
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    gen = init_par()
-    df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
+    # gen = init_par()
+    # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
 
-    # @ray.remote
-    # def sample_ray(_i_w, _i_s):
-    #     gen = init_par()
-    #     return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
-    #
-    # futures = []
-    # for i_w in iw_list:
-    #     for i_s in range(n_samples_per_world):
-    #         futures.append(sample_ray.remote(i_w, i_s))
-    #
-    # df_list = ray.get(futures)
-    #
-    # df = df_list[0]
-    # for df_i in df_list[1:]:
-    #     df = df.append(df_i)
-    #
-    # df2sql(df=df, file=db_file, table='paths', if_exists='append')
-    # print(df)
-    # return df
+    @ray.remote
+    def sample_ray(_i_w, _i_s):
+        gen = init_par()
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
+
+    futures = []
+    for i_w in iw_list:
+        for i_s in range(n_samples_per_world):
+            futures.append(sample_ray.remote(i_w, i_s))
+
+    df_list = ray.get(futures)
+
+    df = df_list[0]
+    for df_i in df_list[1:]:
+        df = df.append(df_i)
+
+    df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    print(df)
+    return df
 
 
 def meta_main():
