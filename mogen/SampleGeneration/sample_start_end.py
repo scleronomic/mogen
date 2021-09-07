@@ -50,7 +50,8 @@ def __sample_acceptance_dist(start, end, rate=np.inf, joint_weighting=1):
         return False
 
 
-def sample_q_start_end(robot, feasibility_check=None, acceptance_rate=None):
+def sample_q_start_end(robot, feasibility_check=None, acceptance_rate=None,
+                       verbose=0):
 
     acceptance_rate = __arg_wrapper_acceptance_rate(acceptance_rate)
 
@@ -63,7 +64,7 @@ def sample_q_start_end(robot, feasibility_check=None, acceptance_rate=None):
     p = np.random.random() < acceptance_rate(None)
 
     for j in range(max_iter):
-        q_start, q_end = sample_q(robot=robot, shape=2, feasibility_check=feasibility_check)
+        q_start, q_end = sample_q(robot=robot, shape=2, feasibility_check=feasibility_check, verbose=verbose)
 
         pp = __sample_acceptance_bee(start=q_start, end=q_end,
                                      robot=robot, feasibility_check=feasibility_check)

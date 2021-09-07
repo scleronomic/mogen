@@ -16,7 +16,7 @@ from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
 
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
-ray.init(address='auto')
+# ray.init(address='auto')
 
 
 class Generation:
@@ -25,11 +25,13 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07_world.db'
+db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07_world.db'
+# db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
-# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+
 print(db_file)
-# db_file = '/StaticArm04_global.db'
 
 
 def set_sc_on(par):
@@ -40,11 +42,10 @@ def set_sc_on(par):
 
 
 def init_par():
-    robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()
+    # robot = SingleSphere02(radius=0.25)
+    robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
-
     bee_rate = 0.05
     n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
 
@@ -94,10 +95,11 @@ def sample_path(gen, i_world, i_sample, img_cmp):
     tic()
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
     toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
-    f = feasibility_check(q=q, par=par) == 1
-
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
     q = inner2full(inner=q, start=q_start, end=q_end)
+
+    f = feasibility_check(q=q, par=par) == 1
+
     n = len(q)
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
@@ -118,32 +120,32 @@ def main(iw_list=None):
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    # gen = init_par()
-    # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
+    gen = init_par()
+    df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
 
-    @ray.remote
-    def sample_ray(_i_w, _i_s):
-        gen = init_par()
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
-
-    futures = []
-    for i_w in iw_list:
-        for i_s in range(n_samples_per_world):
-            futures.append(sample_ray.remote(i_w, i_s))
-
-    df_list = ray.get(futures)
-
-    df = df_list[0]
-    for df_i in df_list[1:]:
-        df = df.append(df_i)
-
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
-    print(df)
-    return df
+    # @ray.remote
+    # def sample_ray(_i_w, _i_s):
+    #     gen = init_par()
+    #     return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
+    #
+    # futures = []
+    # for i_w in iw_list:
+    #     for i_s in range(n_samples_per_world):
+    #         futures.append(sample_ray.remote(i_w, i_s))
+    #
+    # df_list = ray.get(futures)
+    #
+    # df = df_list[0]
+    # for df_i in df_list[1:]:
+    #     df = df.append(df_i)
+    #
+    # df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    # print(df)
+    # return df
 
 
 def meta_main():
-    worlds = np.arange(60, 200)
+    worlds = np.arange(1000, 1200)
     for iw in np.array_split(worlds, 100):
         main(iw)
 
