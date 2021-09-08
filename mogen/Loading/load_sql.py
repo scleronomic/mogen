@@ -76,8 +76,12 @@ def get_n_samples(file, i_worlds=-1):
 
 def __decompress_values(value, col):
     # SQL saves everything in binary form -> convert back to numeric, expect the columns which are marked as cmp
-    print(value)
+    print(col)
     if isinstance(value[0], bytes) and col[-4:] != _CMP:
+        if col == 'feasible':
+            value = np.array([np.frombuffer(v, dtype=bool) for v in value])
+            print(value.mean())
+            return value
         if col in ['rectangle_pos', 'rectangle_position', 'rectangle_size']:
             value = np.array([np.frombuffer(v, dtype=int) for v in value])
         else:
