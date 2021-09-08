@@ -7,16 +7,16 @@ from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
 
+from rokin.Robots import *
+from rokin.Vis.robot_3d import robot_path_interactive
 from mopla import parameter
-from rokin.Robots import StaticArm, Justin19, SingleSphere02, JustinArm07
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
 from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
-
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
-ray.init(address='auto')
+# ray.init(address='auto')
 
 
 class Generation:
@@ -25,9 +25,9 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07_world.db'
-# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/SingleSphere02.db'
+db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
 
 
@@ -42,12 +42,13 @@ def set_sc_on(par):
 
 
 def init_par():
-    robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()
+    # robot = SingleSphere02(radius=0.25)
+    robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
     bee_rate = 0.05
-    n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    # n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
 
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.n_waypoints = 20
@@ -77,7 +78,7 @@ def init_par():
     return gen
 
 
-def sample_path(gen, i_world, i_sample, img_cmp):
+def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     np.random.seed()
 
     par = gen.par
@@ -104,6 +105,10 @@ def sample_path(gen, i_world, i_sample, img_cmp):
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
+    if verbose > 0:
+        j = np.argmin(o + f*o.max())
+        robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits)
+
     return create_path_df(i_world=i_world, i_sample=i_sample,
                           q0=q0, q=q, objective=o, feasible=f)
 
@@ -120,8 +125,8 @@ def main(iw_list=None):
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    # gen = init_par()
-    # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0])
+    gen = init_par()
+    df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
 
     @ray.remote
     def sample_ray(_i_w, _i_s):
@@ -141,7 +146,7 @@ def main(iw_list=None):
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    # df2sql(df=df, file=db_file, table='paths', if_exists='append')
     print(df)
     return df
 
