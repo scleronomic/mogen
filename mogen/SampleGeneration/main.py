@@ -47,8 +47,8 @@ def init_par():
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
     bee_rate = 0.05
-    # n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
-    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
+    n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    # n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 9]]
 
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.n_waypoints = 20
@@ -63,7 +63,7 @@ def init_par():
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 750  # was 750, was 1000 for StaticArm / SingleSphere02
+    gd.n_steps = 100  # was 750, was 1000 for StaticArm / SingleSphere02
 
     n0, n1 = gd.n_steps//2, gd.n_steps//3
     n2 = gd.n_steps - (n0 + n1)
@@ -106,8 +106,9 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     i_sample = np.ones(n, dtype=int) * i_sample
 
     if verbose > 0:
-        j = np.argmin(o + f*o.max())
-        robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits)
+        j = np.argmin(o + (f==-1)*o.max())
+        # robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits)
+        robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits, mode='sphere')
 
     return create_path_df(i_world=i_world, i_sample=i_sample,
                           q0=q0, q=q, objective=o, feasible=f)
@@ -121,12 +122,12 @@ def main(iw_list=None):
     # 5000
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
-    n_samples_per_world = 3
+    n_samples_per_world = 100
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
-    gen = init_par()
-    df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
+    # gen = init_par()
+    # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
 
     @ray.remote
     def sample_ray(_i_w, _i_s):
@@ -146,13 +147,13 @@ def main(iw_list=None):
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    # df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    df2sql(df=df, file=db_file, table='paths', if_exists='append')
     print(df)
     return df
 
 
 def meta_main():
-    worlds = np.arange(1000, 1200)
+    worlds = np.arange(200, 400)
     for iw in np.array_split(worlds, 10):
         main(iw)
 
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     from wzk import tic, toc
     tic()
     # meta_main()
-    df = main(iw_list=[0, 1])
+    # df = main(iw_list=[0, 1])
     toc()
     print('New DB:', get_n_rows(file=db_file, table='paths'))
 
