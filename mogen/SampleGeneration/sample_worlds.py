@@ -93,7 +93,7 @@ def test():
     par.check.self_collision = False
     par.check.obstacle_collision = True
     df = sample_worlds(par=par, n_worlds=1000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
+                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=5)
 
     # for i in range(20):
     #     df = sample_worlds(par=par, n_worlds=5000,

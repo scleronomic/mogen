@@ -26,8 +26,8 @@ class Generation:
                  'n_multi_start')
 
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
-# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07_world.db'
-db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
 
 
