@@ -27,7 +27,7 @@ class Generation:
 
 db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07_world.db'
-# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07_world.db'
+# db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/SingleSphere02.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
 
 
@@ -116,7 +116,7 @@ def main(iw_list=None):
     # 5000
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
-    n_samples_per_world = 100
+    n_samples_per_world = 3
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
@@ -131,9 +131,11 @@ def main(iw_list=None):
     futures = []
     for i_w in iw_list:
         for i_s in range(n_samples_per_world):
+            # futures.append(sample_ray(i_w, i_s))
             futures.append(sample_ray.remote(i_w, i_s))
 
     df_list = ray.get(futures)
+    # df_list = futures
 
     df = df_list[0]
     for df_i in df_list[1:]:
@@ -153,7 +155,8 @@ def meta_main():
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    meta_main()
+    # meta_main()
+    df = main(iw_list=[0, 1])
     toc()
     print('New DB:', get_n_rows(file=db_file, table='paths'))
 
