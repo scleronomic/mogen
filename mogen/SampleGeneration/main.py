@@ -16,7 +16,7 @@ from mogen.Loading.load_pandas import create_path_df
 from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
 from mogen.SampleGeneration.sample_start_end import sample_q_start_end
 
-# ray.init(address='auto')
+ray.init(address='auto')
 
 
 class Generation:
@@ -55,15 +55,15 @@ def init_par():
 
     par.check.obstacle_collision = True
     par.planning.obstacle_collision = True
-    par.oc.n_substeps = 5  # was 3 for justin
-    par.oc.n_substeps_check = 6
+    par.oc.n_substeps = 8  # was 3 for justin
+    par.oc.n_substeps_check = 10
 
     # set_sc_on(par)
 
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 100  # was 750, was 1000 for StaticArm / SingleSphere02
+    gd.n_steps = 1000  # was 750, was 1000 for StaticArm / SingleSphere02
 
     n0, n1 = gd.n_steps//2, gd.n_steps//3
     n2 = gd.n_steps - (n0 + n1)
@@ -153,15 +153,15 @@ def main(iw_list=None):
 
 
 def meta_main():
-    worlds = np.arange(200, 400)
-    for iw in np.array_split(worlds, 10):
+    worlds = np.arange(0, 200)
+    for iw in np.array_split(worlds, 40):
         main(iw)
 
 
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    # meta_main()
+    meta_main()
     # df = main(iw_list=[0, 1])
     toc()
     print('New DB:', get_n_rows(file=db_file, table='paths'))
