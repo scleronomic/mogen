@@ -29,6 +29,7 @@ class Generation:
 db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
 np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.npy'
 
+
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
 # db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
 # db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/SingleSphere02.db'
