@@ -26,8 +26,8 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.db'
-np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/StaticArm04.npy'
+db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.npy'
 
 
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
@@ -47,8 +47,8 @@ def set_sc_on(par):
 
 def init_par():
     # robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()
-    robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+    robot = JustinArm07()
+    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
     bee_rate = 0.05
     n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
