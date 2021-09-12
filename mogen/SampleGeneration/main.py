@@ -6,6 +6,7 @@ from wzk import tic, toc
 from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
+from wzk.dicts_lists_tuples import change_tuple_order
 
 from rokin.Robots import *
 from rokin.Vis.robot_3d import robot_path_interactive
@@ -26,10 +27,11 @@ class Generation:
                  'n_multi_start')
 
 # db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.db'
-db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
+# db_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/JustinArm07.db'
 # db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
+db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/SingleSphere02.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
-
+np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.npy'
 
 print(db_file)
 
@@ -42,8 +44,8 @@ def set_sc_on(par):
 
 
 def init_par():
-    # robot = SingleSphere02(radius=0.25)
-    robot = JustinArm07()
+    robot = SingleSphere02(radius=0.25)
+    # robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
     # robot = Justin19()
     bee_rate = 0.05
@@ -63,11 +65,15 @@ def init_par():
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 1000  # was 750, was 1000 for StaticArm / SingleSphere02
+    gd.n_steps = 200  # was 750, was 1000 for StaticArm / SingleSphere02
 
-    n0, n1 = gd.n_steps//2, gd.n_steps//3
-    n2 = gd.n_steps - (n0 + n1)
-    gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(1), np.ones(n1)*np.deg2rad(0.1), np.ones(n2)*np.deg2rad(0.01)])
+    gd.return_x_list = True
+    # n0, n1 = gd.n_steps//3, gd.n_steps//3
+    # n2 = gd.n_steps - (n0 + n1)
+    # gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(1), np.ones(n1)*np.deg2rad(0.1), np.ones(n2)*np.deg2rad(0.01)])
+
+    gd.clipping = np.ones(gd.n_steps) * np.deg2rad(3)
+    gd.clipping = 0.1
 
     gen = Generation()
     gen.par = par
@@ -94,24 +100,27 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     q0 = get_q0(start=q_start, end=q_end)
 
     tic()
-    q, o = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
+    q, o, (x_list, o_list) = gradient_descent.gd_chomp(q0=q0.copy(), q_start=q_start, q_end=q_end, gd=gd, par=par, verbose=1)
     toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
     q0 = inner2full(inner=q0, start=q_start, end=q_end)
     q = inner2full(inner=q, start=q_start, end=q_end)
 
     f = feasibility_check(q=q, par=par) == 1
+    f_list = np.array([feasibility_check(q=q_i, par=par) == 1 for q_i in x_list])
+
+    return o_list.T, f_list.T
 
     n = len(q)
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
     if verbose > 0:
-        j = np.argmin(o + (f==-1)*o.max())
+        j = np.argmin(o + (f == -1)*o.max())
         # robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits)
         robot_path_interactive(q=q[j], robot=par.robot, obstacle_img=obstacle_img, limits=par.world.limits, mode='sphere')
 
-    return create_path_df(i_world=i_world, i_sample=i_sample,
-                          q0=q0, q=q, objective=o, feasible=f)
+    # return create_path_df(i_world=i_world, i_sample=i_sample,
+    #                       q0=q0, q=q, objective=o, feasible=f)
 
 
 def test_samples():
@@ -122,7 +131,7 @@ def main(iw_list=None):
     # 5000
     # 17 h for 40 worlds
     # Single sphere 0-1000 perlin, 1000-2000 rect
-    n_samples_per_world = 100
+    n_samples_per_world = 10
 
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
@@ -143,13 +152,18 @@ def main(iw_list=None):
     df_list = ray.get(futures)
     # df_list = futures
 
-    df = df_list[0]
-    for df_i in df_list[1:]:
-        df = df.append(df_i)
+    df_list = change_tuple_order(tpl=df_list)
+    o_list, f_list = np.array(df_list[0]), np.array(df_list[1])
 
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
-    print(df)
-    return df
+    np.save(file=np_result_file, arr=(o_list, f_list))
+
+    # df = df_list[0]
+    # for df_i in df_list[1:]:
+    #     df = df.append(df_i)
+    #
+    # df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    # print(df)
+    # return df
 
 
 def meta_main():
@@ -161,8 +175,10 @@ def meta_main():
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    meta_main()
-    # df = main(iw_list=[0, 1])
+    # meta_main()
+    df = main(iw_list=np.arange(100))
     toc()
-    print('New DB:', get_n_rows(file=db_file, table='paths'))
+    # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
+
+#
