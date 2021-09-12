@@ -31,7 +31,7 @@ class Generation:
 # db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/JustinArm07.db'
 db_file = '/Users/jote/Documents/Code/Python/DLR/mogen/SingleSphere02.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_global2.db'
-np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/Justin19.npy'
+np_result_file = '/volume/USERSTORE/tenh_jo/0_Data/Samples/SingleSphere02.npy'
 
 print(db_file)
 
