@@ -41,8 +41,8 @@ print(db_file)
 def set_sc_on(par):
     par.check.self_collision = True
     par.planning.self_collision = True
-    par.sc.n_substeps = 3
-    par.sc.n_substeps_check = 6
+    par.sc.n_substeps = 8
+    par.sc.n_substeps_check = 10
 
 
 def init_par():
