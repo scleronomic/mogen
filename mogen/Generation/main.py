@@ -13,10 +13,10 @@ from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql, get_values_sql, get_n_rows
+from mogen.Loading.load_sql import df2sql, get_values_sql
 from mogen.Generation.sample_start_end import sample_q_start_end
 
-# ray.init(address='auto')
+ray.init(address='auto')
 
 
 class Generation:
@@ -26,11 +26,12 @@ class Generation:
                  'n_multi_start')
 
 robot0 = SingleSphere02(radius=0.25)
-# db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
-db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
+db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
+# db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
 # np_result_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.npy'
 
 print(db_file)
+
 
 def set_sc_on(par):
     par.check.self_collision = True
@@ -116,21 +117,24 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     q00 = q0[:1]
     q0 = q0[1:]
 
+    tic()
     df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
     print(i_sample)
     print(df0.feasible[0])
     if df0.feasible[0]:
+        toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
         return df0
 
     df = __chomp(q0=q0, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
 
     if verbose > 0:
-        j = np.argmin(o + (df.feasible == -1)*df.objective.max())
+        j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
         robot_path_interactive(q=df.q[j], robot=par.robot,
                                kwargs_world=dict(img=obstacle_img, limits=par.world.limits),
                                kwargs_robot=dict(mode='sphere'))
 
     df = df0.append(df)
+    toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
     return df
 
 
@@ -139,7 +143,7 @@ def test_samples():
 
 
 def main(iw_list=None):
-    n_samples_per_world = 10
+    n_samples_per_world = 1000
     worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
 
     # gen = init_par()
@@ -178,7 +182,7 @@ if __name__ == '__main__':
     from wzk import tic, toc
     tic()
     # meta_main()
-    df = main(iw_list=np.arange(100))
+    df = main(iw_list=np.arange(3))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
