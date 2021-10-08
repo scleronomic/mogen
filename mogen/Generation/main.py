@@ -165,7 +165,9 @@ def main(iw_list=None):
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
+    tic()
     df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    toc(f'Time for appending {len(df)} rows')
     print(df)
     return df
 
