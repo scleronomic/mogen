@@ -149,7 +149,7 @@ def main(iw_list=None):
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
 
-    # @ray.remote
+    @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par()
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
