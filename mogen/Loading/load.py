@@ -19,7 +19,7 @@ def arg_wrapper__i_world(i_worlds, file=None):
     if isinstance(i_worlds, (int, np.int32, np.int64)):
         i_worlds = int(i_worlds)
         if i_worlds == -1:
-            n_worlds = load_sql.get_n_rows(file=file)
+            n_worlds = load_sql.get_n_rows(file=file, table='worlds')
             i_worlds = list(range(n_worlds))
         else:
             i_worlds = [i_worlds]

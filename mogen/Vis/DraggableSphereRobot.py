@@ -113,7 +113,7 @@ def test():
     ax.set_ylim(-2, 2)
     dsr = DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot, style_arm=dict(color='k', lw=3), style_path={})
 
-    def cb(*args):
+    def cb(*args):  # noqa
         print(dsr.get_q())
 
     dsr.add_callback(cb)

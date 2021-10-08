@@ -66,7 +66,7 @@ def get_n_rows(file, table):
 
 
 def get_n_samples(file, i_worlds=-1):
-    i_worlds_all = get_values_sql(file=file, columns='i_world', values_only=True)
+    i_worlds_all = get_values_sql(file=file, columns='i_world', values_only=True, table='paths')
     unique, counts = np.unique(i_worlds_all, return_counts=True)
     if i_worlds == -1:
         return counts
@@ -77,7 +77,7 @@ def get_n_samples(file, i_worlds=-1):
 def __decompress_values(value, col):
     # SQL saves everything in binary form -> convert back to numeric, expect the columns which are marked as cmp
     if isinstance(value[0], bytes) and col[-4:] != _CMP:
-        if col == 'feasible':
+        if col == 'feasible':  # TODO
             print(col)
             value = np.array([np.frombuffer(v, dtype=bool) for v in value])
             print(value.mean())

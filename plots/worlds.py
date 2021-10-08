@@ -1,15 +1,10 @@
 import matplotlib as mpl
 import numpy as np
-from wzk import new_fig, get_points_inbetween
+from wzk import new_fig, save_fig, get_points_inbetween
 
-import World.world2grid
-import Nets.Util.loss2 as c_loss
-import Optimizer.path as path
-import Util.Loading.load_pandas as ld
-import Util.Loading.load_sql as ld_sql
+import mogen.Loading.load_pandas as ld
+import mogen.Loading.load_sql as ld_sql
 import Util.Visualization.plotting_2 as plt2
-import World.swept_volume
-from definitions import *
 
 directory = '2D/SR/2dof/'  # '2D/FB/3dof/'
 
@@ -124,6 +119,7 @@ ax.set_ylabel('Mean World Objective')
 img = ax.hist2d(obst_coverage, objective_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
 fig.colorbar(img, ax=ax)
 save_fig(img_dir + 'hist2D__Obstacle_Coverage_vs_Mean_World_Objective', fig=fig, save=save_img)
+
 
 # SPECIAL WORLDS
 if plot_worlds:

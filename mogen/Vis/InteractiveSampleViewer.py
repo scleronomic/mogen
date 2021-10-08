@@ -65,6 +65,7 @@ class InteractiveSampleViewer:
         self.x_opt_plot_h = None
 
         # Initialize plot
+        self.obstacle_colors = np.array(['k'])
         self.fig, self.ax = new_world_fig(limits=self.par.world.limits,
                                           title=f"world={self.i_world} | sample={self.i_sample_local}")
 

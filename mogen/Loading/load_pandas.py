@@ -23,7 +23,7 @@ def initialize_df():
 
 
 def create_world_df(i_world, img_cmp):
-    data = {key:value for key, value in zip(world_df_columns, [i_world, img_cmp])}
+    data = {key: value for key, value in zip(world_df_columns, [i_world, img_cmp])}
     return pd.DataFrame(data)
 
 

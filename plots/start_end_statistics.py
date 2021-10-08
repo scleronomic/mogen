@@ -2,7 +2,7 @@ import numpy as np
 import scipy.interpolate as interp
 from wzk import new_fig, print_progress, get_points_inbetween, binomial, grid_x2i
 
-from definitions import PROJECT_DATA_UTIL
+from mopla.definitions import PROJECT_DATA_UTIL
 
 
 def get_distance_distribution_file(n_dim, mode):
