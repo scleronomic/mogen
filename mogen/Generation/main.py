@@ -119,8 +119,6 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
     tic()
     df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
-    print(i_sample)
-    print(df0.feasible[0])
     if df0.feasible[0]:
         toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
         return df0
@@ -167,13 +165,13 @@ def main(iw_list=None):
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    df2sql(df=df, file=db_file, table='paths', if_exists='replace')
+    df2sql(df=df, file=db_file, table='paths', if_exists='append')
     print(df)
     return df
 
 
 def meta_main():
-    worlds = np.arange(0, 200)
+    worlds = np.arange(3, 10000)
     for iw in np.array_split(worlds, 40):
         main(iw)
 
@@ -181,8 +179,8 @@ def meta_main():
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    # meta_main()
-    df = main(iw_list=np.arange(3))
+    meta_main()
+    # df = main(iw_list=np.arange(3))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
