@@ -25,8 +25,10 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
+
 robot0 = SingleSphere02(radius=0.25)
-db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
+# db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
+db_file = f'/net/rmc-lx0062/tenh_jo/{robot0.id}.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
 # np_result_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.npy'
 
@@ -166,23 +168,22 @@ def main(iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    df2sql(df=df, file=db_file, table='paths', if_exists='replace')
     toc(f'Time for appending {len(df)} rows')
-    # print(df)
     return df
 
 
 def meta_main():
     worlds = np.arange(1, 10000)
-    for iw in np.array_split(worlds, 50):
+    for iw in np.array_split(worlds, 500):
         main(iw)
 
 
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    meta_main()
-    # df = main(iw_list=np.arange(1))
+    # meta_main()
+    df = main(iw_list=np.arange(1))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
