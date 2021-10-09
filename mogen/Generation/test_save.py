@@ -9,8 +9,8 @@ fileB = '/net/rmc-lx0062/home_local/tenh_jo/B.db'
 
 
 n = 10000
-i_world = np.range(n)
-i_sample = np.range(n)
+i_world = np.arange(n)
+i_sample = np.arange(n)
 f = np.ones(n,dtype=bool)
 o = np.random.random(n)
 q = np.random.random((n, 20, 10))
