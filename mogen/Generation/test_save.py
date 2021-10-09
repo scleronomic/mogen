@@ -9,7 +9,7 @@ fileB = '/net/rmc-lx0062/home_local/tenh_jo/B.db'
 fileC = '/home_local/tenh_jo/C.db'
 
 
-n = 100000
+n = 1000000
 i_world = np.arange(n)
 i_sample = np.arange(n)
 f = np.ones(n,dtype=bool)
