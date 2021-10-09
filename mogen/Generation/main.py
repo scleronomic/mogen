@@ -28,7 +28,7 @@ class Generation:
 
 robot0 = SingleSphere02(radius=0.25)
 # db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
-db_file = f'/net/rmc-lx0062/tenh_jo/{robot0.id}.db'
+db_file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot0.id}.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
 # np_result_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.npy'
 
