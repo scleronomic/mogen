@@ -5,7 +5,8 @@ from mogen.Loading.load_pandas import create_path_df
 from mogen.Loading.load_sql import df2sql
 
 fileA = f'/volume/USERSTORE/tenh_jo/A.db'
-fileB = '/rmc-lx0062/home_local/tenh_jo/B.db'
+fileB = 'net/rmc-lx0062/home_local/tenh_jo/B.db'
+fileC = '/home_local/tenh_jo/B.db'
 
 
 n = 10000
@@ -24,4 +25,8 @@ toc('userstore')
 
 tic()
 df2sql(df=df, file=fileB, table='paths', if_exists='append')
+toc('home_local')
+
+tic()
+df2sql(df=df, file=fileC, table='paths', if_exists='append')
 toc('home_local')
