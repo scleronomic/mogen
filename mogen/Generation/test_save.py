@@ -4,8 +4,8 @@ from wzk import tic, toc
 from mogen.Loading.load_pandas import create_path_df
 from mogen.Loading.load_sql import df2sql
 
-fileA = f'/volume/USERSTORE/tenh_jo/A.db'
-fileB = 'net/rmc-lx0062/home_local/tenh_jo/B.db'
+fileA = '/volume/USERSTORE/tenh_jo/A.db'
+fileB = '/net/rmc-lx0062/home_local/tenh_jo/B.db'
 fileC = '/home_local/tenh_jo/B.db'
 
 
