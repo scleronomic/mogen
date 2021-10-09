@@ -19,9 +19,9 @@ df = create_path_df(i_world=i_world, i_sample=i_sample, q0=q0, q=q, objective=o,
 
 print(n)
 tic()
-df2sql(df=df, file=fileA, table='paths')
+df2sql(df=df, file=fileA, table='paths', if_exists='append')
 toc('userstore')
 
 tic()
-df2sql(df=df, file=fileB, table='paths')
+df2sql(df=df, file=fileB, table='paths', if_exists='append')
 toc('home_local')
