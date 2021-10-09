@@ -13,7 +13,7 @@ from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql, get_values_sql
+from mogen.Loading.load_sql import df2sql, get_values_sql, vacuum
 from mogen.Generation.sample_start_end import sample_q_start_end
 
 ray.init(address='auto')
@@ -169,6 +169,7 @@ def main(iw_list=None):
 
     tic()
     df2sql(df=df, file=db_file, table='paths', if_exists='replace')
+    vacuum(file=db_file)
     toc(f'Time for appending {len(df)} rows')
     return df
 
