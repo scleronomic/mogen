@@ -31,8 +31,8 @@ robot0 = SingleSphere02(radius=0.25)
 db_file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot0.id}.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
 # np_result_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.npy'
-
-print(db_file)
+# df = get_values_sql(file=db_file, table='paths')
+# print(db_file)
 
 
 def set_sc_on(par):
@@ -169,14 +169,14 @@ def main(iw_list=None):
 
     tic()
     df2sql(df=df, file=db_file, table='paths', if_exists='append')
-    vacuum(file=db_file)
+    # vacuum(file=db_file)
     toc(f'Time for appending {len(df)} rows')
     return df
 
 
 def meta_main():
-    worlds = np.arange(1, 10000)
-    for iw in np.array_split(worlds, 500):
+    worlds = np.arange(380, 1000)
+    for iw in np.array_split(worlds, len(worlds)//20):
         main(iw)
 
 
