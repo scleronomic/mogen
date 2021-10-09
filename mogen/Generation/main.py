@@ -168,7 +168,7 @@ def main(iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=db_file, table='paths', if_exists='replace')
+    df2sql(df=df, file=db_file, table='paths', if_exists='append')
     vacuum(file=db_file)
     toc(f'Time for appending {len(df)} rows')
     return df
@@ -183,8 +183,8 @@ def meta_main():
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    # meta_main()
-    df = main(iw_list=np.arange(1))
+    meta_main()
+    # df = main(iw_list=np.arange(1))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
