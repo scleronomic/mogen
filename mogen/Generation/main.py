@@ -168,7 +168,7 @@ def main(iw_list=None):
     tic()
     df2sql(df=df, file=db_file, table='paths', if_exists='append')
     toc(f'Time for appending {len(df)} rows')
-    print(df)
+    # print(df)
     return df
 
 
