@@ -25,8 +25,8 @@ class Generation:
                  'bee_rate',
                  'n_multi_start')
 
-
-robot0 = SingleSphere02(radius=0.25)
+robot0 = Justin19()
+# robot0 = SingleSphere02(radius=0.25)
 # db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
 db_file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot0.id}.db'
 # db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
