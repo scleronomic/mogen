@@ -43,12 +43,12 @@ def set_sc_on(par):
 
 
 def init_par():
-    robot = SingleSphere02(radius=0.25)
+    # robot = SingleSphere02(radius=0.25)
     # robot = JustinArm07()
     # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
-    # robot = Justin19()
+    robot = Justin19()
     bee_rate = 0.0
-    n_multi_start = [[0, 1, 2, 3], [1, 17, 16, 16]]
+    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 10]]
 
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.n_waypoints = 20
@@ -63,12 +63,12 @@ def init_par():
     gd = parameter.GradientDescent()
     gd.opt = Naive(ss=1)
     gd.n_processes = 1
-    gd.n_steps = 1000  # was 750, was 1000 for StaticArm / SingleSphere02
+    gd.n_steps = 100  # was 750, was 1000 for StaticArm / SingleSphere02
 
     gd.return_x_list = False
-    n0, n1 = gd.n_steps//3, gd.n_steps//3
+    n0, n1 = gd.n_steps//2, gd.n_steps//3
     n2 = gd.n_steps - (n0 + n1)
-    gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(1), np.ones(n1)*np.deg2rad(0.1), np.ones(n2)*np.deg2rad(0.01)])
+    gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(3), np.ones(n1)*np.deg2rad(1), np.ones(n2)*np.deg2rad(0.1)])
 
     # gd.clipping = np.ones(gd.n_steps) * np.deg2rad(3)
     # gd.clipping = 0.1
@@ -168,7 +168,7 @@ def main(iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
+    df2sql(df=df, file=db_file, table='paths', if_exists='replace')
     # vacuum(file=db_file)
     toc(f'Time for appending {len(df)} rows')
     return df
@@ -183,8 +183,8 @@ def meta_main():
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
-    meta_main()
-    # df = main(iw_list=np.arange(1))
+    # meta_main()
+    df = main(iw_list=np.arange(1))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
