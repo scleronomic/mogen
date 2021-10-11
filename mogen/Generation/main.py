@@ -175,16 +175,17 @@ def main(iw_list=None):
 
 
 def meta_main():
-    worlds = np.arange(1, 10000)
-    for iw in np.array_split(worlds, len(worlds)//10):
-        main(iw)
+    for i in range(100):
+        worlds = np.arange(1000)
+        for iw in np.array_split(worlds, len(worlds)//10):
+            main(iw)
 
 
 if __name__ == '__main__':
     from wzk import tic, toc
     tic()
     meta_main()
-    # df = main(iw_list=np.arange(1))
+    # df = main(iw_list=np.arange(9999, 10000))
     toc()
     # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
