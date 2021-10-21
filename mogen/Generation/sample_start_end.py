@@ -14,8 +14,7 @@ from mopla.Optimizer import InitialGuess
 #   If 100 / 100 succeed, than the problem was easy
 #   But if only 10 / 100 succeed, can the problem itself still be easy, solvable through a straight line
 #   but all the multistarts get stuck in thee difficult environment
-
-# TODO idea: if n_samples > 1 use a distance matrix to find nice problems
+# Idea: if n_samples > 1 use a distance matrix to find nice problems
 
 
 def __arg_wrapper_acceptance_rate(fun=None):

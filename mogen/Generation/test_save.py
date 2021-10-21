@@ -2,7 +2,7 @@ import numpy as np
 from wzk import tic, toc
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql
+from wzk.sql2 import df2sql
 
 fileA = '/volume/USERSTORE/tenh_jo/A.db'
 fileB = '/net/rmc-lx0062/home_local/tenh_jo/B.db'

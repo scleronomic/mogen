@@ -3,7 +3,7 @@ import numpy as np
 from wzk import new_fig, save_fig, get_points_inbetween
 
 import mogen.Loading.load_pandas as ld
-import mogen.Loading.load_sql as ld_sql
+import wzk.sql2 as ld_sql
 import Util.Visualization.plotting_2 as plt2
 
 directory = '2D/SR/2dof/'  # '2D/FB/3dof/'

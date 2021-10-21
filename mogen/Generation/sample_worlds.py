@@ -83,8 +83,8 @@ def get_robot_max_reach(robot):
 
 
 def test():
-    from mogen.Loading.load_sql import df2sql
-    from rokin.Robots import Justin19, SingleSphere02, JustinArm07
+    from wzk.sql2 import df2sql
+    from rokin.Robots import SingleSphere02, JustinArm07
     robot = SingleSphere02(radius=0.25)
     robot = JustinArm07()
 

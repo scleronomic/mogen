@@ -1,11 +1,9 @@
 import numpy as np
 
 from wzk.ray2 import ray
-from wzk import tic, toc
 from wzk.trajectory import inner2full
 from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
-from wzk.dicts_lists_tuples import change_tuple_order
 
 from rokin.Robots import *
 from rokin.Vis.robot_3d import robot_path_interactive
@@ -13,7 +11,7 @@ from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load_pandas import create_path_df
-from mogen.Loading.load_sql import df2sql, get_values_sql, vacuum
+from wzk.sql2 import df2sql, get_values_sql
 from mogen.Generation.sample_start_end import sample_q_start_end
 
 ray.init(address='auto')

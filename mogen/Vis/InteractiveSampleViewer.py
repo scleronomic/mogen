@@ -1,10 +1,7 @@
-import numpy as np
-
-from wzk.mpl import create_button
 from rokin.Vis.robot_2d import *
 from mopla import parameter
 
-from mogen.Loading import load_sql
+from wzk import sql2
 from mogen.Vis import WorldViewer, DraggableSphereRobot, SpherePath
 
 
@@ -47,7 +44,7 @@ class InteractiveSampleViewer:
         if self.file is None:
             self.n_worlds = 0
         else:
-            self.n_worlds = load_sql.get_n_rows(file=self.file)
+            self.n_worlds = sql2.get_n_rows(file=self.file, table='worlds')
 
         self.q_start = None
         self.q_end = None
@@ -202,7 +199,6 @@ if __name__ == '__main__':
 
 # TODO write before optimizer call the right location for this function
 # parameter.initialize_oc_par(oc=self.par.oc, world=self.par.world, obstacle_img=self.obstacle_img)
-
 
     #         if event.key in ['U', 'u']:
     #             # ip = self.get_prediction_input()

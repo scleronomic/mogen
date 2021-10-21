@@ -1,6 +1,6 @@
 import numpy as np
 
-from mogen.Loading import load_sql as load_sql
+from wzk import sql2 as load_sql
 from wzk.training import n2train_test, train_test_split  # noqa
 
 n_samples_per_world = 1000
