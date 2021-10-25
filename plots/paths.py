@@ -1,13 +1,13 @@
 import numpy as np
 from wzk import new_fig
 from wzk import object2numeric_array
+from wzk.sql2 import get_values_sql
 
-import Util.Loading.load_sql as ld_sql
-import Util.Visualization.plotting_2 as plt2
-import definitions as dfn
+import rokin.Vis.robot_2d as plt2
 
-file = dfn.DLR_HOMELOCAL_DATA_SAMPLES + '2D/SR/2dof/path.db'
-path_db = ld_sql.get_values_sql(file=file)
+
+file = '2D/SR/2dof/path.db'
+path_db = get_values_sql(file=file, table='paths')
 x_start = object2numeric_array(path_db.x_start.values)
 x_end = object2numeric_array(path_db.x_end.values)
 x_path = object2numeric_array(path_db.x_path.values)
