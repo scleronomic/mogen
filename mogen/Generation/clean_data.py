@@ -1,12 +1,12 @@
 import numpy as np
-from wzk.sql2 import get_values_sql, df2sql, vacuum, get_n_rows
+from wzk.sql2 import get_values_sql, df2sql, vacuum, get_n_rows, rename_columns, set_values_sql
 from shutil import copy
 
-from wzk import compressed2img
+from wzk import compressed2img, find_consecutives
 
 from rokin.Robots import *
 from mopla.main import objective_feasibility
-from mogen.Loading.load_pandas import create_path_df
+from mogen.Loading.load_pandas import create_path_df, prepare_data
 
 
 n_waypoints = 20
@@ -154,15 +154,80 @@ def plot():
     # FINDING, the worlds for Justin where to easy, 80% of the time it possible to converge from a direct connection
 
 
-main()
+# main()
+
+file = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19.db'
+file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_hard.db'
+file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_easy.db'
 
 
-# TODO write rename column function
+def clean_main():
 
-n_batch = 10000
 
-i = 0
-while True:
-    idx = np.arange(i, i+n_batch)
-    i_worlds, i_samples =
+    # columns = dict(i_world='world_i64',
+    #                i_sample='sample_i64',
+    #                q0='q0_f364',
+    #                q='q_f64',
+    #                objective='objective_f64',
+    #                feasible='feasible_b')
+    #
+    # columns = dict(world_i64='world_i64',
+    #                sample_i64='sample_i64',
+    #                q0_f64='q0_f64',
+    #                q_f64='q_f64',
+    #                objective_f64='objective_f64',
+    #                feasible_b='feasible_b')
 
+
+    # path_df_columns = np.array([])
+    # rename_columns(file=db_file, table='paths', columns=columns)
+    get_n_rows(file=file, table='paths')
+
+    iw_all = get_values_sql(file=file, table='paths',
+                            rows=-1, columns=['world_i64'],values_only=True)
+    iw_all = iw_all.astype(np.int32)
+
+    for iw_i in range(1000):
+        print(iw_i)
+        clean(iw_i=iw_i, iw_all=iw_all)
+
+
+def clean(iw_i, iw_all):
+    b_iwi = iw_all == iw_i
+    j_iwi = np.nonzero(b_iwi)[0]
+
+    i_w, i_s, q0, q, o, f = get_values_sql(file=file, table='paths',
+                                           rows=j_iwi, columns=['world_i64', 'sample_i64',
+                                                                'q0_f64', 'q_f64',
+                                                                'objective_f64', 'feasible_b'],
+                                           values_only=True)
+
+    n = 31
+    i_hard = find_consecutives(x=i_s, n=n)
+    i_hard = i_hard[:, np.newaxis] + np.arange(n)[np.newaxis, :]
+    i_hard = i_hard.ravel()
+    i_easy = np.arange(len(i_s))
+    i_easy = np.delete(i_easy, i_hard)
+
+    i_w_hard, i_s_hard, q0_hard, q_hard, o_hard, f_hard = i_w[i_hard], i_s[i_hard], q0[i_hard], q[i_hard], o[i_hard], f[i_hard]
+    i_s_hard = np.arange(len(i_s_hard)/n).repeat(n)
+
+    i_w_easy, i_s_easy, q0_easy, q_easy, o_easy, f_easy = i_w[i_easy], i_s[i_easy], q0[i_easy], q[i_easy], o[i_easy], f[i_easy]
+    i_s_easy = np.arange(len(i_s_easy))
+
+    df_hard = create_path_df(i_world=i_w_hard, i_sample=i_s_hard,
+                             q0=q0_hard, q=q_hard, objective=o_hard, feasible=f_hard)
+
+    df_easy = create_path_df(i_world=i_w_easy, i_sample=i_s_easy,
+                             q0=q0_easy, q=q_easy, objective=o_easy, feasible=f_easy)
+
+    if iw_i == 0:
+        df2sql(df=df_hard, file=file_hard, table='paths', if_exists='replace')
+        df2sql(df=df_easy, file=file_easy, table='paths', if_exists='replace')
+
+    else:
+        df2sql(df=df_hard, file=file_hard, table='paths', if_exists='append')
+        df2sql(df=df_easy, file=file_easy, table='paths', if_exists='append')
+
+
+clean_main()
