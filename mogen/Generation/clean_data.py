@@ -199,7 +199,7 @@ def df_subset(i_w, i_s, q0, q, o, f,
     iw_i, is_i, q0_i, q_i, o_i, f_i = i_w[i], i_s[i], q0[i], q[i], o[i], f[i]
     is_i = np.arange(len(is_i)//n).repeat(n)
 
-    print(len(iw_i))
+    print(len(i))
     if len(iw_i) > 0:
         df_i = create_path_df(i_world=iw_i, i_sample=is_i,
                               q0=q0_i, q=q_i, objective=o_i, feasible=f_i)
@@ -228,7 +228,7 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
     i_easy = np.delete(i_easy, i_hard)
 
     df_easy = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=1)
-    df_hard = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=n)
+    df_hard = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_hard, n=n)
 
     df2sql(df=df_easy, file=file_easy, table='paths', if_exists=ra)
     df2sql(df=df_hard, file=file_hard, table='paths', if_exists=ra)
