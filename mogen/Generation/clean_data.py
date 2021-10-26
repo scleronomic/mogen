@@ -187,12 +187,29 @@ def clean_main():
                             rows=-1, columns=['world_i64'],values_only=True)
     iw_all = iw_all.astype(np.int32)
 
-    for iw_i in range(1000):
+    for iw_i in range(151, 1000):
         print(iw_i)
-        clean(iw_i=iw_i, iw_all=iw_all)
+        ra = 'replace' if iw_i == 0 else 'append'
+
+        clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
 
 
-def clean(iw_i, iw_all):
+def df_subset(i_w, i_s, q0, q, o, f,
+              i: np.ndarray, n: int = 1):
+    iw_i, is_i, q0_i, q_i, o_i, f_i = i_w[i], i_s[i], q0[i], q[i], o[i], f[i]
+    is_i = np.arange(len(is_i)//n).repeat(n)
+
+    print(len(iw_i))
+    if len(iw_i) > 0:
+        df_i = create_path_df(i_world=iw_i, i_sample=is_i,
+                              q0=q0_i, q=q_i, objective=o_i, feasible=f_i)
+    else:
+        df_i = None
+
+    return df_i
+
+
+def clean(iw_i, iw_all, ra: str = 'replace'):
     b_iwi = iw_all == iw_i
     j_iwi = np.nonzero(b_iwi)[0]
 
@@ -206,28 +223,15 @@ def clean(iw_i, iw_all):
     i_hard = find_consecutives(x=i_s, n=n)
     i_hard = i_hard[:, np.newaxis] + np.arange(n)[np.newaxis, :]
     i_hard = i_hard.ravel()
+
     i_easy = np.arange(len(i_s))
     i_easy = np.delete(i_easy, i_hard)
 
-    i_w_hard, i_s_hard, q0_hard, q_hard, o_hard, f_hard = i_w[i_hard], i_s[i_hard], q0[i_hard], q[i_hard], o[i_hard], f[i_hard]
-    i_s_hard = np.arange(len(i_s_hard)/n).repeat(n)
+    df_easy = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=1)
+    df_hard = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=n)
 
-    i_w_easy, i_s_easy, q0_easy, q_easy, o_easy, f_easy = i_w[i_easy], i_s[i_easy], q0[i_easy], q[i_easy], o[i_easy], f[i_easy]
-    i_s_easy = np.arange(len(i_s_easy))
-
-    df_hard = create_path_df(i_world=i_w_hard, i_sample=i_s_hard,
-                             q0=q0_hard, q=q_hard, objective=o_hard, feasible=f_hard)
-
-    df_easy = create_path_df(i_world=i_w_easy, i_sample=i_s_easy,
-                             q0=q0_easy, q=q_easy, objective=o_easy, feasible=f_easy)
-
-    if iw_i == 0:
-        df2sql(df=df_hard, file=file_hard, table='paths', if_exists='replace')
-        df2sql(df=df_easy, file=file_easy, table='paths', if_exists='replace')
-
-    else:
-        df2sql(df=df_hard, file=file_hard, table='paths', if_exists='append')
-        df2sql(df=df_easy, file=file_easy, table='paths', if_exists='append')
+    df2sql(df=df_easy, file=file_easy, table='paths', if_exists=ra)
+    df2sql(df=df_hard, file=file_hard, table='paths', if_exists=ra)
 
 
 clean_main()
