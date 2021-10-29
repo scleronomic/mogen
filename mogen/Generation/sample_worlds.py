@@ -22,14 +22,14 @@ def sample_worlds(par, n_worlds, mode='perlin',
             print_progress(i=len(img_list), n=n_worlds)
 
         if mode == 'perlin':
-            img = create_perlin_image(n_voxels=par.world.n_voxels, **kwargs_perlin)
+            img = create_perlin_image(shape=par.world.shape, **kwargs_perlin)
 
         elif mode == 'rectangles':
-            img = create_rectangle_image(n_voxels=par.world.n_voxels, **kwargs_rectangles)
+            img = create_rectangle_image(shape=par.world.shape, **kwargs_rectangles)
 
         elif mode == 'both':
-            img1 = create_perlin_image(n_voxels=par.world.n_voxels, **kwargs_perlin)
-            img2 = create_rectangle_image(n_voxels=par.world.n_voxels, **kwargs_rectangles)
+            img1 = create_perlin_image(shape=par.world.shape, **kwargs_perlin)
+            img2 = create_rectangle_image(shape=par.world.shape, **kwargs_rectangles)
             img = np.logical_or(img1, img2)
 
         else:

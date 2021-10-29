@@ -21,14 +21,14 @@ class TextBoxSafe(widgets.TextBox):
         super().on_submit(func_safe)
 
 
-def get_world_sample(n_voxels,
+def get_world_sample(shape,
                      mode='rectangles',
                      file=None, i_world=None):
     if file is None:
         if mode == 'rectangles':
-            obstacle_img = random_obstacles.create_rectangle_image(n_voxels=n_voxels, n=10)
+            obstacle_img = random_obstacles.create_rectangle_image(shape=shape, n=10)
         elif mode == 'perlin':
-            obstacle_img = random_obstacles.create_perlin_image(n_voxels=n_voxels)
+            obstacle_img = random_obstacles.create_perlin_image(shape=shape)
         else:
             raise ValueError
     else:
@@ -36,7 +36,7 @@ def get_world_sample(n_voxels,
         raise NotImplementedError
         # obstacle_img_cmp = ld_sql.get_values_sql(file=directory + WORLD_DB, rows=i_world, columns=obstacle_img_CMP,
         #                                          values_only=True)
-        # obstacle_img = compressed2img(obstacle_img_cmp, n_voxels=n_voxels)
+        # obstacle_img = compressed2img(obstacle_img_cmp, shape=shape)
 
     return obstacle_img
 
@@ -132,7 +132,7 @@ class WorldViewer:
             self.fig, self.ax = ax.get_figure(), ax
         pass
 
-        self.obstacle_img = np.zeros(self.world.n_voxels, dtype=bool)
+        self.obstacle_img = np.zeros(self.world.shape, dtype=bool)
         self.obstacle_pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.obstacle_img,
                                                          voxel_size=self.world.voxel_size,
                                                          lower_left=self.world.limits[:, 0])
@@ -171,7 +171,7 @@ class WorldViewer:
     def change_sample(self, i_world):
         self.i_world = i_world
         self.obstacle_img = get_world_sample(file=self.file, i_world=self.i_world,
-                                             n_voxels=self.world.n_voxels)
+                                             shape=self.world.shape)
         self.update_obstacle_image()
 
     def toggle_activity(self):
@@ -184,7 +184,7 @@ class WorldViewer:
 
         except ValueError:
             text = [t.strip() for t in text.split(',')]
-            self.obstacle_img = templates.create_template_2d(n_voxels=self.world.n_voxels, world=text)
+            self.obstacle_img = templates.create_template_2d(shape=self.world.shape, world=text)
             self.update_obstacle_image()
 
 

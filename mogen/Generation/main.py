@@ -105,7 +105,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     gd = gen.gd
     assert gen.n_multi_start[0][0] == 0
 
-    obstacle_img = compressed2img(img_cmp=img_cmp, n_voxels=par.world.n_voxels, dtype=bool)
+    obstacle_img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
     parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=obstacle_img)
     q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                         acceptance_rate=gen.bee_rate)

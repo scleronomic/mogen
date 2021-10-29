@@ -275,7 +275,7 @@ if __name__ == '__main__':
     #         if self.use_path_img_ip:
     #             path_img = ld_sql.get_values_sql(columns=PATH_IMG_CMP, rows=self.i_sample_global,
     #                                              values_only=True, directory=self.directory)
-    #             path_img = compressed2img(img_cmp=path_img, n_voxels=self.g.n_voxels, n_dim=self.g.n_dim,
+    #             path_img = compressed2img(img_cmp=path_img, shape=self.g.shape, n_dim=self.g.n_dim,
     #                                       n_channels=self.g.n_spheres_tot)
     #
     #         if self.g.fixed_base:

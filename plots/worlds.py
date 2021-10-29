@@ -128,7 +128,7 @@ if plot_worlds:
     fig, ax = plt2.new_world_fig(limits=g.world_size)
     ax.set_title('World: {}, Coverage: {}, Mean Objective: {} - most expensive'.
                  format(iw, obst_coverage[iw], objective_pw[iw]))
-    plt2.plot_img_patch_w_outlines(limits=g.world_size, n_voxels=g.n_voxels, img=obstacle_img[iw], ax=ax, n_dim=g.n_dim)
+    plt2.plot_img_patch_w_outlines(limits=g.world_size, shape=g.shape, img=obstacle_img[iw], ax=ax, n_dim=g.n_dim)
     save_fig(img_dir + 'world__most_expensive', fig=fig, save=save_img)
 
     # Easiest (Cheapest) World
@@ -136,7 +136,7 @@ if plot_worlds:
     fig, ax = plt2.new_world_fig(limits=g.world_size)
     ax.set_title('World: {}, Coverage: {}, Mean Objective: {} - cheapest'.
                  format(iw, obst_coverage[iw], objective_pw[iw]))
-    plt2.plot_img_patch_w_outlines(limits=g.world_size, n_voxels=g.n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
+    plt2.plot_img_patch_w_outlines(limits=g.world_size, shape=g.shape, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
     save_fig(img_dir + 'world__cheapest', fig=fig, save=save_img)
 
     # Densest World
@@ -144,7 +144,7 @@ if plot_worlds:
     fig, ax = plt2.new_world_fig(limits=g.world_size)
     ax.set_title(
         'World: {}, Coverage: {}, Mean Objective: {} - densest'.format(iw, obst_coverage[iw], objective_pw[iw]))
-    plt2.plot_img_patch_w_outlines(limits=g.world_size, n_voxels=g.n_voxels, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
+    plt2.plot_img_patch_w_outlines(limits=g.world_size, shape=g.shape, img=obstacle_img[iw], ax=ax, n_dim=n_dim)
     save_fig(img_dir + 'world__densest', fig=fig, save=save_img)
 
     # Second densest
@@ -152,7 +152,7 @@ if plot_worlds:
     fig, ax = plt2.new_world_fig(limits=g.world_size)
     ax.set_title('World: {}, Coverage: {}, Mean Objective: {} - second densest'.
                  format(iw, obst_coverage[iw], objective_pw[iw]))
-    plt2.plot_img_patch_w_outlines(limits=g.world_size, n_voxels=g.n_voxels, img=obstacle_img[iw], ax=ax, n_dim=g.n_dim)
+    plt2.plot_img_patch_w_outlines(limits=g.world_size, shape=g.shape, img=obstacle_img[iw], ax=ax, n_dim=g.n_dim)
     save_fig(img_dir + 'world__densest2', fig=fig, save=save_img)
     # TODO way cheaper because of advantageous map layout, edges ar blocked and only the center is free
 

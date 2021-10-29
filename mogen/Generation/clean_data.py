@@ -30,7 +30,7 @@ def check_consistency(robot,
 
     if img is None:
         img_cmp = get_values_sql(file=db_file, rows=np.arange(300), table='worlds', columns='img_cmp', values_only=True)
-        img = compressed2img(img_cmp=img_cmp, n_voxels=par.world.n_voxels, dtype=bool)
+        img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
 
     q = q.reshape(-1, n_waypoints, robot.n_dof).copy()
 
