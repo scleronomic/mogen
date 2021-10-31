@@ -266,6 +266,7 @@ def sample_gif_3d(i_s, file):
 
     file_gif = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}_w{i_w}_s{i_s}.gif'
 
+    q = q.reshape(-1, robot.n_dof)
     robot_3d.robot_path_interactive(p=dict(off_screen=True), q=q, robot=robot, gif=file_gif,
                                     kwargs_world=dict(limits=par.world.limits, img=img))
 
