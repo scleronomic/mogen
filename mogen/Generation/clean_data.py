@@ -271,11 +271,7 @@ def sample_gif_3d(i_s, file):
                                     kwargs_world=dict(limits=par.world.limits, img=img))
 
 
-# sample_gif_3d(i_s=0, file=file_easy)
+sample_gif_3d(i_s=0, file=file_easy)
 
-
-print('a')
-p = robot_3d.pv.Plotter(off_screen=True)
-print('b')
 
 # p = robot_3d.pv.Plotter(off_screen=False)
