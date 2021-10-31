@@ -6,7 +6,7 @@ from wzk import compressed2img, find_consecutives
 
 from rokin.Robots import *
 from mopla.main import objective_feasibility
-from mogen.Loading.load_pandas import create_path_df, prepare_data
+from mogen.Loading.load_pandas import create_path_df, create_world_df, prepare_data
 
 
 n_waypoints = 20
@@ -181,18 +181,27 @@ def clean_main():
 
     # path_df_columns = np.array([])
     # rename_columns(file=db_file, table='paths', columns=columns)
-    get_n_rows(file=file, table='paths')
 
+    img_cmp = get_values_sql(file=file, table='worlds',
+                             rows=np.arange(1000), columns=['img_cmp'],
+                             values_only=True)
+    i_w = np.arange(1000)
+    df = create_world_df(i_world=i_w, img_cmp=img_cmp)
+    df2sql(df=df, file=file_easy, table='worlds', if_exists='replace')
+    df2sql(df=df, file=file_hard, table='worlds', if_exists='replace')
+
+    return
+    get_n_rows(file=file, table='paths')
     iw_all = get_values_sql(file=file, table='paths',
-                            rows=-1, columns=['world_i64'],values_only=True)
+                            rows=-1, columns=['world_i64'], values_only=True)
     iw_all = iw_all.astype(np.int32)
 
-    for iw_i in range(151, 1000):
-        print(iw_i)
-        ra = 'replace' if iw_i == 0 else 'append'
-
-        clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
-
+    # for iw_i in range(151, 1000):
+    #     print(iw_i)
+    #     ra = 'replace' if iw_i == 0 else 'append'
+    #
+    #     clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
+    #
 
 def df_subset(i_w, i_s, q0, q, o, f,
               i: np.ndarray, n: int = 1):
@@ -234,4 +243,26 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
     df2sql(df=df_hard, file=file_hard, table='paths', if_exists=ra)
 
 
+
 clean_main()
+
+# from rokin.Vis import robot_3d
+# from rokin.Robots import Justin19
+# from mopla.parameter import Parameter
+# def sample_gif_3d(i_s, file):
+#
+#     robot = Justin19()
+#     par = Parameter(robot=robot)
+#
+#     i_w, i_s, q = get_values_sql(file=file, table='paths',
+#                                  rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
+#                                  values_only=True)
+#
+#     img_cmp = get_values_sql(file=file, rows='iw', table='worlds', columns='img_cmp', values_only=True)
+#     img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
+#
+#     robot_3d.robot_path_interactive(q=q, robot=robot, gif=file,
+#                                     kwargs_world=dict(limits=par.world.limits, img=img))
+#
+#
+# sample_gif_3d(i_s=0, file=file)

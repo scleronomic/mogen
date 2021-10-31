@@ -4,7 +4,7 @@ import pandas as pd
 from wzk.dtypes import str2np
 
 meta_df_columns = np.array(['par', 'gd'])
-world_df_columns = np.array(['world', 'img_cmp'])
+world_df_columns = np.array(['world_i32', 'img_cmp'])
 path_df_columns = np.array(['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'])
 
 
@@ -44,6 +44,5 @@ def prepare_data(data: dict) -> dict:
 
         if np.size(data[key][0]) > 0 and not isinstance(data[key][0], bytes):
             data[key] = [xx.tobytes() for xx in data[key]]
-
 
     return data

@@ -560,26 +560,26 @@ if __name__ == '__main__':
     #                                             eps=self.eps_obstacle_cost)
     #     plt2.world_imshow(img=cost_img, limits=self.g.world_size, ax=self.ax, alpha=0.6)
     #
-    # def save_fig(self, filename='test',
+    # def save_fig(self, file='test',
     #              plot_path_label=True, plot_x_pred=True, plot_pred_img=True,
     #              cmap='Blues', plot_new_obstacles=False,
     #              save=True):
     #
-    #     if '/' in filename:
-    #         filename_split = filename.split('/')
-    #         filename = filename_split[-1]
+    #     if '/' in file:
+    #         file_split = file.split('/')
+    #         file = file_split[-1]
     #
-    #         if len(filename_split) > 2:
-    #             img_dir = '/'.join(filename_split[:-1])
+    #         if len(file_split) > 2:
+    #             img_dir = '/'.join(file_split[:-1])
     #         else:
-    #             img_dir = filename_split[0]
+    #             img_dir = file_split[0]
     #         img_dir += '/'
     #     else:
     #         sample_dir = d.arg_wrapper__sample_dir(self.directory, full=False)
     #         img_dir = d.PROJECT_DATA_IMAGES + 'IA/' + sample_dir
     #         if not os.path.exists(img_dir):
     #             os.makedirs(img_dir)
-    #     filename = img_dir + 'w{}p{}_{}'.format(self.i_world, self.i_sample_local, filename)
+    #     file = img_dir + 'w{}p{}_{}'.format(self.i_world, self.i_sample_local, file)
     #
     #     fig, ax = plt2.new_world_fig(limits=self.g.world_size, scale=2)
     #

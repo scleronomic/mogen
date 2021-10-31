@@ -2,6 +2,8 @@ import numpy as np
 
 from wzk import print_progress
 from wzk.image import img2compressed
+from wzk import new_fig
+
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
 
@@ -50,12 +52,14 @@ def sample_worlds(par, n_worlds, mode='perlin',
                 robot_2d.plot_img_patch_w_outlines(ax=ax, img=par.oc.img, limits=par.world.limits)
 
             if par.robot.n_dim == 3:
-                robot_3d.robot_path_interactive(q=par.robot.sample_q(100), robot=par.robot, mode='mesh',
-                                                obstacle_img=par.oc.img,
-                                                limits=par.world.limits)
+                robot_3d.robot_path_interactive(q=par.robot.sample_q(100), robot=par.robot,
+                                                kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
+    # fig, ax = new_fig()
+    # hh = np.mean(img_list, axis=(1, 2, 3))
+    # ax.hist(hh)
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
-    world_df = create_world_df(i_world=np.arange(n_worlds).tolist(), img_cmp=img_list)
+    world_df = create_world_df(i_world=np.arange(n_worlds), img_cmp=img_list)
     return world_df
 
 
@@ -84,16 +88,16 @@ def get_robot_max_reach(robot):
 
 def test():
     from wzk.sql2 import df2sql
-    from rokin.Robots import SingleSphere02, JustinArm07
+    from rokin.Robots import SingleSphere02, JustinArm07, Justin19
     robot = SingleSphere02(radius=0.25)
-    robot = JustinArm07()
-
+    robot = JustinArm07()  # threshold=0.35
+    robot = Justin19()  # threshold=0.40
     # print(get_robot_max_reach(robot))
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    df = sample_worlds(par=par, n_worlds=1000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=5)
+    df = sample_worlds(par=par, n_worlds=9,
+                       mode='perlin', kwargs_perlin=dict(threshold=4), verbose=1)
 
     # for i in range(20):
     #     df = sample_worlds(par=par, n_worlds=5000,
