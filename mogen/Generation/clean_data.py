@@ -261,7 +261,7 @@ def sample_gif_3d(i_s, file):
                                  rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
                                  values_only=True)
 
-    img_cmp = get_values_sql(file=file, rows='iw', table='worlds', columns='img_cmp', values_only=True)
+    img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
     img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
 
     file_gif = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}_w{i_w}_s{i_s}.gif'
