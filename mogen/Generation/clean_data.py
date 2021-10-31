@@ -182,16 +182,16 @@ def clean_main():
     # path_df_columns = np.array([])
     # rename_columns(file=db_file, table='paths', columns=columns)
 
-    img_cmp = get_values_sql(file=file_easy, table='worlds',
-                             rows=-1, columns=['img_cmp'],
-                             values_only=True)
-    i_w = np.arange(1000)
-    df = create_world_df(i_world=i_w, img_cmp=img_cmp)
-    print(len(img_cmp))
+    # img_cmp = get_values_sql(file=file, table='worlds',
+    #                          rows=-1, columns=['img_cmp'],
+    #                          values_only=True)
+    # i_w = np.arange(1000)
+    # df = create_world_df(i_world=i_w, img_cmp=img_cmp)
+    # print(len(img_cmp))
     # df2sql(df=df, file=file_easy, table='worlds', if_exists='replace')
     # df2sql(df=df, file=file_hard, table='worlds', if_exists='replace')
 
-    return
+    # return
     get_n_rows(file=file, table='paths')
     iw_all = get_values_sql(file=file, table='paths',
                             rows=-1, columns=['world_i64'], values_only=True)
