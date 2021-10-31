@@ -124,7 +124,7 @@ def main():
 def plot():
     from wzk.mpl import new_fig, error_area
     # def plot_o_distributions(o):
-    o, f = get_values_sql(file=db_file, table='paths', rows=i,
+    o, f = get_values_sql(file=file, table='paths', rows=i,
                           columns=['objective', 'feasible'], values_only=True)
 
     o = o.reshape(-1, 50)
@@ -156,13 +156,15 @@ def plot():
 
 # main()
 
-file = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19.db'
-file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_hard.db'
-file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_easy.db'
+# robot = 'Justin19'
+robot = 'SingleSphere02'
+
+file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}.db'
+file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}_hard.db'
+file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}_easy.db'
 
 
 def clean_main():
-
 
     # columns = dict(i_world='world_i64',
     #                i_sample='sample_i64',
@@ -170,39 +172,39 @@ def clean_main():
     #                q='q_f64',
     #                objective='objective_f64',
     #                feasible='feasible_b')
-    #
-    # columns = dict(world_i64='world_i64',
-    #                sample_i64='sample_i64',
-    #                q0_f64='q0_f64',
-    #                q_f64='q_f64',
-    #                objective_f64='objective_f64',
-    #                feasible_b='feasible_b')
 
+    columns = dict(world_i64='world_i64',
+                   sample_i64='sample_i64',
+                   q0_f64='q0_f64',
+                   q_f64='q_f64',
+                   objective_f64='objective_f64',
+                   feasible_b='feasible_b')
 
     # path_df_columns = np.array([])
-    # rename_columns(file=db_file, table='paths', columns=columns)
+    rename_columns(file=file, table='paths', columns=columns)
 
     img_cmp = get_values_sql(file=file, table='worlds',
                              rows=-1, columns=['img_cmp'],
                              values_only=True)
-    i_w = np.arange(1000)
+    i_w = np.arange(len(img_cmp))
     df = create_world_df(i_world=i_w, img_cmp=img_cmp)
-    # print(len(img_cmp))
+    print(len(img_cmp))
     df2sql(df=df, file=file_easy, table='worlds', if_exists='replace')
     df2sql(df=df, file=file_hard, table='worlds', if_exists='replace')
 
-    return
-    get_n_rows(file=file, table='paths')
+    # return
+    n = get_n_rows(file=file, table='paths')
+    print('n', n)
     iw_all = get_values_sql(file=file, table='paths',
                             rows=-1, columns=['world_i64'], values_only=True)
     iw_all = iw_all.astype(np.int32)
 
-    # for iw_i in range(151, 1000):
-    #     print(iw_i)
-    #     ra = 'replace' if iw_i == 0 else 'append'
-    #
-    #     clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
-    #
+    for iw_i in range(0, 10000):
+        print(iw_i)
+        ra = 'replace' if iw_i == 0 else 'append'
+
+        clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
+
 
 def df_subset(i_w, i_s, q0, q, o, f,
               i: np.ndarray, n: int = 1):
@@ -244,12 +246,12 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
     df2sql(df=df_hard, file=file_hard, table='paths', if_exists=ra)
 
 
+clean_main()
 
-# clean_main()
 
-from rokin.Vis import robot_3d
-from rokin.Robots import Justin19
-from mopla.parameter import Parameter
+# from rokin.Vis import robot_3d
+# from rokin.Robots import Justin19
+# from mopla.parameter import Parameter
 
 
 def sample_gif_3d(i_s, file):
@@ -272,8 +274,12 @@ def sample_gif_3d(i_s, file):
                                     kwargs_world=dict(limits=par.world.limits, img=img))
 
 
-for i in range(0, 10000, 10):
-    sample_gif_3d(i_s=i, file=file_easy)
+# def a():
+#     pass
+#
+#
+# for i in range(0, 10000, 10):
+#     sample_gif_3d(i_s=i, file=file_easy)
 
 
 # p = robot_3d.pv.Plotter(off_screen=False)
