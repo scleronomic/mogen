@@ -260,18 +260,20 @@ def sample_gif_3d(i_s, file):
     i_w, i_s, q = get_values_sql(file=file, table='paths',
                                  rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
                                  values_only=True)
-
+    i_w = int(np.squeeze(i_w))
+    i_s = int(np.squeeze(i_s))
     img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
     img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
 
     file_gif = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}_w{i_w}_s{i_s}.gif'
 
     q = q.reshape(-1, robot.n_dof)
-    robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_gif), q=q, robot=robot, gif=file_gif,
+    robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_gif, screen_size=(1024, 768)), q=q, robot=robot, gif=file_gif,
                                     kwargs_world=dict(limits=par.world.limits, img=img))
 
 
-sample_gif_3d(i_s=0, file=file_easy)
+for i in range(0, 10000, 10):
+    sample_gif_3d(i_s=0, file=file_easy)
 
 
 # p = robot_3d.pv.Plotter(off_screen=False)
