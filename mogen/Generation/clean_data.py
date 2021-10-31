@@ -273,7 +273,7 @@ def sample_gif_3d(i_s, file):
 
 
 for i in range(0, 10000, 10):
-    sample_gif_3d(i_s=0, file=file_easy)
+    sample_gif_3d(i_s=i, file=file_easy)
 
 
 # p = robot_3d.pv.Plotter(off_screen=False)
