@@ -245,25 +245,29 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
 
 
 
-clean_main()
+# clean_main()
 
-# from rokin.Vis import robot_3d
-# from rokin.Robots import Justin19
-# from mopla.parameter import Parameter
-# def sample_gif_3d(i_s, file):
-#
-#     robot = Justin19()
-#     par = Parameter(robot=robot)
-#
-#     i_w, i_s, q = get_values_sql(file=file, table='paths',
-#                                  rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
-#                                  values_only=True)
-#
-#     img_cmp = get_values_sql(file=file, rows='iw', table='worlds', columns='img_cmp', values_only=True)
-#     img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
-#
-#     robot_3d.robot_path_interactive(q=q, robot=robot, gif=file,
-#                                     kwargs_world=dict(limits=par.world.limits, img=img))
-#
-#
-# sample_gif_3d(i_s=0, file=file)
+from rokin.Vis import robot_3d
+from rokin.Robots import Justin19
+from mopla.parameter import Parameter
+
+
+def sample_gif_3d(i_s, file):
+
+    robot = Justin19()
+    par = Parameter(robot=robot)
+
+    i_w, i_s, q = get_values_sql(file=file, table='paths',
+                                 rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
+                                 values_only=True)
+
+    img_cmp = get_values_sql(file=file, rows='iw', table='worlds', columns='img_cmp', values_only=True)
+    img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
+
+    file_gif = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}_w{i_w}_s{i_s}.gif'
+
+    robot_3d.robot_path_interactive(q=q, robot=robot, gif=file_gif,
+                                    kwargs_world=dict(limits=par.world.limits, img=img))
+
+
+sample_gif_3d(i_s=0, file=file_easy)
