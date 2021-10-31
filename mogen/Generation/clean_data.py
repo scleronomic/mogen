@@ -278,4 +278,4 @@ print('a')
 p = robot_3d.pv.Plotter(off_screen=True)
 print('b')
 
-p = robot_3d.pv.Plotter(off_screen=False)
+# p = robot_3d.pv.Plotter(off_screen=False)
