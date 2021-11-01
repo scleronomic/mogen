@@ -76,7 +76,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 def main(robot_id: str, iw_list=None):
     file = file_stub.format(robot_id)
     n_samples_per_world = 1000
-    worlds = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
+    worlds = get_values_sql(file=file, rows=np.arange(1000), table='worlds', columns='img_cmp', values_only=True)
     print("# Worlds", len(worlds))
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
