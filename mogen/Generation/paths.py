@@ -73,7 +73,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     return df
 
 
-def main(robot_id: str, iw_list=None):
+def main(robot_id: str, iw_list=None, ra='append'):
     print(robot_id)
     file = file_stub.format(robot_id)
     n_samples_per_world = 1000
@@ -103,7 +103,7 @@ def main(robot_id: str, iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=file, table='paths', if_exists='append')
+    df2sql(df=df, file=file, table='paths', if_exists=ra)
     # vacuum(file=file)
     toc(f'Time for appending {len(df)} rows')
     return df
@@ -113,7 +113,7 @@ def main_loop(robot_id):
     for i in range(10):
         worlds = np.arange(1000)
         for iw in np.array_split(worlds, len(worlds)//10):
-            main(robot_id=robot_id, iw_list=iw)
+            main(robot_id=robot_id, iw_list=iw, ra='append')
 
 
 if __name__ == '__main__':
@@ -121,8 +121,8 @@ if __name__ == '__main__':
     robot_id = 'JustinArm07'
     from wzk import tic, toc
 
-    main(robot_id=robot_id, iw_list=[0])
+    main(robot_id=robot_id, iw_list=[0], ra='replace')
 
     tic()
-    # main_loop(robot_id)
+    main_loop(robot_id)
     toc()
