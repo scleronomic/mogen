@@ -32,7 +32,7 @@ def plot_path_2d(i_s, robot, file):
 
     q = q.reshape(-1, robot.n_dof)
 
-    q2 = get_substeps_adjusted(x=q, n=191)
+    q2 = get_substeps_adjusted(x=q, n=191)[::10]
     # print(len(q2))
     # q2 = q2[::10]
     # print(np.arange(200)[::10])
