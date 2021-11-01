@@ -57,7 +57,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
     tic()
     df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
-    if df0.feasible[0]:
+    if df0.feasible_b[0]:
         toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
         return df0
 
