@@ -166,12 +166,12 @@ file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}_easy.db'
 
 def clean_main():
 
-    columns = dict(i_world='world_i64',
-                   i_sample='sample_i64',
-                   q0='q0_f64',
-                   q='q_f64',
-                   objective='objective_f64',
-                   feasible='feasible_b')
+    # columns = dict(i_world='world_i64',
+    #                i_sample='sample_i64',
+    #                q0='q0_f64',
+    #                q='q_f64',
+    #                objective='objective_f64',
+    #                feasible='feasible_b')
 
     # columns = dict(world_i64='world_i64',
     #                sample_i64='sample_i64',
