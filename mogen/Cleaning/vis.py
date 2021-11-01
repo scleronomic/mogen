@@ -41,6 +41,7 @@ def plot_path_2d(i_s, robot, file):
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
     robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o', color='blue')
     robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='red')
+    # TODO refine the best solution with a few iterations started from this initial guess
     save_fig(file=file_path, fig=fig, formats='png')
 
 

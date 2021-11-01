@@ -2,83 +2,20 @@ import numpy as np
 
 from wzk.ray2 import ray
 from wzk.trajectory import inner2full
-from wzk.gd.Optimizer import Naive
 from wzk.image import compressed2img
+from wzk.sql2 import df2sql, get_values_sql, vacuum
 
-from rokin.Robots import *
 from rokin.Vis.robot_3d import robot_path_interactive
-from mopla import parameter
+from mopla.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Loading.load import create_path_df
-from wzk.sql2 import df2sql, get_values_sql
+from mogen.Generation.parameter import init_par
 from mogen.Generation.starts_ends import sample_q_start_end
 
 ray.init(address='auto')
 
-
-class Generation:
-    __slots__ = ('par',
-                 'gd',
-                 'bee_rate',
-                 'n_multi_start')
-
-
-robot0 = Justin19()
-# robot0 = SingleSphere02(radius=0.25)
-# db_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.db'
-db_file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot0.id}.db'
-# db_file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot0.id}.db'
-# np_result_file = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot0.id}.npy'
-# df = get_values_sql(file=db_file, table='paths')
-# print(db_file)
-
-
-def set_sc_on(par):
-    par.check.self_collision = True
-    par.planning.self_collision = True
-    par.sc.n_substeps = 3
-    par.sc.n_substeps_check = 3
-
-
-def init_par():
-    # robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()
-    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
-    robot = Justin19()
-    bee_rate = 0.0
-    n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 10]]
-
-    par = parameter.Parameter(robot=robot, obstacle_img=None)
-    par.n_waypoints = 20
-
-    par.check.obstacle_collision = True
-    par.planning.obstacle_collision = True
-    par.oc.n_substeps = 3  # was 3 for justin
-    par.oc.n_substeps_check = 3
-
-    # set_sc_on(par)
-
-    gd = parameter.GradientDescent()
-    gd.opt = Naive(ss=1)
-    gd.n_processes = 1
-    gd.n_steps = 100  # was 750, was 1000 for StaticArm / SingleSphere02
-
-    gd.return_x_list = False
-    n0, n1 = gd.n_steps//2, gd.n_steps//3
-    n2 = gd.n_steps - (n0 + n1)
-    gd.clipping = np.concatenate([np.ones(n0)*np.deg2rad(3), np.ones(n1)*np.deg2rad(1), np.ones(n2)*np.deg2rad(0.1)])
-
-    # gd.clipping = np.ones(gd.n_steps) * np.deg2rad(3)
-    # gd.clipping = 0.1
-
-    gen = Generation()
-    gen.par = par
-    gen.gd = gd
-    gen.n_multi_start = n_multi_start
-    gen.bee_rate = bee_rate
-
-    return gen
+file_stub = '/net/rmc-lx0062/home_local/tenh_jo/{}.db'
 
 
 def __chomp(q0, q_start, q_end,
@@ -107,7 +44,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     assert gen.n_multi_start[0][0] == 0
 
     obstacle_img = compressed2img(img_cmp=img_cmp, shape=par.world.shape, dtype=bool)
-    parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=obstacle_img)
+    initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=obstacle_img)
     q_start, q_end = sample_q_start_end(robot=par.robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                         acceptance_rate=gen.bee_rate)
 
@@ -129,28 +66,24 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     if verbose > 0:
         j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
         robot_path_interactive(q=df.q[j], robot=par.robot,
-                               kwargs_world=dict(img=obstacle_img, limits=par.world.limits),
-                               kwargs_robot=dict(mode='sphere'))
+                               kwargs_world=dict(img=obstacle_img, limits=par.world.limits))
 
     df = df0.append(df)
     toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
     return df
 
 
-def test_samples():
-    pass
-
-
-def main(iw_list=None):
+def main(robot_id: str, iw_list=None):
+    file = file_stub.format(robot_id)
     n_samples_per_world = 1000
-    worlds = get_values_sql(file=db_file, table='worlds', columns='img_cmp', values_only=True)
-
+    worlds = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
+    print("# Worlds", len(worlds))
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
 
     @ray.remote
     def sample_ray(_i_w, _i_s):
-        gen = init_par()
+        gen = init_par(robot_id=robot_id)
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
@@ -167,26 +100,26 @@ def main(iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=db_file, table='paths', if_exists='append')
-    # vacuum(file=db_file)
+    df2sql(df=df, file=file, table='paths', if_exists='replace')
+    vacuum(file=file)
     toc(f'Time for appending {len(df)} rows')
     return df
 
 
-def meta_main():
+def main_loop(robot_id):
     for i in range(100):
         worlds = np.arange(1000)
         for iw in np.array_split(worlds, len(worlds)//10):
-            main(iw)
+            main(robot_id=robot_id, iw_list=iw)
 
 
 if __name__ == '__main__':
+
+    robot_id = 'JustinArm07'
     from wzk import tic, toc
-    tic()
-    meta_main()
-    # df = main(iw_list=np.arange(9999, 10000))
-    toc()
-    # print('New DB:', get_n_rows(file=db_file, table='paths'))
 
+    main(robot_id=robot_id, iw_list=[0])
 
-#
+    # tic()
+    # main_loop(robot_id)
+    # toc()
