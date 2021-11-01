@@ -159,7 +159,7 @@ def plot():
 # robot = 'Justin19'
 robot = 'SingleSphere02'
 
-file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}.db'
+file =      f'/net/rmc-lx0062/home_local/tenh_jo/{robot}.db'
 file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}_hard.db'
 file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot}_easy.db'
 
@@ -201,9 +201,13 @@ def clean_main():
 
     for iw_i in range(0, 10000):
         print(iw_i)
-        ra = 'replace' if iw_i == 0 else 'append'
 
+        ra = 'replace' if iw_i == 0 else 'append'
         clean(iw_i=iw_i, iw_all=iw_all, ra=ra)
+        if iw_i == 0:
+            vacuum(file_easy)
+            vacuum(file_hard)
+
 
 
 def df_subset(i_w, i_s, q0, q, o, f,
@@ -211,7 +215,6 @@ def df_subset(i_w, i_s, q0, q, o, f,
     iw_i, is_i, q0_i, q_i, o_i, f_i = i_w[i], i_s[i], q0[i], q[i], o[i], f[i]
     is_i = np.arange(len(is_i)//n).repeat(n)
 
-    print(len(i))
     if len(iw_i) > 0:
         df_i = create_path_df(i_world=iw_i, i_sample=is_i,
                               q0=q0_i, q=q_i, objective=o_i, feasible=f_i)
@@ -241,7 +244,7 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
 
     df_easy = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=1)
     df_hard = df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_hard, n=n)
-
+    print(f"#:{len(i_s)} | easy: {len(i_easy)} | hard: {len(i_hard)}")
     df2sql(df=df_easy, file=file_easy, table='paths', if_exists=ra)
     df2sql(df=df_hard, file=file_hard, table='paths', if_exists=ra)
 
