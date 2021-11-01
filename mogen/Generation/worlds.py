@@ -116,9 +116,9 @@ def test():
 
     # df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='append')
     ra = 'replace'
-    df2sql(df=df, file=file, table='worlds', if_exists='ra')
-    df2sql(df=df, file=file_easy, table='worlds', if_exists='ra')
-    df2sql(df=df, file=file_hard, table='worlds', if_exists='ra')
+    df2sql(df=df, file=file, table='worlds', if_exists=ra)
+    df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
+    df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
 
     print(df)
 
