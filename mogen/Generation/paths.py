@@ -121,8 +121,8 @@ if __name__ == '__main__':
     robot_id = 'JustinArm07'
     from wzk import tic, toc
 
-    # main(robot_id=robot_id, iw_list=[0])
+    main(robot_id=robot_id, iw_list=[0])
 
     tic()
-    main_loop(robot_id)
+    # main_loop(robot_id)
     toc()
