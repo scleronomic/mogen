@@ -45,6 +45,7 @@ def plot_dist_to_q0(file, robot, i):
     fig, ax = new_fig()
     print(len(dq))
     ax.hist(dq, bins=50)
+    print(np.sort(dq)[:10])
     save_fig(fig=fig, file=file_hist, formats=('pdf', 'png'))
 
 
