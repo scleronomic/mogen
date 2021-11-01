@@ -181,7 +181,7 @@ def clean_main():
     #                feasible_b='feasible_b')
 
     # path_df_columns = np.array([])
-    rename_columns(file=file, table='paths', columns=columns)
+    # rename_columns(file=file, table='paths', columns=columns)
 
     img_cmp = get_values_sql(file=file, table='worlds',
                              rows=-1, columns=['img_cmp'],
