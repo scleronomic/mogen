@@ -209,7 +209,6 @@ def clean_main():
             vacuum(file_hard)
 
 
-
 def df_subset(i_w, i_s, q0, q, o, f,
               i: np.ndarray, n: int = 1):
     iw_i, is_i, q0_i, q_i, o_i, f_i = i_w[i], i_s[i], q0[i], q[i], o[i], f[i]
@@ -236,6 +235,8 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
 
     n = 31
     i_hard = find_consecutives(x=i_s, n=n)
+    print(i_s[:60])
+    print(i_hard[:10])
     i_hard = i_hard[:, np.newaxis] + np.arange(n)[np.newaxis, :]
     i_hard = i_hard.ravel()
 
