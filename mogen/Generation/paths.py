@@ -74,6 +74,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
 
 def main(robot_id: str, iw_list=None):
+    print(robot_id)
     file = file_stub.format(robot_id)
     n_samples_per_world = 1000
     worlds = get_values_sql(file=file, rows=np.arange(1000), table='worlds', columns='img_cmp', values_only=True)
@@ -84,6 +85,8 @@ def main(robot_id: str, iw_list=None):
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par(robot_id=robot_id)
+        print(gen.par.robot.id)
+
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
@@ -100,14 +103,14 @@ def main(robot_id: str, iw_list=None):
         df = df.append(df_i)
 
     tic()
-    df2sql(df=df, file=file, table='paths', if_exists='replace')
-    vacuum(file=file)
+    df2sql(df=df, file=file, table='paths', if_exists='append')
+    # vacuum(file=file)
     toc(f'Time for appending {len(df)} rows')
     return df
 
 
 def main_loop(robot_id):
-    for i in range(100):
+    for i in range(10):
         worlds = np.arange(1000)
         for iw in np.array_split(worlds, len(worlds)//10):
             main(robot_id=robot_id, iw_list=iw)
@@ -118,8 +121,8 @@ if __name__ == '__main__':
     robot_id = 'JustinArm07'
     from wzk import tic, toc
 
-    main(robot_id=robot_id, iw_list=[0])
+    # main(robot_id=robot_id, iw_list=[0])
 
-    # tic()
-    # main_loop(robot_id)
-    # toc()
+    tic()
+    main_loop(robot_id)
+    toc()
