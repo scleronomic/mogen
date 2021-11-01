@@ -35,8 +35,7 @@ def init_par(robot_id: str):
 
 
 def __init_par(robot):
-    # robot = JustinArm07()
-    robot = Justin19()
+
     bee_rate = 0.0
     n_multi_start = [[0, 1, 2, 3], [1, 10, 10, 10]]
 
