@@ -233,7 +233,9 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
                                                                 'objective_f64', 'feasible_b'],
                                            values_only=True)
 
-    n = 31
+    n = 31  # Justin19
+    n = 51  # SingleSphere02
+
     i_hard = find_consecutives(x=i_s, n=n)
     print(i_s[:60])
     print(i_hard[:10])
