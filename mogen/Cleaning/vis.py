@@ -72,7 +72,7 @@ def plot_dist_to_q0(file, robot, i):
 if __name__ == '__main__':
 
     # robot = Justin19()
-    robot = SingleSphere02()
+    robot = SingleSphere02(radius=0.25)
     file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
     file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
