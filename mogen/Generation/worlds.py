@@ -87,16 +87,16 @@ def get_robot_max_reach(robot):
 
 def test():
     from wzk.sql2 import df2sql
-    from rokin.Robots import Justin19
+    from rokin.Robots import Justin19, JustinArm07
     # robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()  # threshold=0.35
-    robot = Justin19()  # threshold=0.40
+    robot = JustinArm07()  # threshold=0.35
+    # robot = Justin19()  # threshold=0.40
     # print(get_robot_max_reach(robot))
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    df = sample_worlds(par=par, n_worlds=9000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.4), verbose=1)
+    df = sample_worlds(par=par, n_worlds=10,
+                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
 
     # for i in range(20):
     #     df = sample_worlds(par=par, n_worlds=5000,
@@ -110,12 +110,15 @@ def test():
         #                    kwargs_perlin=dict(threshold=0.45))
         # df2sql(df=df, file='world.db', table='perlin', if_exists='append')
 
-    file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_hard.db'
-    file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/Justin19_easy.db'
+    file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}.db'
+    file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
+    file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
     # df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='append')
-    df2sql(df=df, file=file_hard, table='worlds', if_exists='append')
-    df2sql(df=df, file=file_easy, table='worlds', if_exists='append')
+    ra = 'replace'
+    df2sql(df=df, file=file, table='worlds', if_exists='ra')
+    df2sql(df=df, file=file_easy, table='worlds', if_exists='ra')
+    df2sql(df=df, file=file_hard, table='worlds', if_exists='ra')
 
     print(df)
 
