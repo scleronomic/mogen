@@ -234,7 +234,7 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
                                            values_only=True)
 
     n = 31  # Justin19
-    n = 51  # SingleSphere02
+    n = 50  # SingleSphere02
 
     i_hard = find_consecutives(x=i_s, n=n)
     print(i_s[:60])
