@@ -43,6 +43,7 @@ def plot_dist_to_q0(file, robot, i):
     dq = ((q0-q)**2).mean(axis=(-1, -2))
     from wzk import new_fig
     fig, ax = new_fig()
+    print(len(dq))
     ax.hist(dq, bins=50)
     save_fig(fig=fig, file=file_hist, formats='pdf')
 
