@@ -2,7 +2,6 @@ import numpy as np
 
 from wzk import print_progress
 from wzk.image import img2compressed
-from wzk import new_fig
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
@@ -11,7 +10,7 @@ from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
 from mopla import parameter
 
-from mogen.Loading.load_pandas import create_world_df
+from mogen.Loading.load import create_world_df
 
 
 def sample_worlds(par, n_worlds, mode='perlin',
@@ -88,7 +87,7 @@ def get_robot_max_reach(robot):
 
 def test():
     from wzk.sql2 import df2sql
-    from rokin.Robots import SingleSphere02, JustinArm07, Justin19
+    from rokin.Robots import Justin19
     # robot = SingleSphere02(radius=0.25)
     # robot = JustinArm07()  # threshold=0.35
     robot = Justin19()  # threshold=0.40

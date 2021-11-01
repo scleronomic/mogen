@@ -1,7 +1,7 @@
 import numpy as np
 from wzk import tic, toc
 
-from mogen.Loading.load_pandas import create_path_df
+from mogen.Loading.load import create_path_df
 from wzk.sql2 import df2sql
 
 fileA = '/volume/USERSTORE/tenh_jo/A.db'

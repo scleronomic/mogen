@@ -1,7 +1,15 @@
 import numpy as np
+import pandas as pd
 
-from wzk import sql2 as load_sql
+from wzk.dtypes import str2np
+
+from wzk.sql2 import get_n_rows, rename_columns
 from wzk.training import n2train_test, train_test_split  # noqa
+
+meta_df_columns = np.array(['par', 'gd'])
+world_df_columns = np.array(['world_i32', 'img_cmp'])
+path_df_columns = np.array(['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'])
+
 
 n_samples_per_world = 1000
 
@@ -19,7 +27,7 @@ def arg_wrapper__i_world(i_worlds, file=None):
     if isinstance(i_worlds, (int, np.int32, np.int64)):
         i_worlds = int(i_worlds)
         if i_worlds == -1:
-            n_worlds = load_sql.get_n_rows(file=file, table='worlds')
+            n_worlds = get_n_rows(file=file, table='worlds')
             i_worlds = list(range(n_worlds))
         else:
             i_worlds = [i_worlds]
@@ -123,3 +131,55 @@ def get_i_samples_global(i_worlds, i_samples_local):
 
 def get_i_samples_local(i_sample_global):
     return i_sample_global % n_samples_per_world
+
+
+# Wrapper and Helper
+#  Switching dimensions between net-arguments and mpl
+def df_set_column_lists(df, column, ll):
+    n_samples = len(df)
+    df.loc[:, column] = 0
+    df.loc[:, column] = df.loc[:, column].astype(object)
+    for i in range(n_samples):
+        df.at[i, column] = ll[i]
+
+    return df
+
+
+def initialize_df():
+    return pd.DataFrame(data=None)
+
+
+def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
+    data = {key: value for key, value in zip(world_df_columns, [i_world, img_cmp])}
+    data = prepare_data(data)
+    return pd.DataFrame(data)
+
+
+def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
+                   q0: np.ndarray, q: np.ndarray,
+                   objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
+    data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q0, q, objective, feasible])}
+    data = prepare_data(data=data)
+    return pd.DataFrame(data)
+
+
+def prepare_data(data: dict) -> dict:
+    for key in data:
+        data[key] = data[key].astype(str2np(key))
+
+        if np.size(data[key][0]) > 0 and not isinstance(data[key][0], bytes):
+            data[key] = [xx.tobytes() for xx in data[key]]
+
+    return data
+
+
+def rename_old_columns(file):
+    # TODO not for ever needed
+    columns = dict(i_world='world_i64',
+                   i_sample='sample_i64',
+                   q0='q0_f64',
+                   q='q_f64',
+                   objective='objective_f64',
+                   feasible='feasible_b')
+
+    rename_columns(file=file, table='paths', columns=columns)

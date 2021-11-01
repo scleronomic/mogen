@@ -10,9 +10,9 @@ from rokin.Vis.robot_3d import robot_path_interactive
 from mopla import parameter
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
-from mogen.Loading.load_pandas import create_path_df
+from mogen.Loading.load import create_path_df
 from wzk.sql2 import df2sql, get_values_sql
-from mogen.Generation.sample_start_end import sample_q_start_end
+from mogen.Generation.starts_ends import sample_q_start_end
 
 ray.init(address='auto')
 
@@ -22,6 +22,7 @@ class Generation:
                  'gd',
                  'bee_rate',
                  'n_multi_start')
+
 
 robot0 = Justin19()
 # robot0 = SingleSphere02(radius=0.25)
