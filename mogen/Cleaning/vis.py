@@ -40,7 +40,7 @@ def plot_dist_to_q0(file, robot, i):
     q0 = q0.reshape(len(i), -1, 19)
     q = q.reshape(len(i), -1, 19)
 
-    dq = ((q0-q)**2).mean(axis=(-1, -2))
+    dq = (q0-q).max(axis=(-1, -2))
     from wzk import new_fig
     fig, ax = new_fig()
     print(len(dq))
