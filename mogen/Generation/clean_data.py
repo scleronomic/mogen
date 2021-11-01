@@ -253,9 +253,9 @@ def clean(iw_i, iw_all, ra: str = 'replace'):
 clean_main()
 
 
-# from rokin.Vis import robot_3d
-# from rokin.Robots import Justin19
-# from mopla.parameter import Parameter
+from rokin.Vis import robot_3d
+from rokin.Robots import Justin19
+from mopla.parameter import Parameter
 
 
 def sample_gif_3d(i_s, file):
@@ -274,10 +274,17 @@ def sample_gif_3d(i_s, file):
     file_gif = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}_w{i_w}_s{i_s}.gif'
 
     q = q.reshape(-1, robot.n_dof)
-    robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_gif, screen_size=(1024, 768)), q=q, robot=robot, gif=file_gif,
+    robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_gif, screen_size=(1024, 768)), q=q, robot=robot,
+                                    gif=file_gif,
                                     kwargs_world=dict(limits=par.world.limits, img=img))
 
 
+# from wzk import new_fig
+#
+# fig, ax = new_fig()
+#
+# q = np.random.random((100, 20, 19))
+# ax.plot()
 # def a():
 #     pass
 #
