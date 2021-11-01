@@ -32,10 +32,11 @@ def plot_path_2d(i_s, robot, file):
 
     q = q.reshape(-1, robot.n_dof)
 
-    q2 = get_substeps_adjusted(x=q, n=200)
-    print(len(q2))
-    q2 = q2[::10]
-    print(len(q2))
+    q2 = get_substeps_adjusted(x=q, n=191)
+    # print(len(q2))
+    # q2 = q2[::10]
+    # print(np.arange(200)[::10])
+    # print(len(q2))
     fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
     robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o', color='blue')
