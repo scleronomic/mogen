@@ -1,7 +1,7 @@
 import numpy as np
 
 from wzk.sql2 import get_values_sql
-from wzk.mpl import new_fig, save_fig
+from wzk.mpl import new_fig, save_fig, close_all
 from wzk.image import compressed2img
 
 from rokin.Vis import robot_2d, robot_3d
@@ -25,14 +25,14 @@ def plot_path_2d(i_s, robot, file):
 
     par = Parameter(robot=robot)
     i_w, i_s, q, img = get_sample(file=file, i_s=i_s, img_shape=par.world.shape)
-    file_path = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/imgs/{robot.id}/_w{i_w}_s{i_s}'
+    file_path = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/imgs/{robot.id}/w{i_w}_s{i_s}'
 
     q = q.reshape(-1, robot.n_dof)
 
     fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
     robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o')
-    save_fig(file=file_path, fig=fig, formats=('pdf', 'png'))
+    save_fig(file=file_path, fig=fig, formats='png')
 
 
 def plot_gif_3d(i_s, file):
@@ -66,7 +66,7 @@ def plot_dist_to_q0(file, robot, i):
     print(len(dq))
     ax.hist(dq, bins=50)
     print(np.sort(dq)[:10])
-    save_fig(fig=fig, file=file_hist, formats=('pdf', 'png'))
+    save_fig(fig=fig, file=file_hist, formats='png')
 
 
 if __name__ == '__main__':
@@ -77,8 +77,11 @@ if __name__ == '__main__':
     file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
-    plot_path_2d(file=file_easy, robot=robot, i_s=0)
-    plot_path_2d(file=file_easy, robot=robot, i_s=1)
+
+    for i in range(1000):
+        plot_path_2d(file=file_easy, robot=robot, i_s=i)
+        close_all()
+    # plot_path_2d(file=file_easy, robot=robot, i_s=1)
 
 
 # q = np.random.random((100, 20, 19))
