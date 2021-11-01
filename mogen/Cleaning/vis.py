@@ -4,6 +4,9 @@ from wzk.sql2 import get_values_sql
 from wzk.mpl import new_fig, save_fig, close_all
 from wzk.image import compressed2img
 
+from wzk.trajectory import get_substeps, get_substeps_adjusted
+
+
 from rokin.Vis import robot_2d, robot_3d
 from rokin.Robots import *
 from mopla.parameter import Parameter
@@ -29,9 +32,12 @@ def plot_path_2d(i_s, robot, file):
 
     q = q.reshape(-1, robot.n_dof)
 
+    q2 = get_substeps_adjusted(x=q, n=100)[::5]
+    print(len(q2))
     fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
-    robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o')
+    robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o', color='blue')
+    robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='red')
     save_fig(file=file_path, fig=fig, formats='png')
 
 
