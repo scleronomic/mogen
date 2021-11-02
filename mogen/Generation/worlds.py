@@ -119,8 +119,7 @@ def main():
 
 
 if __name__ == '__main__':
-    for i in range(100):
-        test_zlib()  #JustinArm07 | World 0-1000 | Samples 0-1000
+    main()  # JustinArm07 | World 0-1000 | Samples 0-1000
 
 
 # import numpy as np
