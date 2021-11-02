@@ -80,20 +80,16 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 def main(robot_id: str, iw_list=None, ra='append'):
     file = file_stub.format(robot_id)
     n_samples_per_world = 1000
-    worlds = get_values_sql(file=file, rows=np.arange(1000), table='worlds', columns='img_cmp', values_only=True)
+    # worlds = get_values_sql(file=file, rows=np.arange(1000), table='worlds', columns='img_cmp', values_only=True)
     # print("# Worlds", len(worlds))
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
-    for i, w in enumerate(worlds):
-        print(i)
-        obstacle_img = compressed2img(img_cmp=w, shape=(64, 64, 64), dtype=bool)
-
-    print('B')
 
     @ray.remote
     def sample_ray(_i_w, _i_s):
+        img_cmp = get_values_sql(file=file, rows=_i_w, table='worlds', columns='img_cmp', values_only=True)
         gen = init_par(robot_id=robot_id)
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w], verbose=0)
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=img_cmp, verbose=0)
 
     futures = []
     for i_w in iw_list:
@@ -118,7 +114,7 @@ def main(robot_id: str, iw_list=None, ra='append'):
 
 def main_loop(robot_id):
     for i in range(10):
-        worlds = np.arange(1000)
+        worlds = np.arange(10000)
         for iw in np.array_split(worlds, len(worlds)//10):
             print(f"{i}:  {min(iw)} - {max(iw)}", end="  |  ")
             tic()
