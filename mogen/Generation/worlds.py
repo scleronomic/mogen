@@ -138,7 +138,11 @@ def test_zlib():
     b = img2compressed(img=a, n_dim=3)
     b2 = b.astype(bytes)
     for bb, bb2 in zip(b, b2):
-        assert bb == bb2
+        try:
+            assert bb == bb2
+        except AssertionError:
+            print(bb)
+            print(bb2)
     print('1')
 
     a2 = compressed2img(img_cmp=b, shape=s, dtype=bool)
@@ -159,6 +163,7 @@ def test_zlib():
     a3 = compressed2img(img_cmp=img, shape=s, dtype=bool)
     print(a3.shape)
     np.allclose(a, a3)
+
 
 if __name__ == '__main__':
     for i in range(100):
