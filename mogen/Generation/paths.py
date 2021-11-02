@@ -55,7 +55,9 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     q00 = q0[:1]
     q0 = q0[1:]
 
-    tic()
+    if verbose > 0:
+        tic()
+
     df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
     if df0.feasible_b[0]:
         if verbose > 0:
@@ -76,11 +78,10 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
 
 def main(robot_id: str, iw_list=None, ra='append'):
-    print(robot_id)
     file = file_stub.format(robot_id)
     n_samples_per_world = 1000
     worlds = get_values_sql(file=file, rows=np.arange(1000), table='worlds', columns='img_cmp', values_only=True)
-    print("# Worlds", len(worlds))
+    # print("# Worlds", len(worlds))
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
 
@@ -114,10 +115,11 @@ def main_loop(robot_id):
     for i in range(10):
         worlds = np.arange(1000)
         for iw in np.array_split(worlds, len(worlds)//10):
-            print(f"{i}:, {min(iw)} - {max(iw)}", end="  |  ")
+            print(f"{i}:  {min(iw)} - {max(iw)}", end="  |  ")
             tic()
             main(robot_id=robot_id, iw_list=iw, ra='append')
             toc()
+
 
 if __name__ == '__main__':
 

@@ -85,7 +85,7 @@ def get_robot_max_reach(robot):
     return limits
 
 
-def test():
+def main():
     from wzk.sql2 import df2sql
     from rokin.Robots import Justin19, JustinArm07
     # robot = SingleSphere02(radius=0.25)
@@ -124,4 +124,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()
