@@ -87,7 +87,7 @@ def main(robot_id: str, iw_list=None, ra='append'):
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par(robot_id=robot_id)
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w], verbose=1)
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w], verbose=0)
 
     futures = []
     for i_w in iw_list:
@@ -104,8 +104,9 @@ def main(robot_id: str, iw_list=None, ra='append'):
 
     tic()
     df2sql(df=df, file=file, table='paths', if_exists=ra)
-    # vacuum(file=file)
-    toc(f'Time for appending {len(df)} rows')
+    if ra == 'replace':
+        vacuum(file=file)
+    # toc(f'Time for appending {len(df)} rows')
     return df
 
 
@@ -113,8 +114,10 @@ def main_loop(robot_id):
     for i in range(10):
         worlds = np.arange(1000)
         for iw in np.array_split(worlds, len(worlds)//10):
+            print(f"{i}:, {min(iw)} - {max(iw)}", end="  |  ")
+            tic()
             main(robot_id=robot_id, iw_list=iw, ra='append')
-
+            toc()
 
 if __name__ == '__main__':
 
