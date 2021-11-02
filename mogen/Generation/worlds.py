@@ -1,7 +1,7 @@
 import numpy as np
 
 from wzk import print_progress
-from wzk.image import img2compressed
+from wzk.image import img2compressed, compressed2img
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
@@ -58,6 +58,7 @@ def sample_worlds(par, n_worlds, mode='perlin',
     # ax.hist(hh)
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
+    aa = compressed2img(img_list, shape=(64, 64, 64))
     world_df = create_world_df(i_world=np.arange(n_worlds), img_cmp=img_list)
     return world_df
 
@@ -95,7 +96,7 @@ def main():
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    df = sample_worlds(par=par, n_worlds=10000,
+    df = sample_worlds(par=par, n_worlds=200,
                        mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
 
     # for i in range(20):
@@ -126,22 +127,23 @@ def main():
 if __name__ == '__main__':
     main()
 
-import numpy as np
-from rokin.Robots import JustinArm07
-from wzk.trajectory import get_substeps
-from wzk.mpl import new_fig
-robot = JustinArm07()
 
-q = robot.sample_q((1000, 2))
-q = get_substeps(x=q, n=20, include_start=True)
-
-f = robot.get_frames(q)
-x = f[..., :-1, -1]
-
-d = np.linalg.norm(x[:, 1:] - x[:, :-1], axis=-1).sum(axis=1)
-
-fig, ax = new_fig()
-for i in [2, 4, 7]:
-    ax.hist(d[:, i], alpha=0.5, bins=50)
-
-np.mean(d, axis=0)
+# import numpy as np
+# from rokin.Robots import JustinArm07
+# from wzk.trajectory import get_substeps
+# from wzk.mpl import new_fig
+# robot = JustinArm07()
+#
+# q = robot.sample_q((1000, 2))
+# q = get_substeps(x=q, n=20, include_start=True)
+#
+# f = robot.get_frames(q)
+# x = f[..., :-1, -1]
+#
+# d = np.linalg.norm(x[:, 1:] - x[:, :-1], axis=-1).sum(axis=1)
+#
+# fig, ax = new_fig()
+# for i in [2, 4, 7]:
+#     ax.hist(d[:, i], alpha=0.5, bins=50)
+#
+# np.mean(d, axis=0)
