@@ -138,15 +138,19 @@ def test_zlib():
     b2 = b.astype(bytes)
     for bb, bb2 in zip(b, b2):
         assert bb == bb2
+    print('1')
 
-    assert np.allclose(b, b2)
     a2 = compressed2img(img_cmp=b, shape=(64, 64, 64), dtype=bool)
-    a2 = compressed2img(img_cmp=b2, shape=(64, 64, 64), dtype=bool)
+    print('2')
     assert np.allclose(a, a2)
+    a3 = compressed2img(img_cmp=b2, shape=(64, 64, 64), dtype=bool)
+    assert np.allclose(a, a3)
+    print('3')
 
     df = create_world_df(i_world=np.arange(n), img_cmp=b)
-    a3 = compressed2img(img_cmp=df.img_cmp.values, shape=(64, 64, 64), dtype=bool)
-    assert np.allclose(a, a3)
+    a4 = compressed2img(img_cmp=df.img_cmp.values, shape=(64, 64, 64), dtype=bool)
+    assert np.allclose(a, a4)
+    print('4')
 
     file = f'/net/rmc-lx0062/home_local/tenh_jo/zlib.db'
     df2sql(df=df, file=file, table='worlds', if_exists='replace')
