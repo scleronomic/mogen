@@ -105,7 +105,7 @@ def main(robot_id: str, iw_list=None, ra='append'):
     for df_i in df_list[1:]:
         df = df.append(df_i)
 
-    tic()
+    # tic()
     df2sql(df=df, file=file, table='paths', if_exists=ra)
     if ra == 'replace':
         vacuum(file=file)
