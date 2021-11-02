@@ -131,17 +131,20 @@ def main():
 
 
 def test_zlib():
-    n = 1000
+    n = 100
     a = np.random.random((n, 64, 64, 64)) < 0.1
     a = a.astype(bool)
     b = img2compressed(img=a, n_dim=3)
     df = create_world_df(i_world=np.arange(n), img_cmp=b)
+    a2 = compressed2img(img_cmp=df.img_cmp.values, shape=(64, 64, 64), dtype=bool)
+    assert np.allclose(a, a2)
+
     file = f'/net/rmc-lx0062/home_local/tenh_jo/zlib.db'
     df2sql(df=df, file=file, table='worlds', if_exists='replace')
     img = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
-    img = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
-    print(img.shape)
-
+    a3 = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
+    print(a3.shape)
+    np.allclose(a, a3)
 
 if __name__ == '__main__':
     test_zlib()  #JustinArm07 | World 0-1000 | Samples 0-1000
