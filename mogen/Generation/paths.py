@@ -58,18 +58,20 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     tic()
     df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
     if df0.feasible_b[0]:
-        toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
+        if verbose > 0:
+            toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
         return df0
 
     df = __chomp(q0=q0, q_start=q_start, q_end=q_end, gd=gd, par=par, i_world=i_world, i_sample=i_sample)
 
-    if verbose > 0:
+    if verbose > 2:
         j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
         robot_path_interactive(q=df.q[j], robot=par.robot,
                                kwargs_world=dict(img=obstacle_img, limits=par.world.limits))
 
     df = df0.append(df)
-    toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
+    if verbose > 0:
+        toc(name=f"{par.robot.id}, {i_world}, {i_sample}")
     return df
 
 
@@ -85,7 +87,7 @@ def main(robot_id: str, iw_list=None, ra='append'):
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par(robot_id=robot_id)
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
+        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w], verbose=1)
 
     futures = []
     for i_w in iw_list:
