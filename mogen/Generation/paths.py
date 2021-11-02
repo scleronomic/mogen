@@ -84,6 +84,11 @@ def main(robot_id: str, iw_list=None, ra='append'):
     # print("# Worlds", len(worlds))
     # gen = init_par()
     # df = sample_path(gen=gen, i_world=0, i_sample=0, img_cmp=worlds[0], verbose=1)
+    for i, w in enumerate(worlds):
+        print(i)
+        obstacle_img = compressed2img(img_cmp=w, shape=(64, 64, 64), dtype=bool)
+
+    print('B')
 
     @ray.remote
     def sample_ray(_i_w, _i_s):

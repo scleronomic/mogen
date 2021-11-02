@@ -125,3 +125,23 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+import numpy as np
+from rokin.Robots import JustinArm07
+from wzk.trajectory import get_substeps
+from wzk.mpl import new_fig
+robot = JustinArm07()
+
+q = robot.sample_q((1000, 2))
+q = get_substeps(x=q, n=20, include_start=True)
+
+f = robot.get_frames(q)
+x = f[..., :-1, -1]
+
+d = np.linalg.norm(x[:, 1:] - x[:, :-1], axis=-1).sum(axis=1)
+
+fig, ax = new_fig()
+for i in [2, 4, 7]:
+    ax.hist(d[:, i], alpha=0.5, bins=50)
+
+np.mean(d, axis=0)
