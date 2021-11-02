@@ -13,7 +13,7 @@ from mogen.Loading.load import create_path_df
 from mogen.Generation.parameter import init_par
 from mogen.Generation.starts_ends import sample_q_start_end
 
-ray.init(address='auto')
+ray.init(address='auto', log_to_driver=False)
 
 file_stub = '/net/rmc-lx0062/home_local/tenh_jo/{}.db'
 
@@ -85,8 +85,6 @@ def main(robot_id: str, iw_list=None, ra='append'):
     @ray.remote
     def sample_ray(_i_w, _i_s):
         gen = init_par(robot_id=robot_id)
-        print(gen.par.robot.id)
-
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=worlds[_i_w])
 
     futures = []
