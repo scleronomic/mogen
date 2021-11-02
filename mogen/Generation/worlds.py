@@ -100,7 +100,7 @@ def main():
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    df = sample_worlds(par=par, n_worlds=200,
+    df = sample_worlds(par=par, n_worlds=20,
                        mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
 
     # for i in range(20):
