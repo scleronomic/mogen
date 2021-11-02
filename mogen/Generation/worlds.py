@@ -60,7 +60,7 @@ def sample_worlds(par, n_worlds, mode='perlin',
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
     aa = compressed2img(img_list, shape=(64, 64, 64), dtype=bool)
     world_df = create_world_df(i_world=np.arange(n_worlds), img_cmp=img_list)
-    bb = world_df.img_cmp.values()
+    bb = world_df.img_cmp.values
     bb = compressed2img(img_list, shape=(64, 64, 64), dtype=bool)
 
     return world_df
