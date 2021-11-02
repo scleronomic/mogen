@@ -2,6 +2,7 @@ import numpy as np
 
 from wzk import print_progress
 from wzk.image import img2compressed, compressed2img
+from wzk.sql2 import get_values_sql
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
@@ -124,6 +125,9 @@ def main():
     df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
     df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
 
+    img = get_values_sql(file=file, table='worlds', columns='world_cmp')
+    img = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
+    print(img.shape)
     print(df)
 
 
