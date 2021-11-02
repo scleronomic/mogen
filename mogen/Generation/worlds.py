@@ -2,7 +2,7 @@ import numpy as np
 
 from wzk import print_progress
 from wzk.image import img2compressed, compressed2img
-from wzk.sql2 import get_values_sql
+from wzk.sql2 import df2sql, get_values_sql
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
@@ -91,7 +91,6 @@ def get_robot_max_reach(robot):
 
 
 def main():
-    from wzk.sql2 import df2sql
     from rokin.Robots import Justin19, JustinArm07
     # robot = SingleSphere02(radius=0.25)
     robot = JustinArm07()  # threshold=0.35
@@ -131,8 +130,21 @@ def main():
     print(df)
 
 
+def test_zlib():
+    n = 1000
+    a = np.random.random((n, 64, 64, 64)) < 0.1
+    a = a.astype(bool)
+    b = img2compressed(img=a, n_dim=3)
+    df = create_world_df(i_world=np.arange(n), img_cmp=b)
+    file = f'/net/rmc-lx0062/home_local/tenh_jo/zlib.db'
+    df2sql(df=df, file=file, table='worlds', if_exists='replace')
+    img = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
+    img = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
+    print(img.shape)
+
+
 if __name__ == '__main__':
-    main()
+    test_zlib()
 
 
 # import numpy as np
