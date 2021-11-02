@@ -136,6 +136,9 @@ def test_zlib():
     a = a.astype(bool)
     b = img2compressed(img=a, n_dim=3)
     b2 = b.astype(bytes)
+    for bb, bb2 in zip(b, b2):
+        assert bb == bb2
+
     assert np.allclose(b, b2)
     a2 = compressed2img(img_cmp=b, shape=(64, 64, 64), dtype=bool)
     a2 = compressed2img(img_cmp=b2, shape=(64, 64, 64), dtype=bool)
