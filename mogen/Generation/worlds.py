@@ -161,7 +161,8 @@ def test_zlib():
     np.allclose(a, a3)
 
 if __name__ == '__main__':
-    test_zlib()  #JustinArm07 | World 0-1000 | Samples 0-1000
+    for i in range(100):
+        test_zlib()  #JustinArm07 | World 0-1000 | Samples 0-1000
 
 
 # import numpy as np
