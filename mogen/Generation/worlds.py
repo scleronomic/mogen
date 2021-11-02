@@ -132,7 +132,7 @@ def main():
 
 def test_zlib():
     n = 1000
-    s = (16, 16, 16)
+    s = (32, 32, 32)
     a = np.random.random((n,) + s) < 0.1
     a = a.astype(bool)
     b = img2compressed(img=a, n_dim=3)
