@@ -125,7 +125,7 @@ def main():
     df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
     df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
 
-    img = get_values_sql(file=file, table='worlds', columns='world_cmp')
+    img = get_values_sql(file=file, table='worlds', columns='img_cmp')
     img = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
     print(img.shape)
     print(df)
