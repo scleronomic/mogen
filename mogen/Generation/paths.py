@@ -87,6 +87,7 @@ def main(robot_id: str, iw_list=None, ra='append'):
 
     @ray.remote
     def sample_ray(_i_w: int, _i_s: int):
+        _i_w = int(_i_w)
         img_cmp = get_values_sql(file=file, rows=_i_w, table='worlds', columns='img_cmp', values_only=True)
         gen = init_par(robot_id=robot_id)
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=img_cmp, verbose=0)
