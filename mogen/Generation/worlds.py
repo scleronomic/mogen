@@ -54,16 +54,9 @@ def sample_worlds(par, n_worlds, mode='perlin',
             if par.robot.n_dim == 3:
                 robot_3d.robot_path_interactive(q=par.robot.sample_q(100), robot=par.robot,
                                                 kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
-    # fig, ax = new_fig()
-    # hh = np.mean(img_list, axis=(1, 2, 3))
-    # ax.hist(hh)
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
-    aa = compressed2img(img_list, shape=(64, 64, 64), dtype=bool)
     world_df = create_world_df(i_world=np.arange(n_worlds), img_cmp=img_list)
-    bb = world_df.img_cmp.values
-    bb = compressed2img(img_list, shape=(64, 64, 64), dtype=bool)
-
     return world_df
 
 
@@ -99,7 +92,7 @@ def main():
     par = parameter.Parameter(robot=robot, obstacle_img=None)
     par.check.self_collision = False
     par.check.obstacle_collision = True
-    df = sample_worlds(par=par, n_worlds=200,
+    df = sample_worlds(par=par, n_worlds=10000,
                        mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
 
     # for i in range(20):
@@ -123,46 +116,6 @@ def main():
     df2sql(df=df, file=file, table='worlds', if_exists=ra)
     df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
     df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
-
-    img = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
-    img = compressed2img(img_cmp=img, shape=(64, 64, 64), dtype=bool)
-    print(img.shape)
-    print(df)
-
-
-def test_zlib():
-    n = 1000
-    s = (32, 32, 32)
-    a = np.random.random((n,) + s) < 0.1
-    a = a.astype(bool)
-    b = img2compressed(img=a, n_dim=3)
-    b2 = b.astype(bytes)
-    for bb, bb2 in zip(b, b2):
-        try:
-            assert bb == bb2
-        except AssertionError:
-            print(bb)
-            print(bb2)
-    print('1')
-
-    a2 = compressed2img(img_cmp=b, shape=s, dtype=bool)
-    print('2')
-    assert np.allclose(a, a2)
-    a3 = compressed2img(img_cmp=b2, shape=s, dtype=bool)
-    assert np.allclose(a, a3)
-    print('3')
-
-    df = create_world_df(i_world=np.arange(n), img_cmp=b)
-    a4 = compressed2img(img_cmp=df.img_cmp.values, shape=s, dtype=bool)
-    assert np.allclose(a, a4)
-    print('4')
-
-    file = f'/net/rmc-lx0062/home_local/tenh_jo/zlib.db'
-    df2sql(df=df, file=file, table='worlds', if_exists='replace')
-    img = get_values_sql(file=file, table='worlds', columns='img_cmp', values_only=True)
-    a3 = compressed2img(img_cmp=img, shape=s, dtype=bool)
-    print(a3.shape)
-    np.allclose(a, a3)
 
 
 if __name__ == '__main__':
