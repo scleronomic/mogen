@@ -44,7 +44,7 @@ def get_world_sample(shape,
 def initialize_pixel_grid(img, voxel_size, lower_left, ax, **kwargs):
 
     ij = np.array(list(np.ndindex(img.shape)))
-    xy = grid_i2x(i=ij, cell_size=voxel_size, lower_left=lower_left, mode='b')
+    xy = grid_i2x(i=ij, voxel_size=voxel_size, lower_left=lower_left, mode='b')
 
     pixel_grid = collections.PatchCollection([patches.Rectangle(xy=(x, y), width=voxel_size,
                                                                 height=voxel_size, snap=True)
@@ -149,14 +149,14 @@ class WorldViewer:
 
     def on_click_obstacle(self, event):
         i, j = grid_x2i(x=[event.xdata, event.ydata],
-                        cell_size=self.world.voxel_size, lower_left=self.world.limits[:, 0])
+                        voxel_size=self.world.voxel_size, lower_left=self.world.limits[:, 0])
         switch_img_values(bool_img=self.obstacle_img, i=i, j=j, value=None)
         self.update_obstacle_image()
 
     def on_select_obstacle(self, e_click, e_release):
         (x_ll), (x_ur) = get_selected_rectangle(e_click=e_click, e_release=e_release)
 
-        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), cell_size=self.world.voxel_size,
+        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), voxel_size=self.world.voxel_size,
                               lower_left=self.world.limits[:, 0])
 
         switch_img_values(bool_img=self.obstacle_img, value=None,

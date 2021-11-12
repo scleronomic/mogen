@@ -54,7 +54,7 @@ def check_iw_is(i_w, i_s):
 def main_choose_best():
     robot = JustinArm07()
     # robot = SingleSphere02(radius=0.25)
-    # robot = StaticArm(n_dof=4, limb_lengths=0.5, limits=np.deg2rad([-170, +170]))
+    # robot = StaticArm(n_dof=4, lengths=0.5, limits=np.deg2rad([-170, +170]))
     m = 50
 
     file_org = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/{robot.id}.db'

@@ -231,7 +231,7 @@ if __name__ == '__main__':
     #             self.plot_prediction()
 
     # def plot_img_path(self):
-    #     self.path_img = w2i.path2image(x=self.q, r_sphere=self.g.r_sphere)
+    #     self.path_img = w2i.path2image(x=self.q, r=self.g.r)
     #     if self.img_path_plot_h is None:
     #         self.img_path_plot_h = plt2.plot_prediction_world(self.path_img, world_size=self.g.world_size, ax=self.ax,
     #                                                           zorder=-100, alpha=0.5)
@@ -259,17 +259,17 @@ if __name__ == '__main__':
     # def get_prediction_input(self):
     #     self.update_x_start_end_path()
     #     if self.g.lll is None:
-    #         start_img = w2i.position2image(x_pos=self.q_start, r_sphere=self.g.r_sphere)
-    #         end_img = w2i.position2image(x_pos=self.q_end, r_sphere=self.g.r_sphere)
+    #         start_img = w2i.position2image(x_pos=self.q_start, r=self.g.r)
+    #         end_img = w2i.position2image(x_pos=self.q_end, r=self.g.r)
     #     else:
     #         x_start_warm = forward.xa2x_warm_2d(lll=self.g.lll, xa=self.q_start, n_dim=self.g.n_dim,
     #                                             n_joints=self.g.n_joints, n_spheres_tot=self.g.n_spheres_tot)
     #         x_end_warm = forward.xa2x_warm_2d(lll=self.g.lll, xa=self.q_end, n_dim=self.g.n_dim,
     #                                           n_joints=self.g.n_joints, n_spheres_tot=self.g.n_spheres_tot)
     #
-    #         start_img = w2i.position2image(x_pos=x_start_warm, r_sphere=self.g.r_sphere,
+    #         start_img = w2i.position2image(x_pos=x_start_warm, r=self.g.r,
     #                                        n_samples=self.g.n_spheres_tot + 1)
-    #         end_img = w2i.position2image(x_pos=x_end_warm, r_sphere=self.g.r_sphere,
+    #         end_img = w2i.position2image(x_pos=x_end_warm, r=self.g.r,
     #                                      n_samples=self.g.n_spheres_tot + 1)
     #
     #         if self.use_path_img_ip:
@@ -438,7 +438,7 @@ if __name__ == '__main__':
     # def update_objective(self, x):
     #
     #     obstacle_cost_fun = \
-    #         cost_f.obstacle_img2cost_fun(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r_sphere,
+    #         cost_f.obstacle_img2cost_fun(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r,
     #                                      interp_order=0, eps=self.eps_obstacle_cost,
     #                                      world_size=self.g.world_size)
     #
@@ -491,12 +491,12 @@ if __name__ == '__main__':
     #
     #     # Obstacles in cost function
     #     obstacle_cost_fun = \
-    #         cost_f.obstacle_img2cost_fun(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r_sphere,
+    #         cost_f.obstacle_img2cost_fun(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r,
     #                                      interp_order=0, eps=self.eps_obstacle_cost,
     #                                      world_size=self.g.world_size)
     #
     #     obstacle_cost_fun_grad = \
-    #         cost_f.obstacle_img2cost_fun_grad(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r_sphere,
+    #         cost_f.obstacle_img2cost_fun_grad(obstacle_img=self.obstacle_img_cur, r_spheres=self.g.r,
     #                                           eps=self.eps_obstacle_cost, world_size=self.g.world_size, interp_order=1)
     #
     #     x0 = path.x2x_inner(x=self.q_pred, n_dof=self.g.n_dim + self.g.n_joints).copy()
@@ -556,7 +556,7 @@ if __name__ == '__main__':
     #
     # def plot_cost_img(self):
     #     cost_img = cost_f.obstacle_img2cost_img(self.obstacle_img_cur, world_size=self.g.world_size,
-    #                                             r_spheres=self.g.r_sphere,
+    #                                             r_spheres=self.g.r,
     #                                             eps=self.eps_obstacle_cost)
     #     plt2.world_imshow(img=cost_img, limits=self.g.world_size, ax=self.ax, alpha=0.6)
     #
@@ -605,25 +605,25 @@ if __name__ == '__main__':
     #         # ax.set_ylim([20, 80])  # TODO  for FINAL/SingleSphereRobots/global_pos_switch_2D_SR_2dof.py
     #         # y = np.arange(40, 61, 2)
     #         # for yy in y:
-    #         #     circle = Circle(xy=np.array([90.0, yy]), radius=self.g.r_sphere, fc='r', hatch='\\\\\\\\', alpha=0.2)
+    #         #     circle = Circle(xy=np.array([90.0, yy]), radius=self.g.r, fc='r', hatch='\\\\\\\\', alpha=0.2)
     #         #     ax.add_patch(circle)
     #
-    #         circle_a = Circle(xy=self.q_start, radius=self.g.r_sphere, fc='g', hatch='////', alpha=1, zorder=100)
-    #         circle_e = Circle(xy=self.q_end, radius=self.g.r_sphere, fc='r', hatch='\\\\\\\\', alpha=1, zorder=100)
+    #         circle_a = Circle(xy=self.q_start, radius=self.g.r, fc='g', hatch='////', alpha=1, zorder=100)
+    #         circle_e = Circle(xy=self.q_end, radius=self.g.r, fc='r', hatch='\\\\\\\\', alpha=1, zorder=100)
     #         ax.add_patch(circle_a)
     #         ax.add_patch(circle_e)
     #
     #     else:
     #         for xy in self.xs_start:
-    #             circle_a = Circle(xy=xy.flatten(), radius=self.g.r_sphere, fc='g', hatch='////', alpha=1, zorder=100)
+    #             circle_a = Circle(xy=xy.flatten(), radius=self.g.r, fc='g', hatch='////', alpha=1, zorder=100)
     #             ax.add_patch(circle_a)
     #
     #         for xy in self.xs_end:
-    #             circle_a = Circle(xy=xy.flatten(), radius=self.g.r_sphere, fc='r', hatch='\\\\\\\\', alpha=1, zorder=100)
+    #             circle_a = Circle(xy=xy.flatten(), radius=self.g.r, fc='r', hatch='\\\\\\\\', alpha=1, zorder=100)
     #             ax.add_patch(circle_a)
     #
     #     if self.g.fixed_base:
-    #         circle_b = Circle(xy=self.xs_start[0, :].flatten(), radius=self.g.r_sphere,
+    #         circle_b = Circle(xy=self.xs_start[0, :].flatten(), radius=self.g.r,
     #                           fc='xkcd:dark gray', hatch='XXXX', alpha=1, zorder=200)
     #         ax.add_patch(circle_b)
     #         ax.add_patch(circle_b)

@@ -20,7 +20,7 @@ def get_x_frames_distances(robot):
 
 
 def spheres2joints(x_spheres, robot):
-    limb_lengths = get_x_frames_distances(robot=robot)
+    lengths = get_x_frames_distances(robot=robot)
 
     n_dim = 2
     n_dof = robot.n_dof
@@ -34,7 +34,7 @@ def spheres2joints(x_spheres, robot):
         # Ensure that points satisfy the constraints of the arm
         step = x_spheres[i + 1, :] - x_spheres[robot.prev_f_idx[i + 1], :]
         dist = np.linalg.norm(step)
-        r = limb_lengths[i]
+        r = lengths[i]
         x_spheres[i + 1, :] -= step * (dist - r) / dist
 
         # Get the angles from the configuration

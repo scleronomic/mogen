@@ -73,7 +73,7 @@ def aim_distribution(y, x_c, x_drop_start=0.70, x_drop_threshold=5e-5, alpha=1, 
 
         i_ymax = np.argmax(y)
 
-        i_xr1 = grid_x2i(x=x_drop_start * np.sqrt(n_dim), cell_size=voxel_size, lower_left=0)
+        i_xr1 = grid_x2i(x=x_drop_start * np.sqrt(n_dim), voxel_size=voxel_size, lower_left=0)
         xc_tail = np.linspace(-5, 5, len(x_c[i_xr1:]))
 
         y_aim[i_ymax:] = y[i_ymax]
