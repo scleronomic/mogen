@@ -199,21 +199,21 @@ def test():
 if __name__ == '__main__':
 
     # test()
-    ray_init(perc=1)
+    ray_init(perc=100)
     _robot_id = 'Justin19'
 
+    # import os
+    # print(os.environ['PYTHONPATH'])
+    # @ray.remote
+    # def dummy():
+    #     from mopla import Parameter
+    #
+    #
+    # futures = []
+    # for i_w in range(10):
+    #     futures.append(dummy.remote())
+    #
+    # df_list = ray.get(futures)
 
-    @ray.remote
-    def dummy():
-        from mopla.Parameter.Justin19 import get_par_justin19
-
-
-    futures = []
-    for i_w in range(10):
-        futures.append(dummy.remote())
-
-    df_list = ray.get(futures)
-
-    # with tictoc('total time') as _:
-    #     main_loop_sc(_robot_id)
-#
+    with tictoc('total time') as _:
+        main_loop_sc(_robot_id)
