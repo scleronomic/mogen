@@ -107,6 +107,8 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
     file = file_stub.format(robot_id)
 
+    gen_ = init_par(robot_id=robot_id)
+
     @ray.remote
     def sample_ray(_i_w: int, _i_s: int):
         gen = init_par(robot_id=robot_id)
@@ -122,8 +124,10 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
     for i_w in iw_list:
         for i_s in range(n_samples_per_world):
             futures.append(sample_ray.remote(i_w, i_s))
+            # futures.append(sample_ray(i_w, i_s))
 
     df_list = ray.get(futures)
+    # df_list = futures
 
     df = df_list[0]
     for df_i in df_list[1:]:
@@ -150,7 +154,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
 
 def main_loop_sc(robot_id):
     worlds = [-1]
-    main(robot_id=robot_id, iw_list=worlds, ra='replace', n_samples_per_world=1000)
+    main(robot_id=robot_id, iw_list=worlds, ra='replace', n_samples_per_world=100)
     for i in range(10000):
         worlds = [-1]
         with tictoc(f'loop {i}') as _:
@@ -195,9 +199,21 @@ def test():
 if __name__ == '__main__':
 
     # test()
-    ray_init(perc=80)
+    ray_init(perc=1)
     _robot_id = 'Justin19'
 
-    with tictoc('total time') as _:
-        main_loop_sc(_robot_id)
+
+    @ray.remote
+    def dummy():
+        from mopla.Parameter.Justin19 import get_par_justin19
+
+
+    futures = []
+    for i_w in range(10):
+        futures.append(dummy.remote())
+
+    df_list = ray.get(futures)
+
+    # with tictoc('total time') as _:
+    #     main_loop_sc(_robot_id)
 #
