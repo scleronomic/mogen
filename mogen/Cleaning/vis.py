@@ -1,34 +1,23 @@
 import numpy as np
 
-from wzk.sql2 import get_values_sql
 from wzk.mpl import new_fig, save_fig, close_all
-from wzk.image import compressed2img
 
-from wzk.trajectory import get_substeps, get_substeps_adjusted
-
+from wzk.trajectory import get_substeps_adjusted
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.Robots import *
-from mopla.parameter import Parameter
+from mopla.Parameter.parameter import Parameter
+
+from mogen.Loading.load import get_sample, get_values_sql
 
 
-def get_sample(file, i_s, img_shape):
-    i_w, i_s, q = get_values_sql(file=file, table='paths',
-                                 rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
-                                 values_only=True)
-    i_w = int(np.squeeze(i_w))
-    i_s = int(np.squeeze(i_s))
-    img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
-    img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
-
-    return i_w, i_s, q, img
-
-
+# TODO refine the best solution with a few iterations started from this initial guess
 def plot_path_2d(i_s, robot, file):
 
     par = Parameter(robot=robot)
     i_w, i_s, q, img = get_sample(file=file, i_s=i_s, img_shape=par.world.shape)
-    file_path = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/imgs/{robot.id}/w{i_w}_s{i_s}'
+    # file_path = f'/volume/USERSTORE/tenh_jo/0_Data/Samples/imgs/{robot.id}/w{i_w}_s{i_s}'
+    file_path = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}/w{i_w}_s{i_s}'
 
     q = q.reshape(-1, robot.n_dof)
 
@@ -41,7 +30,6 @@ def plot_path_2d(i_s, robot, file):
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
     robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o', color='blue')
     robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='red')
-    # TODO refine the best solution with a few iterations started from this initial guess
     save_fig(file=file_path, fig=fig, formats='png')
 
 
@@ -71,7 +59,6 @@ def plot_dist_to_q0(file, robot, i):
     q = q.reshape(len(i), -1, 19)
 
     dq = (q0-q).max(axis=(-1, -2))
-    from wzk import new_fig
     fig, ax = new_fig()
     print(len(dq))
     ax.hist(dq, bins=50)
@@ -79,29 +66,21 @@ def plot_dist_to_q0(file, robot, i):
     save_fig(fig=fig, file=file_hist, formats='png')
 
 
-if __name__ == '__main__':
+def main():
 
     # robot = Justin19()
     robot = SingleSphere02(radius=0.25)
-    file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
+    # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
     file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
+    file = f'/Users/jote/Documents/Code/Python/DLR/mogen/{robot.id}_hard2.db'
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
 
     for i in range(1000):
-        plot_path_2d(file=file_easy, robot=robot, i_s=i)
+        plot_path_2d(file=file, robot=robot, i_s=i)
         close_all()
     # plot_path_2d(file=file_easy, robot=robot, i_s=1)
 
 
-# q = np.random.random((100, 20, 19))
-# ax.plot()
-# def a():
-#     pass
-#
-#
-# for i in range(0, 10000, 10):
-#     sample_gif_3d(i_s=i, file=file_easy)
-
-
-# p = robot_3d.pv.Plotter(off_screen=False)
+if __name__ == '__main__':
+    main()

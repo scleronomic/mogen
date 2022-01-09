@@ -36,9 +36,9 @@ def __arg_wrapper_acceptance_rate(fun=None):
 
 def __sample_acceptance_bee(start, end, robot, feasibility_check):
     n = 100
-    path = InitialGuess.path.q0_random(start=start, end=end, n_waypoints=n, n_random_points=0,
-                                       robot=robot, order_random=True)
-    return feasibility_check(path[np.newaxis, :, :]) == 1
+    q = InitialGuess.path.q0s_random(start=start, end=end, n_waypoints=n, n_multi_start=[[0], [1]],
+                                     robot=robot, order_random=True)
+    return feasibility_check(q) == 1
 
 
 def __sample_acceptance_dist(start, end, rate=np.inf, joint_weighting=1):
@@ -82,12 +82,12 @@ def test_start_end_sampling(par, robot, feasibility_check):
     f = np.empty(n)
 
     for i in range(n):
-        q_start, q_end = sample_q_start_end(robot=robot, feasibility_check=lambda q: feasibility_check(q=q, par=par),
+        q_start, q_end = sample_q_start_end(robot=robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                             acceptance_rate=0.95)
 
-        q = InitialGuess.path.q0_random(start=q_start, end=q_end, n_waypoints=100, n_random_points=0,
-                                        robot=robot, order_random=True)
-        f[i] = feasibility_check(q0q[np.newaxis, :, :], par=par)
+        q = InitialGuess.path.q0s_random(start=q_start, end=q_end, n_waypoints=100, n_multi_start=[[0], [1]],
+                                         robot=robot, order_random=True)
+        f[i] = feasibility_check(q, par=par)
         d[i] = np.linalg.norm(q_end-q_start)
 
     from wzk.mpl import new_fig, plt

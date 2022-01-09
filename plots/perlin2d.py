@@ -1,7 +1,7 @@
 import numpy as np
 
 from wzk.mpl.styles import set_style, set_borders
-from wzk.mpl import new_fig, save_fig, imshow, imshow_update, turn_ticklabels_off, close_all
+from wzk.mpl import new_fig, save_fig, imshow, turn_ticklabels_off, close_all
 
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -33,7 +33,7 @@ def update(i):
         print(i)
         img[:] = 1
 
-    imshow_update(h=h, img=img, mask=~img, cmap='black')
+    imshow(h=h, img=img, mask=~img, cmap='black')
 
 
 # for i in range(200):

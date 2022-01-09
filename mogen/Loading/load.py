@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 
 from wzk.dtypes import str2np
+from wzk.image import compressed2img
 
-from wzk.sql2 import get_n_rows, rename_columns
+from wzk.sql2 import get_n_rows, rename_columns, get_values_sql, df2sql  # noqa
 from wzk.training import n2train_test, train_test_split  # noqa
 
 meta_df_columns = np.array(['par', 'gd'])
@@ -183,3 +184,15 @@ def rename_old_columns(file):
                    feasible='feasible_b')
 
     rename_columns(file=file, table='paths', columns=columns)
+
+
+def get_sample(file, i_s, img_shape):
+    i_w, i_s, q = get_values_sql(file=file, table='paths',
+                                 rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
+                                 values_only=True)
+    i_w = int(np.squeeze(i_w))
+    i_s = int(np.squeeze(i_s))
+    img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
+    img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
+
+    return i_w, i_s, q, img
