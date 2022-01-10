@@ -186,13 +186,24 @@ def rename_old_columns(file):
     rename_columns(file=file, table='paths', columns=columns)
 
 
-def get_sample(file, i_s, img_shape):
-    i_w, i_s, q = get_values_sql(file=file, table='paths',
-                                 rows=i_s, columns=['world_i32', 'sample_i32', 'q_f32'],
-                                 values_only=True)
-    i_w = int(np.squeeze(i_w))
-    i_s = int(np.squeeze(i_s))
+def get_paths(file, i):
+    i_w, i_s, q0, q, o, f = get_values_sql(file=file, table='paths', rows=i,
+                                           columns=['world_i32', 'sample_i32',
+                                                    'q0_f32', 'q_f32',
+                                                    'objective_f32', 'feasible_b'],
+                                           values_only=True)
+    i_w = np.squeeze(i_w)
+    i_s = np.squeeze(i_s)
+    return i_w, i_s, q0, q, o, f
+
+
+def get_worlds(file, i_w, img_shape):
     img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
     img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
+    return img
 
+
+def get_samples(file, i_s, img_shape):
+    i_w, i_s, q0, q, o, f = get_paths(file, i_s)
+    img = get_worlds(file=file, i_w=i_w, img_shape=img_shape)
     return i_w, i_s, q, img

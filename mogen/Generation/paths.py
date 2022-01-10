@@ -170,12 +170,10 @@ def test():
 
     robot = Justin19()
     i = np.random.randint(0, 1000)
-    i = 265
-    # i = 604
-    print(i)
+    i = 2
+    print(0)
     ma = 0
     # for i in range(10*100):
-    # for i in range(254, 274):
     i_w, i_s, q0, q, o, f = get_values_sql(file=file_stub.format(robot.id), table='paths',
                                            rows=i,
                                            columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -192,15 +190,16 @@ def test():
     print(f, o)
     from wzk.trajectory import get_substeps_adjusted
     q0 = get_substeps_adjusted(x=q[[0, -1]], n=20, is_periodic=robot.infinity_joints)
-    robot_path_interactive(q, robot=robot)
-    robot_path_interactive(q0, robot=robot)
+    plot_q_path(q-q0)
+    # robot_path_interactive(q, robot=robot)
+    # robot_path_interactive(q0, robot=robot)
 
 
 if __name__ == '__main__':
 
-    # test()
-    ray_init(perc=100)
-    _robot_id = 'Justin19'
+    test()
+    # ray_init(perc=100)
+    # _robot_id = 'Justin19'
 
     # import os
     # print(os.environ['PYTHONPATH'])
@@ -215,5 +214,5 @@ if __name__ == '__main__':
     #
     # df_list = ray.get(futures)
 
-    with tictoc('total time') as _:
-        main_loop_sc(_robot_id)
+    # with tictoc('total time') as _:
+    #     main_loop_sc(_robot_id)

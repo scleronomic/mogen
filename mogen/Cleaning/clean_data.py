@@ -1,18 +1,21 @@
 import numpy as np
+import pandas.io.sql
+
 from wzk.sql2 import get_values_sql, set_values_sql, df2sql, vacuum, get_n_rows
 from shutil import copy
 
-from wzk import compressed2img, find_consecutives
+from wzk import compressed2img, find_larges_consecutives, object2numeric_array, squeeze
 from wzk.mpl import new_fig
 
 from rokin.Robots import *
-from mopla.main import objective_feasibility
+
+# from mopla.main import objective_feasibility
 from mopla.Optimizer import choose_optimum
 from mopla.Optimizer.gradient_descent import gd_chomp
 
 
 from mogen.Generation.parameter import init_par
-from mogen.Loading.load import create_path_df, create_world_df, get_sample
+from mogen.Loading.load import create_path_df, create_world_df, get_samples, get_paths
 
 
 def check_consistency(robot,
@@ -62,11 +65,8 @@ def main_choose_best(robot_id: str):
     n = get_n_rows(file=file_org, table='paths')
     print('N_rows original:', n)
     i = np.arange(0, (n // m) * m)
-    # i = np.arange(+15994950
-    #               -10000000, 15994950)
     i_w, i_s, q0, q, o, f = get_values_sql(file=file_org, table='paths', rows=i,
-                                           columns=['world_i32', 'sample_i32',
-                                                    'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'],
+                                           columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'],
                                            values_only=True)
 
     check_iw_is(i_w=i_w, i_s=i_s, m=m)
@@ -126,12 +126,14 @@ def get_df_subset(i_w, i_s, q0, q, o, f,
                   i: np.ndarray, n: int = 1):
     iw_i, is_i, q0_i, q_i, o_i, f_i = i_w[i], i_s[i], q0[i], q[i], o[i], f[i]
     is_i = np.arange(len(is_i)//n).repeat(n)
-    iw_i = np.squeeze(iw_i)
-    print(iw_i)
-    print(is_i)
+
+    q0_i = object2numeric_array(q0_i)
+    if q0_i.dtype == object:  # TODO do not let this happen by adjusting the generation
+        q0_i = np.full(len(is_i), -1)
+    iw_i, q0_i, q_i, o_i, f_i = squeeze(iw_i, q0_i, q_i, o_i, f_i)
+
     if len(iw_i) > 0:
-        df_i = create_path_df(i_world=iw_i, i_sample=is_i,
-                              q0=q0_i, q=q_i, objective=o_i, feasible=f_i)
+        df_i = create_path_df(i_world=iw_i, i_sample=is_i, q0=q0_i, q=q_i, objective=o_i, feasible=f_i)
     else:
         df_i = None
 
@@ -142,16 +144,9 @@ def separate_easy_hard(file, iw_i, iw_all):
     b_iwi = iw_all == iw_i
     j_iwi = np.nonzero(b_iwi)[0]
 
-    i_w, i_s, q0, q, o, f = get_values_sql(file=file, table='paths',
-                                           rows=j_iwi, columns=['world_i64', 'sample_i64',
-                                                                'q0_f64', 'q_f64',
-                                                                'objective_f64', 'feasible_b'],
-                                           values_only=True)
+    i_w, i_s, q0, q, o, f = get_paths(file=file, i=j_iwi)
 
-    n = 31  # Justin19
-    n = 50  # SingleSphere02
-
-    i_hard = find_consecutives(x=i_s, n=n)
+    n, i_hard = find_larges_consecutives(x=i_s)
 
     i_hard = i_hard[:, np.newaxis] + np.arange(n)[np.newaxis, :]
     i_hard = i_hard.ravel()
@@ -161,34 +156,41 @@ def separate_easy_hard(file, iw_i, iw_all):
 
     df_easy = get_df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_easy, n=1)
     df_hard = get_df_subset(i_w=i_w, i_s=i_s, q0=q0, q=q, o=o, f=f, i=i_hard, n=n)
-
+    np.array_equal(q0, -1)
     return df_easy, df_hard
 
 
 def main_separate_easy_hard(robot_id: str):
 
-    file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}.db'
-    file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}_hard.db'
-    file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}_easy.db'
+    # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
+    # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}_sc2'
+    file = f'/Users/jote/Documents/DLR/Data/mogen/{robot_id}_sc'
 
-    img_cmp = get_values_sql(file=file, table='worlds',
-                             rows=-1, columns=['img_cmp'],
-                             values_only=True)
-    i_w = np.arange(len(img_cmp))
-    df = create_world_df(i_world=i_w, img_cmp=img_cmp)
-    print(len(img_cmp))
-    df2sql(df=df, file=file_easy, table='worlds', if_exists='replace')
-    df2sql(df=df, file=file_hard, table='worlds', if_exists='replace')
+    file_easy = f"{file}_easy.db"
+    file_hard = f"{file}_hard.db"
+    file = f"{file}.db"
+    print(f"separate {file} into easy and hard")
+    # copy the worlds
+    try:
+        img_cmp = get_values_sql(file=file, table='worlds', rows=-1, columns=['img_cmp'], values_only=True)
+        i_w = np.arange(len(img_cmp))
+        df = create_world_df(i_world=i_w, img_cmp=img_cmp)
+        print(len(img_cmp))
+        df2sql(df=df, file=file_easy, table='worlds', if_exists='replace')
+        df2sql(df=df, file=file_hard, table='worlds', if_exists='replace')
 
-    # return
+    except pandas.io.sql.DatabaseError:
+        pass
+
     n = get_n_rows(file=file, table='paths')
     print('n', n)
+
     iw_all = get_values_sql(file=file, table='paths',
-                            rows=-1, columns=['world_i64'], values_only=True)
+                            rows=-1, columns=['world_i32'], values_only=True)
     iw_all = iw_all.astype(np.int32)
 
-    for iw_i in range(0, 10000):
-        ra = 'replace' if iw_i == 0 else 'append'
+    for iw_i in np.unique(iw_all):
+        ra = 'replace' if iw_i <= 0 else 'append'
         df_easy, df_hard = separate_easy_hard(file=file, iw_i=iw_i, iw_all=iw_all)
 
         print(f"{iw_i} | easy: {len(df_easy)} | hard: {len(df_hard)}")
@@ -200,8 +202,14 @@ def main_separate_easy_hard(robot_id: str):
             vacuum(file_hard)
 
 
+    n_hard = get_n_rows(file=file_hard, table='paths')
+    n_easy = get_n_rows(file=file_easy, table='paths')
+    print(f"total: {n} -> (easy: {n_easy}| hard: {n_hard})")
+
+
 if __name__ == '__main__':
-    # main_separate_easy_hard(robot_id='SingleSphere02')
-    main_choose_best(robot_id='SingleSphere02')
+    main_separate_easy_hard(robot_id='Justin19')
+    # main_choose_best(robot_id='SingleSphere02')
+    # main_choose_best(robot_id='Justin19')
 
 
