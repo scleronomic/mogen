@@ -248,8 +248,6 @@ def main_separate_easy_hard(file: str):
     print(f"total: {n} | easy: {n_easy} | hard: {n_hard}")
 
 
-
-
 def test_separate_easy_hard():
     import pandas as pd
     columns = ['world_i32', 'sample_i32', 'x']
