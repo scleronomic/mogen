@@ -3,5 +3,4 @@ pandas
 scipy
 matplotlib
 torch
-torchsummary
 torchviz
