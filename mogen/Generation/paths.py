@@ -38,7 +38,6 @@ def __chomp(q0, q_start, q_end,
 
     q, o = gradient_descent.gd_chomp(q0=q0.copy(), gd=gen.gd, par=gen.par)
 
-    q0 = inner2full(inner=q0, start=gen.par.q_start, end=gen.par.q_end)
     q = inner2full(inner=q, start=gen.par.q_start, end=gen.par.q_end)
     f = feasibility_check(q=q, par=gen.par) == 1
 
@@ -47,10 +46,10 @@ def __chomp(q0, q_start, q_end,
     i_sample = np.ones(n, dtype=int) * i_sample
 
     return create_path_df(i_world=i_world, i_sample=i_sample,
-                          q0=q0, q=q, objective=o, feasible=f)
+                          q=q, objective=o, feasible=f)
 
 
-def __chomp2(q0, q_start, q_end,
+def __chomp2(q_start, q_end,
              gen,
              i_world, i_sample):
 
@@ -59,11 +58,9 @@ def __chomp2(q0, q_start, q_end,
     q, o = chomp_mp(gd=gen.gd, par=gen.par, staircase=gen.staircase)
     n = len(q)
     f = feasibility_check(q=q, par=gen.par) == 1
-    q0 = np.full(shape=n, fill_value=-1)  # fill in dummy value
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
-    return create_path_df(i_world=i_world, i_sample=i_sample,
-                          q0=q0, q=q, objective=o, feasible=f)
+    return create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
@@ -77,21 +74,18 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
     get_q0 = InitialGuess.path.q0s_random_wrapper(robot=gen.par.robot, n_multi_start=[[0], [1]],
                                                   n_waypoints=gen.par.n_waypoints, order_random=True, mode='inner')
-    q0 = get_q0(start=q_start, end=q_end)
-    q00 = q0[:1]
-    q0 = q0[1:]
-    # q00, q0 = -1, -1
+    q0 = get_q0(start=q_start, end=q_end)[:1]
 
     if verbose > 0:
         tic()
 
-    df0 = __chomp(q0=q00, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
+    df0 = __chomp(q0=q0, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
     if np.all(np.frombuffer(df0.feasible_b[0], dtype=bool)):
         if verbose > 0:
             toc(text=f"{gen.par.robot.id}, {i_world}, {i_sample}")
         return df0
 
-    df = __chomp2(q0=q0, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
+    df = __chomp2(q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
 
     if verbose > 2:
         j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
@@ -106,8 +100,6 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
 def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
     file = file_stub.format(robot_id)
-
-    gen_ = init_par(robot_id=robot_id)
 
     @ray.remote
     def sample_ray(_i_w: int, _i_s: int):
@@ -161,45 +153,10 @@ def main_loop_sc(robot_id):
             main(robot_id=robot_id, iw_list=worlds, ra='append', n_samples_per_world=1000)
 
 
-def test():
-    from rokin.Robots import Justin19
-    from rokin.Vis.robot_3d import robot_path_interactive
-    from rokin.Vis.configuration_space import plot_q_path
-
-    from mogen.Loading.load import get_values_sql
-
-    robot = Justin19()
-    i = np.random.randint(0, 1000)
-    i = 2
-    print(0)
-    ma = 0
-    # for i in range(10*100):
-    i_w, i_s, q0, q, o, f = get_values_sql(file=file_stub.format(robot.id), table='paths',
-                                           rows=i,
-                                           columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'],
-                                           values_only=True)
-    q = q.reshape(-1, robot.n_dof)
-        # print(i, q[0].sum(), f, o)
-        # d_q0 = np.linalg.norm((q[-1] - q[0])/19, axis=-1) * 19
-        # d_q = np.linalg.norm(q[1:] - q[:-1], axis=-1).sum()
-        # if d_q/d_q0 > ma:
-        #     ma = d_q/d_q0
-        #     print(i, d_q/d_q0)
-
-    # plot_q_path(q)
-    print(f, o)
-    from wzk.trajectory import get_substeps_adjusted
-    q0 = get_substeps_adjusted(x=q[[0, -1]], n=20, is_periodic=robot.infinity_joints)
-    plot_q_path(q-q0)
-    # robot_path_interactive(q, robot=robot)
-    # robot_path_interactive(q0, robot=robot)
-
-
 if __name__ == '__main__':
 
-    test()
-    # ray_init(perc=100)
-    # _robot_id = 'Justin19'
+    ray_init(perc=100)
+    _robot_id = 'Justin19'
 
     # import os
     # print(os.environ['PYTHONPATH'])

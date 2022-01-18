@@ -9,7 +9,7 @@ from wzk.training import n2train_test, train_test_split  # noqa
 
 meta_df_columns = np.array(['par', 'gd'])
 world_df_columns = np.array(['world_i32', 'img_cmp'])
-path_df_columns = np.array(['world_i32', 'sample_i32', 'q0_f32', 'q_f32', 'objective_f32', 'feasible_b'])
+path_df_columns = np.array(['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'])
 
 
 n_samples_per_world = 1000
@@ -157,9 +157,9 @@ def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
 
 
 def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
-                   q0: np.ndarray, q: np.ndarray,
+                   q: np.ndarray,
                    objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
-    data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q0, q, objective, feasible])}
+    data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
     data = prepare_data(data=data)
     return pd.DataFrame(data)
 
