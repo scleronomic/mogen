@@ -4,7 +4,7 @@ from wzk import new_fig, save_fig, get_points_inbetween
 
 import mogen.Loading.load as ld
 import wzk.sql2 as ld_sql
-import Util.Visualization.plotting_2 as plt2
+import rokin.Vis.robot_2d as plt2
 
 directory = '2D/SR/2dof/'  # '2D/FB/3dof/'
 
@@ -154,7 +154,6 @@ if plot_worlds:
                  format(iw, obst_coverage[iw], objective_pw[iw]))
     plt2.plot_img_patch_w_outlines(limits=g.world_size, shape=g.shape, img=obstacle_img[iw], ax=ax, n_dim=g.n_dim)
     save_fig(img_dir + 'world__densest2', fig=fig, save=save_img)
-    # TODO way cheaper because of advantageous map layout, edges ar blocked and only the center is free
 
 # PATH LENGTH
 path_length = path.path_length(x, n_dim=n_dim, n_samples=n_samples)
@@ -185,7 +184,6 @@ ax.set_xlabel('Relative Path Length, mean={}'.format(relative_path_length.mean()
 ax.set_ylabel('Number of Paths')
 (y_hist, x_hist, _) = ax.hist(relative_path_length, bins=1000, range=[0.999, 2])
 save_fig(img_dir + 'hist__relative_path_length', fig=fig, save=save_img)
-# TODO almost 50% of all paths are direct, test what happens if you use only a small fraction of such examples
 
 fig, ax = new_fig()
 ax.plot(get_points_inbetween(x_hist), y_hist.cumsum())
@@ -231,7 +229,7 @@ save_fig(img_dir + 'scatter__MW_Relative_Path_Length_vs_MW_Objective', fig=fig, 
 fig, ax = new_fig()
 ax.set_xlabel('Mean World Direct Path Length')
 ax.set_ylabel('Mean World Objective')
-# ax.scatter(direct_path_length_pw, objective_pw, alpha=0.5)  # TODO switch between scatter and hist2d
+# ax.scatter(direct_path_length_pw, objective_pw, alpha=0.5)
 img = ax.hist2d(direct_path_length_pw, objective_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
 fig.colorbar(img, ax=ax)
 save_fig(img_dir + 'scatter__MW_Direct_Path_Length_vs_MW_Objective', fig=fig, save=save_img)
@@ -259,7 +257,6 @@ if plot_prediction:
     img = ax.hist2d(objective_pw, loss_pw, norm=mpl.colors.LogNorm(), bins=100)[-1]
     fig.colorbar(img, ax=ax)
     save_fig(img_dir + 'hist2D__MW_Objective_vs_MW_Network_Loss', fig=fig, save=save_img)
-    # TODO look at the outliers, why is a expensive worlds easy for the network and the other way round
 
     fig, ax = new_fig()
     ax.set_xlabel('Objective')
@@ -352,7 +349,6 @@ if plot_prediction:
             plt2.plot_x_path(x=x_pred[idx_sorted_loss[-i]], n_dim=g.n_dim, ax=ax, marker='o')
             save_fig(img_dir + 'world__Longest_Relative_Path_{}'.format(i), fig=fig, save=save_img)
 
-            # TODO Try to update paths with net + heuristics
 
 fig, ax = new_fig()
 ax.set_xlabel('Blocked ratio')
@@ -372,103 +368,3 @@ img = ax.hist2d(world_df.n_obstacles, obst_coverage, norm=mpl.colors.LogNorm(), 
                 range=[[0, 30], [0, 0.175]])[-1]
 fig.colorbar(img, ax=ax)
 save_fig(img_dir + 'hist2d__n_obstacles_vs_coverage', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Loop in path')
-# ax.hist(path_df.loop_in_path, bins=3, range=[0, 2])
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__loop_in_path', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Sum of path angles, mean={}'.format(path_df.path_angle.mean()))
-# ax.hist(path_df.path_angle, bins=100, range=[0, 360])
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__path_angle', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Tries, mean={}'.format(path_df.tries.mean()))
-# ax.hist(path_df.tries, bins=40, range=[1, 41])
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__tries', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Net Redo')
-# ax.hist(path_df.net_redo, bins=4, range=[-1, 2])
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__net_redo', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Objective')
-# ax.hist(path_df.objective.values.astype(float), bins=50, range=[0, 300])
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist__objective', fig=fig, save=save_img)
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Path length')
-# ax.set_ylabel('Path angle')
-# matrix = ax.hist2d(x=path_df.path_length, y=path_df.path_angle, bins=[100, 100], cmin=10, range=[[0, 200], [0, 360]])[-1]
-# fig.colorbar(matrix)
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__hist2d__length_angle', fig=fig, save=save_img)
-#
-
-
-# fig, ax = new_fig()
-# ax.set_xlabel('Path Length')
-# ax.set_ylabel('Tries')
-# ax.set_xlim([0, 200])
-# ax.set_ylim([1, 41])
-# ax.scatter(path_df.path_length.values, path_df.tries.values, s=100, alpha=0.005, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__length_tries', fig=fig, save=save_img)
-#
-# # fig, ax = new_fig()
-# # ax.set_xlabel('Path length')
-# # ax.set_ylabel('Path Tries')
-# # matrix = ax.hist2d(x=path_df.path_length, y=path_df.tries, bins=[100, 40], cmin=10, range=[[0, 150], [1, 41]])[-1]
-# # fig.colorbar(matrix)
-#
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Relative Path Length')
-# ax.set_ylabel('Tries')
-# ax.set_xlim([1, 3])
-# ax.set_ylim([0, 42])
-# ax.scatter(path_df.relative_path_length.values, path_df.tries.values, s=100, alpha=0.005, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__relative_length_tries', fig=fig, png_only=png_only,
-#              save=save_img)
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Path angle')
-# ax.set_ylabel('Tries')
-# ax.set_xlim([0, 360])
-# ax.set_ylim([0, 42])
-# ax.scatter(path_df.path_angle.values, path_df.tries.values, s=100, alpha=0.005, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__angles_tries', fig=fig, save=save_img)
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Relative Path Length')
-# ax.set_ylabel('Path angle')
-# ax.set_xlim([1, 3])
-# ax.set_ylim([0, 360])
-# ax.scatter(path_df.relative_path_length.values, path_df.path_angle.values, s=100, alpha=0.002, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__relative_length_angle', fig=fig, save=save_img)
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Path Length')
-# ax.set_ylabel('Path angle')
-# ax.set_xlim([0, 200])
-# ax.set_ylim([0, 360])
-# ax.scatter(path_df.path_length.values, path_df.path_angle.values, s=20, alpha=0.002, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__length_angle', fig=fig, save=save_img)
-#
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Tries')
-# ax.set_ylabel('Loss')
-# ax.set_xlim([1, 41])
-# ax.set_ylim([0, 0.3])
-# ax.scatter(path_df.tries.values, loss, s=20, alpha=0.002, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__tries_loss', fig=fig, save=save_img)
-#
-# fig, ax = new_fig()
-# ax.set_xlabel('Path_angle')
-# ax.set_ylabel('Loss')
-# ax.set_xlim([0, 300])
-# ax.set_ylim([0, 0.3])
-# ax.scatter(path_df.path_angle.values, loss, s=20, alpha=0.002, edgecolor='none')
-# save_fig(d.PROJECT_DATA_IMAGES + 'path_stat__scatter__angle_loss', fig=fig, save=save_img)
-#

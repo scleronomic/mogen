@@ -3,7 +3,7 @@ import pandas as pd
 
 from wzk.dtypes import str2np
 from wzk.image import compressed2img
-
+from wzk.numpy2 import squeeze
 from wzk.sql2 import get_n_rows, rename_columns, get_values_sql, df2sql  # noqa
 from wzk.training import n2train_test, train_test_split  # noqa
 
@@ -168,7 +168,7 @@ def prepare_data(data: dict) -> dict:
     for key in data:
         data[key] = data[key].astype(str2np(key))
 
-        if np.size(data[key][0]) > 0 and not isinstance(data[key][0], bytes):
+        if np.size(data[key][0]) > 1 and not isinstance(data[key][0], bytes):
             data[key] = [xx.tobytes() for xx in data[key]]
 
     return data
@@ -187,14 +187,11 @@ def rename_old_columns(file):
 
 
 def get_paths(file, i):
-    i_w, i_s, q0, q, o, f = get_values_sql(file=file, table='paths', rows=i,
-                                           columns=['world_i32', 'sample_i32',
-                                                    'q0_f32', 'q_f32',
-                                                    'objective_f32', 'feasible_b'],
-                                           values_only=True)
-    i_w = np.squeeze(i_w)
-    i_s = np.squeeze(i_s)
-    return i_w, i_s, q0, q, o, f
+    i_w, i_s, q, o, f = get_values_sql(file=file, table='paths', rows=i,
+                                       columns=['world_i32', 'sample_i32',
+                                                'q_f32', 'objective_f32', 'feasible_b'], values_only=True)
+    i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
+    return i_w, i_s, q, o, f
 
 
 def get_worlds(file, i_w, img_shape):
@@ -204,6 +201,6 @@ def get_worlds(file, i_w, img_shape):
 
 
 def get_samples(file, i_s, img_shape):
-    i_w, i_s, q0, q, o, f = get_paths(file, i_s)
+    i_w, i_s, q, o, f = get_paths(file, i_s)
     img = get_worlds(file=file, i_w=i_w, img_shape=img_shape)
     return i_w, i_s, q, img

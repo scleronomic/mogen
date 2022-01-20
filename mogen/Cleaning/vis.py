@@ -11,7 +11,6 @@ from mopla.Parameter.parameter import Parameter
 from mogen.Loading.load import get_sample, get_values_sql
 
 
-# TODO refine the best solution with a few iterations started from this initial guess
 def plot_path_2d(i_s, robot, file):
 
     par = Parameter(robot=robot)

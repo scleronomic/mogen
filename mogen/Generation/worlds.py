@@ -9,7 +9,7 @@ from rokin.sample_configurations import sample_q
 
 from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
-from mopla import parameter
+from mopla.Parameter import parameter
 
 from mogen.Loading.load import create_world_df
 
@@ -37,7 +37,7 @@ def sample_worlds(par, n_worlds, mode='perlin',
         else:
             raise ValueError
 
-        parameter.initialize_oc(oc=par.oc, world=par.world, robot=par.robot, obstacle_img=img)
+        parameter.initialize_oc(par=par, obstacle_img=img)
 
         try:
             sample_q(par.robot, shape=10, feasibility_check=lambda q: feasibility_check(q=q, par=par))
@@ -84,16 +84,17 @@ def get_robot_max_reach(robot):
 
 
 def main():
-    from rokin.Robots import Justin19, JustinArm07
+    from rokin.Robots import Justin19, JustinArm07, StaticArm
+    from mopla.Parameter import get_par_staticarm
     # robot = SingleSphere02(radius=0.25)
-    robot = JustinArm07()  # threshold=0.35
+    # robot = JustinArm07()  # threshold=0.35
     # robot = Justin19()  # threshold=0.40
+    # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.3
     # print(get_robot_max_reach(robot))
-    par = parameter.Parameter(robot=robot, obstacle_img=None)
-    par.check.self_collision = False
-    par.check.obstacle_collision = True
+    par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
+
     df = sample_worlds(par=par, n_worlds=10000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.35), verbose=1)
+                       mode='perlin', kwargs_perlin=dict(threshold=0.45), verbose=3)
 
     # for i in range(20):
     #     df = sample_worlds(par=par, n_worlds=5000,
@@ -107,18 +108,18 @@ def main():
         #                    kwargs_perlin=dict(threshold=0.45))
         # df2sql(df=df, file='world.db', table='perlin', if_exists='append')
 
-    file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}.db'
-    file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
-    file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
-
+    file = f'/net/rmc-lx0062/home_local/tenh_jo/{par.robot.id}.db'
+    # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
+    # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
+    #
     # df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='append')
     ra = 'replace'
     df2sql(df=df, file=file, table='worlds', if_exists=ra)
-    df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
-    df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
+    # df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
+    # df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
 
 
 if __name__ == '__main__':
-    main()  # JustinArm07 | World 0-1000 | Samples 0-1000
+    main()
 
 

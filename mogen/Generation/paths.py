@@ -171,5 +171,5 @@ if __name__ == '__main__':
     #
     # df_list = ray.get(futures)
 
-    # with tictoc('total time') as _:
-    #     main_loop_sc(_robot_id)
+    with tictoc('total time') as _:
+        main_loop_sc(_robot_id)
