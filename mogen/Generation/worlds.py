@@ -90,45 +90,27 @@ def get_robot_max_reach(robot):
     return limits
 
 
-def main():
-    from rokin.Robots import Justin19, JustinArm07, StaticArm
-    from mopla.Parameter import get_par_staticarm
+def main(file, par, if_exists='replace'):
     # robot = SingleSphere02(radius=0.25)
     # robot = JustinArm07()  # threshold=0.35
     # robot = Justin19()  # threshold=0.40
     # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.5
     # print(get_robot_max_reach(robot))
-    par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
 
-    df = sample_worlds(par=par, n=10000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.50), verbose=1)
-
-    # for i in range(20):
-    #     df = sample_worlds(par=par, n_worlds=5000,
-    #                        mode='perlin', kwargs_perlin=dict(threshold=0.30+i/100), verbose=1)
-        # df = sample_worlds(par=par, n_worlds=1000,
-        #                    mode='rectangles', kwargs_rectangles=dict(n=20, size_limits=(1, 10)),
-        #                    verbose=0)  #  special_dim=((0, 1, 2), 20)
-        # df = sample_worlds(par=par, n_worlds=1000,
-        #                    mode='both',
-        #                    kwargs_rectangles=dict(n=20, size_limits=(1, 20)),
-        #                    kwargs_perlin=dict(threshold=0.45))
-        # df2sql(df=df, file='world.db', table='perlin', if_exists='append')
-
-    file = f'/net/rmc-lx0062/home_local/tenh_jo/{par.robot.id}_world.db'
-    # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
-    # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
-    #
-    # df2sql(df=df, file=f"{robot.id}.db", table='worlds', if_exists='append')
-    ra = 'replace'
-    df2sql(df=df, file=file, table='worlds', if_exists=ra)
-    # df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
-    # df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
+    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(threshold=0.50), verbose=1)
+    df2sql(df=df, file=file, table='worlds', if_exists=if_exists)
 
     # TODO add meta table where all the robot parameters are listed
 
 
 if __name__ == '__main__':
-    main()
+    from shutil import copy
+    from mopla.Parameter import get_par_staticarm
+    par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
+
+    file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
+    file2 = f"/home/johannes_tenhumberg/sdb/{par.robot.id}_worlds0.db"
+    main(file=file, par=par)
+    copy(file, file2)
 
 
