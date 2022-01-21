@@ -40,7 +40,7 @@ def plot_a():
     labels_y = df["Expert field"].values.tolist()[:-1][::-1]
     data = data[:-1][::-1]
 
-    set_borders(left=0.157, right=0.99, top=0.88, bottom=0.18)
+    set_borders(left=0.17, right=0.99, top=0.88, bottom=0.18)
     fig, ax = new_fig(width=plot_size_big[0], height=0.9*plot_size_big[1])
     fig.text(0.02, 0.88, 'Expert\nrepresenting...', va='bottom', ha='left')
 
@@ -96,7 +96,7 @@ def plot_c():
 
     colors = ordered_colors5[::-1]
 
-    set_borders(left=0.157, right=0.99, top=0.88, bottom=0.01)
+    set_borders(left=0.17, right=0.99, top=0.88, bottom=0.01)
     fig, ax = new_fig(width=plot_size_big[0], height=plot_size_big[1]*0.75)
     fig.text(0.02, 0.88, 'Expert\nrepresenting...', va='bottom', ha='left')
 
@@ -118,12 +118,12 @@ def plot_d():
     c = np.arange(2, 10)
     data = df.iloc[:, c].values
     labels_x = columns[c].tolist()
-    labels_y = df["Expert field"].values.tolist()[:-1]
+    labels_y = df["Expert field"].values.tolist()[:-1][::-1]
     data = data[:-1][::-1]
 
     colors = blues248_9[::-1]
 
-    set_borders(left=0.157, right=0.99, top=0.88, bottom=0.01)
+    set_borders(left=0.17, right=0.99, top=0.88, bottom=0.01)
     fig, ax = new_fig(width=plot_size_big[0], height=plot_size_big[1]*0.75)
     fig.text(0.02, 0.88, 'Expert\nrepresenting...', va='bottom', ha='left')
     ax.text(4*4, 1.5, '---- uniform budget ----', va='center', ha='center')
@@ -142,8 +142,8 @@ def plot_d():
     save_fig(file=f"{directory}/plot_d", fig=fig, bbox=None, formats=('png', 'pdf'))
 
 
-# plot_a()
-# plot_b()
-# plot_c()
-# plot_d()
+plot_a()
+plot_b()
+plot_c()
+plot_d()
 

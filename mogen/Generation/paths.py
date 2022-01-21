@@ -143,12 +143,10 @@ def main_loop(robot_id):
     main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
 
     for i in range(100):
-        worlds = np.arange(10000)
-        for iw in np.array_split(worlds, len(worlds)//1000):
-            iw = iw.astype(int)
-            print(f"{i}:  {min(iw)} - {max(iw)}", end="  |  ")
-            with tictoc() as _:
-                main(robot_id=robot_id, iw_list=iw, ra='append', n_samples_per_world=10)
+        print(i)
+        worlds = np.arange(10000).astype(int)
+        with tictoc() as _:
+            main(robot_id=robot_id, iw_list=worlds, ra='append', n_samples_per_world=1)
 
 
 def main_loop_sc(robot_id):
@@ -170,13 +168,11 @@ if __name__ == '__main__':
     # @ray.remote
     # def dummy():
     #     from mopla import Parameter
-    #
-    #
     # futures = []
     # for i_w in range(10):
     #     futures.append(dummy.remote())
-    #
     # df_list = ray.get(futures)
 
     with tictoc('total time') as _:
         main_loop(_robot_id)
+
