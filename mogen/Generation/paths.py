@@ -17,7 +17,7 @@ from mogen.Generation.parameter import init_par
 from mogen.Generation.starts_ends import sample_q_start_end
 
 
-__file_stub_dlr = '/net/rmc-lx0062/home_local/tenh_jo/{}_sc.db'
+__file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
 __file_stub_gc = '/home/johannes_tenhumberg/Data/{}_sc.db'
 
@@ -68,9 +68,15 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
     obstacle_img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
     initialize_oc(par=gen.par, obstacle_img=obstacle_img)
-    q_start, q_end = sample_q_start_end(robot=gen.par.robot,
-                                        feasibility_check=lambda qq: feasibility_check(q=qq, par=gen.par),
-                                        acceptance_rate=gen.bee_rate)
+    try:
+        q_start, q_end = sample_q_start_end(robot=gen.par.robot,
+                                            feasibility_check=lambda qq: feasibility_check(q=qq, par=gen.par),
+                                            acceptance_rate=gen.bee_rate)
+    except RuntimeError:
+        df = create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
+                            q=np.zeros((1, gen.par.n_waypoints, gen.par.robot.n_dof)),
+                            objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
+        return df
 
     get_q0 = InitialGuess.path.q0s_random_wrapper(robot=gen.par.robot, n_multi_start=[[0], [1]],
                                                   n_waypoints=gen.par.n_waypoints, order_random=True, mode='inner')
@@ -112,36 +118,36 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
 
         return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=img_cmp, verbose=0)
 
-    futures = []
-    for i_w in iw_list:
-        for i_s in range(n_samples_per_world):
-            futures.append(sample_ray.remote(i_w, i_s))
-            # futures.append(sample_ray(i_w, i_s))
+    with tictoc(text=f"Generating Samples for world {iw_list[0]}-{iw_list[-1]} with {n_samples_per_world} samples") as _:
+        futures = []
+        for i_w in iw_list:
+            for i_s in range(n_samples_per_world):
+                futures.append(sample_ray.remote(i_w, i_s))
+                # futures.append(sample_ray(i_w, i_s))
 
-    df_list = ray.get(futures)
-    # df_list = futures
+        df_list = ray.get(futures)
 
-    df = df_list[0]
-    for df_i in df_list[1:]:
-        df = df.append(df_i)
+        df = df_list[0]
+        for df_i in df_list[1:]:
+            df = df.append(df_i)
 
-    with tictoc(text=f"Saving {len(df)} new samples") as _:
+    with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
         df2sql(df=df, file=file, table='paths', if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df
 
 
-# def main_loop(robot_id):
-    # main(robot_id=_robot_id, iw_list=[0], ra='replace')
+def main_loop(robot_id):
+    main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
 
-#     for i in range(10):
-#         worlds = np.arange(10000)
-#         for iw in np.array_split(worlds, len(worlds)//10):
-#             iw = iw.astype(int)
-#             print(f"{i}:  {min(iw)} - {max(iw)}", end="  |  ")
-#             with tictoc() as _:
-#                 main(robot_id=robot_id, iw_list=iw, ra='append')
+    for i in range(1):
+        worlds = np.arange(10000)
+        for iw in np.array_split(worlds, len(worlds)//10):
+            iw = iw.astype(int)
+            print(f"{i}:  {min(iw)} - {max(iw)}", end="  |  ")
+            with tictoc() as _:
+                main(robot_id=robot_id, iw_list=iw, ra='append', n_samples_per_world=1000)
 
 
 def main_loop_sc(robot_id):
@@ -150,13 +156,13 @@ def main_loop_sc(robot_id):
     for i in range(10000):
         worlds = [-1]
         with tictoc(f'loop {i}') as _:
-            main(robot_id=robot_id, iw_list=worlds, ra='append', n_samples_per_world=1000)
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=1000, ra='append',)
 
 
 if __name__ == '__main__':
 
     ray_init(perc=100)
-    _robot_id = 'Justin19'
+    _robot_id = 'StaticArm04'
 
     # import os
     # print(os.environ['PYTHONPATH'])
@@ -172,4 +178,4 @@ if __name__ == '__main__':
     # df_list = ray.get(futures)
 
     with tictoc('total time') as _:
-        main_loop_sc(_robot_id)
+        main_loop(_robot_id)

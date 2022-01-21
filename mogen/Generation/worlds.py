@@ -14,14 +14,21 @@ from mopla.Parameter import parameter
 from mogen.Loading.load import create_world_df
 
 
-def sample_worlds(par, n_worlds, mode='perlin',
+def sample_worlds(par, n, mode='perlin',
                   kwargs_perlin=None, kwargs_rectangles=None,
                   verbose=1):
 
+    if verbose > 0:
+        print(f"generating {n} worlds for the robot {par.robot.id}...")
+        print("limits:")
+        print(par.world.limits)
+        print("mode:")
+        print(mode)
+
     img_list = []
-    while len(img_list) < n_worlds:
+    while len(img_list) < n:
         if verbose > 0:
-            print_progress(i=len(img_list), n=n_worlds)
+            print_progress(i=len(img_list), n=n)
 
         if mode == 'perlin':
             img = create_perlin_image(shape=par.world.shape, **kwargs_perlin)
@@ -56,7 +63,7 @@ def sample_worlds(par, n_worlds, mode='perlin',
                                                 kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
-    world_df = create_world_df(i_world=np.arange(n_worlds), img_cmp=img_list)
+    world_df = create_world_df(i_world=np.arange(n), img_cmp=img_list)
     return world_df
 
 
@@ -89,12 +96,12 @@ def main():
     # robot = SingleSphere02(radius=0.25)
     # robot = JustinArm07()  # threshold=0.35
     # robot = Justin19()  # threshold=0.40
-    # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.3
+    # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.5
     # print(get_robot_max_reach(robot))
     par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
 
-    df = sample_worlds(par=par, n_worlds=10000,
-                       mode='perlin', kwargs_perlin=dict(threshold=0.45), verbose=3)
+    df = sample_worlds(par=par, n=10000,
+                       mode='perlin', kwargs_perlin=dict(threshold=0.50), verbose=1)
 
     # for i in range(20):
     #     df = sample_worlds(par=par, n_worlds=5000,
@@ -108,7 +115,7 @@ def main():
         #                    kwargs_perlin=dict(threshold=0.45))
         # df2sql(df=df, file='world.db', table='perlin', if_exists='append')
 
-    file = f'/net/rmc-lx0062/home_local/tenh_jo/{par.robot.id}.db'
+    file = f'/net/rmc-lx0062/home_local/tenh_jo/{par.robot.id}_world.db'
     # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
     #
@@ -117,6 +124,8 @@ def main():
     df2sql(df=df, file=file, table='worlds', if_exists=ra)
     # df2sql(df=df, file=file_easy, table='worlds', if_exists=ra)
     # df2sql(df=df, file=file_hard, table='worlds', if_exists=ra)
+
+    # TODO add meta table where all the robot parameters are listed
 
 
 if __name__ == '__main__':

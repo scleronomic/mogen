@@ -1,8 +1,7 @@
 import numpy as np
 
 from rokin.Robots import *
-from mopla.Parameter.Justin19 import get_par_justin19
-from mopla.Parameter.JustinArm07 import get_par_justinarm07
+from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm
 
 
 class Generation:
@@ -19,8 +18,7 @@ def init_par(robot_id: str):
         raise NotImplementedError
 
     elif robot_id == 'StaticArm04':
-        robot = StaticArm(n_dof=4, lengths=0.5, limits=np.deg2rad([-170, +170]))
-        raise NotImplementedError
+        par, gd, staircase = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)
 
     elif robot_id == 'JustinArm07':
         pass
