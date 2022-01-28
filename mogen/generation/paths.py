@@ -29,7 +29,7 @@ file_stub = file_stub_dict[LOCATION]
 
 def copy_init_world(robot_id):
     if LOCATION == 'gcp':
-        gcloud2.copy(src=f'tenh_jo/{robot_id}_worlds0.db', dst=file_stub.format(robot_id))
+        gcloud2.copy(src=f'gs://tenh_jo/{robot_id}_worlds0.db', dst=file_stub.format(robot_id))
     else:
         pass
 
