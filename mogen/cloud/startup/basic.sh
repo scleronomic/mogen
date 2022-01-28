@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ~/.bashrc
 python /home/"$GCP_USER"/src/wzk/wzk/git2.py
 
 # mount additional disk
