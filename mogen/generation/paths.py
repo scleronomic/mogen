@@ -23,7 +23,7 @@ __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
 # __file_stub_gcp = '/home/johannes_tenhumberg/Data/{}_sc.db'
 __file_stub_gcp = '/home/johannes_tenhumberg/sdb/{}.db'
 
-file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gc=__file_stub_gcp)
+file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
 file_stub = file_stub_dict[LOCATION]
 
 
