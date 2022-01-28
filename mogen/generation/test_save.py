@@ -16,7 +16,7 @@ f = np.ones(n,dtype=bool)
 o = np.random.random(n)
 q = np.random.random((n, 20, 10))
 q0 = np.random.random((n, 20, 10))
-df = create_path_df(i_world=i_world, i_sample=i_sample, q0=q0, q=q, objective=o, feasible=f)
+df = create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 if_exists = 'replace'
