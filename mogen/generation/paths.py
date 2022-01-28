@@ -20,9 +20,9 @@ from mogen.Generation.starts_ends import sample_q_start_end
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
 # __file_stub_gc = '/home/johannes_tenhumberg/Data/{}_sc.db'
-__file_stub_gc = '/home/johannes_tenhumberg/sdb/{}.db'
+__file_stub_gcp = '/home/johannes_tenhumberg/sdb/{}.db'
 
-file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gc=__file_stub_gc)
+file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gc=__file_stub_gcp)
 file_stub = file_stub_dict[LOCATION]
 
 
@@ -141,10 +141,10 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
 
 def main_loop(robot_id):
     main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
+    worlds = np.arange(10000).astype(int)
 
     for i in range(100):
         print(i)
-        worlds = np.arange(10000).astype(int)
         with tictoc() as _:
             main(robot_id=robot_id, iw_list=worlds, ra='append', n_samples_per_world=1)
 
