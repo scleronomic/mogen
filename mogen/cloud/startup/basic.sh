@@ -1,8 +1,11 @@
 #!/bin/bash
+
+python /home/"$GCP_USER"/src/wzk/wzk/git2.py
+
+# mount additional disk
+echo "Sleep... and mount disk... "
 sleep 300
 sudo mkfs.ext4 /dev/sdb
 sudo mount -t ext4 /dev/sdb /home/"$GCP_USER"/sdb
-
-python /home/"$GCP_USER"/src/wzk/wzk.git2.py
-
-touch /home/"$GCP_USER"/startup_test1a.txt
+sudo chmod 744 -R /home/"$GCP_USER"/sdb/
+echo "Sleep... and mount disk... finished"

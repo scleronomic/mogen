@@ -11,7 +11,7 @@ from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
 from mopla.Parameter import parameter
 
-from mogen.Loading.load import create_world_df
+from mogen.loading.load import create_world_df
 
 
 def sample_worlds(par, n, mode='perlin',

@@ -1,14 +1,3 @@
-#######################################################################################################################
-# Names of Measurements files
-WORLD_DB = 'world.db'
-PATH_DB = 'path.db'
-
-# Column Names
-# --- Configurations
-START_Q = 'q_start'
-END_Q = 'q_end'
-PATH_Q = 'q_path'
-
 # --- Images (save always compressed)
 START_IMG_CMP = 'start_img_cmp'
 END_IMG_CMP = 'end_img_cmp'

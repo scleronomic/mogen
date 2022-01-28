@@ -6,24 +6,32 @@ from wzk.ray2 import ray, ray_init
 from wzk.trajectory import inner2full
 from wzk.image import compressed2img, img2compressed
 from wzk.sql2 import df2sql, get_values_sql, vacuum
+from wzk import gcloud2
 
 from rokin.Vis.robot_3d import robot_path_interactive
 from mopla.main import chomp_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
-from mogen.Loading.load import create_path_df
-from mogen.Generation.parameter import init_par
-from mogen.Generation.starts_ends import sample_q_start_end
+from mogen.loading.load import create_path_df
+from mogen.generation.parameter import init_par
+from mogen.generation.starts_ends import sample_q_start_end
 
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
-# __file_stub_gc = '/home/johannes_tenhumberg/Data/{}_sc.db'
+# __file_stub_gcp = '/home/johannes_tenhumberg/Data/{}_sc.db'
 __file_stub_gcp = '/home/johannes_tenhumberg/sdb/{}.db'
 
 file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gc=__file_stub_gcp)
 file_stub = file_stub_dict[LOCATION]
+
+
+def copy_init_world(robot_id):
+    if LOCATION == 'gcp':
+        gcloud2.copy(src=f'tenh_jo/{robot_id}_worlds0.db', dst=file_stub.format(robot_id))
+    else:
+        pass
 
 
 img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
@@ -140,6 +148,8 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
 
 
 def main_loop(robot_id):
+    copy_init_world(robot_id)
+
     main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
     worlds = np.arange(10000).astype(int)
 
