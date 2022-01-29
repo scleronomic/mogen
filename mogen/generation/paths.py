@@ -6,7 +6,7 @@ from wzk.ray2 import ray, ray_init
 from wzk.trajectory import inner2full
 from wzk.image import compressed2img, img2compressed
 from wzk.sql2 import df2sql, get_values_sql, vacuum
-from wzk import gcloud2
+from wzk.gcp import gcloud2
 
 from rokin.Vis.robot_3d import robot_path_interactive
 from mopla.main import chomp_mp
