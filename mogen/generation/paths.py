@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from wzk import tic, toc, tictoc
@@ -7,6 +8,7 @@ from wzk.trajectory import inner2full
 from wzk.image import compressed2img, img2compressed
 from wzk.sql2 import df2sql, get_values_sql, vacuum
 from wzk.gcp import gcloud2
+from wzk.subprocess2 import call2
 
 from rokin.Vis.robot_3d import robot_path_interactive
 from mopla.main import chomp_mp
@@ -28,6 +30,7 @@ file_stub = file_stub_dict[LOCATION]
 
 
 def copy_init_world(robot_id):
+    call2(cmd=f"sudo chmod 777 -R {os.path.split(file_stub.format(robot_id))[0]}")
     if LOCATION == 'gcp':
         gcloud2.copy(src=f'gs://tenh_jo/{robot_id}_worlds0.db', dst=file_stub.format(robot_id))
     else:
