@@ -116,7 +116,7 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     return df
 
 
-def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
+def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append'):
     file = file_stub.format(robot_id)
 
     @ray.remote
@@ -134,8 +134,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, ra='append'):
         futures = []
         for i_w in iw_list:
             for i_s in range(n_samples_per_world):
-                futures.append(sample_ray.remote(i_w, i_s))
-                # futures.append(sample_ray(i_w, i_s))
+                futures.append(sample_ray.remote(i_w, s0+i_s))
 
         df_list = ray.get(futures)
 
@@ -156,10 +155,10 @@ def main_loop(robot_id):
     main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
     worlds = np.arange(10000).astype(int)
 
-    for i in range(100):
+    for i in range(1000):
         print(i)
         with tictoc() as _:
-            main(robot_id=robot_id, iw_list=worlds, ra='append', n_samples_per_world=1)
+            main(robot_id=robot_id, iw_list=worlds, ra='append', s0=i, n_samples_per_world=1)
 
 
 def main_loop_sc(robot_id):
@@ -169,6 +168,8 @@ def main_loop_sc(robot_id):
         worlds = [-1]
         with tictoc(f'loop {i}') as _:
             main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=1000, ra='append',)
+
+
 
 
 if __name__ == '__main__':

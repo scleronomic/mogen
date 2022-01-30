@@ -15,8 +15,8 @@ from mopla.Optimizer import choose_optimum
 from mopla.Optimizer.gradient_descent import gd_chomp
 
 
-from mogen.Generation.parameter import init_par
-from mogen.Loading.load import create_path_df, create_world_df, get_samples, get_paths
+from mogen.generation.parameter import init_par
+from mogen.loading.load import create_path_df, create_world_df, get_samples, get_paths
 
 
 def check_consistency(robot,
@@ -98,6 +98,27 @@ def reset_i_sample(file):
     sql2.set_values_sql(file=file, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
 
 
+def reset_sample_i32_0(file):
+    table = 'paths'
+
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
+    w = np.squeeze(w).astype(np.int32)
+    s = np.squeeze(s).astype(np.int32)
+    assert np.all(s == 0)
+
+    w0 = np.nonzero(w == 0)[0]
+    b0 = w0[1:] != w0[:-1] + 1
+    wb0 = w0[1:][b0]
+
+    for wb_i in wb0:
+        s[wb_i:] += 1
+
+    sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns='sample_i32')
+
+
+
+
+
 def main_choose_best(file):
 
     file2 = f"{file}2.db"
@@ -154,6 +175,18 @@ def separate_easy_hard(file, i):
     return (i_easy, i_hard), (i_s_easy, i_s_hard)
 
 
+def delete_s0(file):
+    table = 'paths'
+    w, s = sql2.get_values_sql(file=file, table=table, rows=np.arange(n), columns=['world_i32', 'sample_i32'],
+                               values_only=True)
+
+    s_not0 = np.nonzero(s != 0)[0]
+
+    if np.size(s_not0) > 0:
+        i = s_not0[-1]
+        sql2.delete_rows(file=file, table=table,  rows=np.arange(i+1))
+
+
 def main_separate_easy_hard(file: str):
 
     file, _ = os.path.splitext(file)
@@ -193,7 +226,7 @@ def main_separate_easy_hard(file: str):
     assert np.allclose(b_easy, ~b_hard)
 
     sql2.set_values_sql(file=file_easy, table=table,
-                   values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+                        values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
     print('copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 

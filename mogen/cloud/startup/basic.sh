@@ -4,7 +4,7 @@
 echo "Sleep... and mount disk... "
 sleep 150
 sudo mkfs.ext4 /dev/sdb
-sudo mount -t ext4 /dev/sdb /home/"$GCP_USER"/sdb --dir_mode=0777 --file_mode=0777
+sudo mount -t ext4 /dev/sdb /home/"$GCP_USER"/sdb
 sudo -H -u "$GCP_USER" sudo chmod 777 -R /home/"$GCP_USER"/sdb
 sudo -H -u "$GCP_USER" sudo chmod 777 -R /home/"$GCP_USER"/sdb/
 sudo -H -u "$GCP_USER" sudo chmod 777 -R /home/"$GCP_USER"/sdb/*
