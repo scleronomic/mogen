@@ -125,12 +125,14 @@ def combine_files(old_files, new_file, clean_s0=True):
             delete_s0(file=f)
 
         if i == 0:
-            subprocess.call(f"mv {f} {new_file}")
+            os.rename(f, new_file)
 
         else:
             sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
+            os.remove(f)
 
         print(sql2.get_n_rows(file=new_file, table=table))
+
     if old_files[0].startswith('gs://'):
         gcloud2.copy(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
 
@@ -292,7 +294,7 @@ def test_separate_easy_hard():
 
 
 def main_combine_files():
-    old_files = [f"gs://tenh_jo/StaticArm04_{i}.db" for i in range(20)]
+    old_files = [f"gs://tenh_jo/StaticArm04_{i}.db" for i in range(2)]
     new_file = '/home/johannes_tenhumberg/sdb/StaticArm04_combined.db'
     combine_files(old_files=old_files, new_file=new_file)
 
