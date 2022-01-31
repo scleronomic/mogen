@@ -304,29 +304,17 @@ if __name__ == '__main__':
     main_combine_files()
 
     # test_separate_easy_hard()
-    # robot_id = 'Justin19'
+    robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    # _file = f'/home_local/tenh_jo/{robot_id}_sc'
+    _file = f'/home/johannes_tenhumberg/sdb/{robot_id}_combined'
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
-
-    # ¨copy(_file_hard+'copy.db', _file_hard+'.db')
-
-    # print(_file_easy)
-    # print(sql2.get_tables(file=_file_easy))
-    # print(sql2.get_columns(file=_file_easy, table='paths2'))
+    main_separate_easy_hard(file=_file)
 
 
-    # print(sql2.get_values_sql(file=_file_hard, table='paths', rows=100000))
-
-    # print(sql2.get_values_sql(file=_file, table='paths', rows=np.arange(10)))
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
     #                 dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
-
-
-    # sql2.delete_table(file=_file_easy, table='paths3599d83dcfc54b8f9ea2007de4b6d3b3')
-
 
     # sql2.vacuum(file=_file)
     # sql2.alter_table(_file_easy, table='paths', columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -335,7 +323,6 @@ if __name__ == '__main__':
 
     # sql2.delete_columns(file=_file, table='paths', columns='q0_f32',)
 
-    # main_separate_easy_hard(file=_file)
 
     # main_choose_best(file=_file_hard)
 

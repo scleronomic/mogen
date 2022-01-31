@@ -12,8 +12,8 @@ def get_path_sample(robot, directory=None, i_sample_global=0):
 
     if directory is None:
         q_start, q_end = robot.sample_q(2)
-        q_path = path_i.q0_random(start=q_start, end=q_end, n_waypoints=n_waypoints, n_random_points=0,
-                                  robot=robot, order_random=True)
+        q_path = path_i.q0s_random(start=q_start, end=q_end, n_waypoints=n_waypoints, n_multi_start=0,
+                                   robot=robot, order_random=True)
     else:
         raise NotImplementedError
         # from mogen.definitions import START_Q, END_Q, PATH_Q, PATH_DB
@@ -89,7 +89,7 @@ class SpherePath:
 
 
 def test():
-    from mopla.parameter import Parameter
+    from mopla.Parameter.parameter import Parameter
     par = Parameter(robot='StaticArm04')
     sp = SpherePath(par=par, exp=None, gd=None, ax=None)
 

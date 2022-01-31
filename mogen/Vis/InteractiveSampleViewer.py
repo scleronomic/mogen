@@ -1,5 +1,5 @@
 from rokin.Vis.robot_2d import *
-from mopla import parameter
+from mopla.Parameter import parameter
 
 from wzk import sql2
 from mogen.Vis import WorldViewer, DraggableSphereRobot, SpherePath

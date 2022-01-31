@@ -1,9 +1,9 @@
 import matplotlib as mpl
 import numpy as np
 from wzk import new_fig, save_fig, get_points_inbetween
+from wzk import sql2
 
-import mogen.Loading.load as ld
-import wzk.sql2 as ld_sql
+from mogen.Generation import load
 import rokin.Vis.robot_2d as plt2
 
 directory = '2D/SR/2dof/'  # '2D/FB/3dof/'
@@ -14,12 +14,12 @@ plot_prediction = True
 plot_worlds = True
 
 # Load Data
-i_world_list = ld.arg_wrapper__i_world(i_worlds=i_world, directory=directory)
+i_world_list = load.arg_wrapper__i_world(i_worlds=i_world, directory=directory)
 n_worlds = len(i_world_list)
-world_df = ld.load_world_df(directory=directory)
-obstacle_img = ld.add_obstacle_img_column(world_df=world_df, values_only=True)
-x, objective = ld_sql.get_values_sql(columns=[PATH_Q, 'objective'],
-                                     i_worlds=i_world, directory=directory, values_only=True)
+world_df = load.load_world_df(directory=directory)
+obstacle_img = load.add_obstacle_img_column(world_df=world_df, values_only=True)
+x, objective = sql2.get_values_sql(columns=[PATH_Q, 'objective'],
+                                   i_worlds=i_world, directory=directory, values_only=True)
 img_dir = PROJECT_DATA_IMAGES + 'World_Statistics/' + directory
 n_samples = x.shape[0]
 objective = objective.reshape(n_worlds, n_samples_per_world)
@@ -236,8 +236,8 @@ save_fig(img_dir + 'scatter__MW_Direct_Path_Length_vs_MW_Objective', fig=fig, sa
 
 # NET LOSS
 if plot_prediction:
-    x_pred, objective_pred = ld_sql.get_values_sql(columns=['x_pred', 'objective_pred'],
-                                                   i_worlds=i_world, directory=directory, values_only=True)
+    x_pred, objective_pred = sql2.get_values_sql(columns=['x_pred', 'objective_pred'],
+                                                 i_worlds=i_world, directory=directory, values_only=True)
     x_pred_inner = path.x2x_inner(x=x_pred, n_dof=n_dim, n_samples=n_samples)
 
     loss = c_loss.euclidean_loss_np(y_true=x_inner, y_pred=x_pred_inner, n_dim=n_dim, batch_size=n_samples,

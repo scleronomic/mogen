@@ -1,8 +1,8 @@
 import numpy as np
 
 from wzk import print_progress
-from wzk.image import img2compressed, compressed2img
-from wzk.sql2 import df2sql, get_values_sql
+from wzk.image import img2compressed
+from wzk.sql2 import df2sql
 
 from rokin.Vis import robot_2d, robot_3d
 from rokin.sample_configurations import sample_q
@@ -11,7 +11,7 @@ from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
 from mopla.Parameter import parameter
 
-from mogen.loading.load import create_world_df
+from mogen.Generation.load import create_world_df
 
 
 def sample_worlds(par, n, mode='perlin',
@@ -90,27 +90,29 @@ def get_robot_max_reach(robot):
     return limits
 
 
-def main(file, par, if_exists='replace'):
+def main():
+    from shutil import copy
+    from mopla.Parameter import get_par_staticarm, get_par_justin19
+    # par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
+    par = get_par_justin19()[0]
+
+    # file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
+    file = f"/Users/jote/Documents/Code/Python/DLR/mogen/{par.robot.id}.db"
+    # file2 = f"/home/johannes_tenhumberg/sdb/{par.robot.id}_worlds0.db"
+    # copy(file, file2)
+
     # robot = SingleSphere02(radius=0.25)
     # robot = JustinArm07()  # threshold=0.35
     # robot = Justin19()  # threshold=0.40
     # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.5
     # print(get_robot_max_reach(robot))
 
-    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(threshold=0.50), verbose=1)
-    df2sql(df=df, file=file, table='worlds', if_exists=if_exists)
+    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(threshold=0.40), verbose=1)
 
+    df2sql(df=df, file=file, table='worlds', if_exists='replace')
     # TODO add meta table where all the robot parameters are listed
 
 
 if __name__ == '__main__':
-    from shutil import copy
-    from mopla.Parameter import get_par_staticarm
-    par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
-
-    file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
-    file2 = f"/home/johannes_tenhumberg/sdb/{par.robot.id}_worlds0.db"
-    main(file=file, par=par)
-    copy(file, file2)
-
+    main()
 

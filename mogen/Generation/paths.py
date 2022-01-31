@@ -15,14 +15,13 @@ from mopla.main import chomp_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
-from mogen.loading.load import create_path_df
-from mogen.generation.parameter import init_par
-from mogen.generation.starts_ends import sample_q_start_end
+from mogen.Loading.load import create_path_df
+from mogen.Generation.parameter import init_par
+from mogen.Generation.starts_ends import sample_q_start_end
 
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
-# __file_stub_gcp = '/home/johannes_tenhumberg/Data/{}_sc.db'
 __file_stub_gcp = '/home/johannes_tenhumberg/sdb/{}.db'
 
 file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
@@ -171,17 +170,7 @@ def main_loop_sc(robot_id):
 if __name__ == '__main__':
 
     ray_init(perc=100)
-    _robot_id = 'StaticArm04'
-
-    # import os
-    # print(os.environ['PYTHONPATH'])
-    # @ray.remote
-    # def dummy():
-    #     from mopla import Parameter
-    # futures = []
-    # for i_w in range(10):
-    #     futures.append(dummy.remote())
-    # df_list = ray.get(futures)
+    _robot_id = 'Justin19'
 
     with tictoc('total time') as _:
         main_loop(_robot_id)

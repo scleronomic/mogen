@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib import widgets, patches, collections
+
 from wzk.numpy2 import grid_i2x, grid_x2i
+from wzk import limits2cell_size
 
 import rokin.Vis.robot_2d as plt2
 from mopla.World import templates, random_obstacles
@@ -41,11 +43,11 @@ def get_world_sample(shape,
     return obstacle_img
 
 
-def initialize_pixel_grid(img, voxel_size, lower_left, ax, **kwargs):
+def initialize_pixel_grid(img, limits, ax, **kwargs):
 
     ij = np.array(list(np.ndindex(img.shape)))
-    xy = grid_i2x(i=ij, voxel_size=voxel_size, lower_left=lower_left, mode='b')
-
+    xy = grid_i2x(i=ij, shape=img.shape, limits=limits, mode='b')
+    voxel_size = limits2cell_size(shape=img.shape, limits=limits)
     pixel_grid = collections.PatchCollection([patches.Rectangle(xy=(x, y), width=voxel_size,
                                                                 height=voxel_size, snap=True)
                                               for (x, y) in xy], **kwargs)
@@ -133,9 +135,7 @@ class WorldViewer:
         pass
 
         self.obstacle_img = np.zeros(self.world.shape, dtype=bool)
-        self.obstacle_pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.obstacle_img,
-                                                         voxel_size=self.world.voxel_size,
-                                                         lower_left=self.world.limits[:, 0])
+        self.obstacle_pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.obstacle_img, limits=self.world.limits)
         self.change_sample(i_world=self.i_world)
 
         # self.cid_click = self.fig.canvas.mpl_connect('button_press_event', self.on_click_obstacle)
@@ -148,16 +148,14 @@ class WorldViewer:
         self.text_box.on_submit(self.__submit)
 
     def on_click_obstacle(self, event):
-        i, j = grid_x2i(x=[event.xdata, event.ydata],
-                        voxel_size=self.world.voxel_size, lower_left=self.world.limits[:, 0])
+        i, j = grid_x2i(x=[event.xdata, event.ydata], limits=self.world.limits, shape=self.obstacle_img.shape)
         switch_img_values(bool_img=self.obstacle_img, i=i, j=j, value=None)
         self.update_obstacle_image()
 
     def on_select_obstacle(self, e_click, e_release):
         (x_ll), (x_ur) = get_selected_rectangle(e_click=e_click, e_release=e_release)
 
-        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), voxel_size=self.world.voxel_size,
-                              lower_left=self.world.limits[:, 0])
+        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), limits=self.world.limits, shape=self.obstacle_img.shape)
 
         switch_img_values(bool_img=self.obstacle_img, value=None,
                           i=slice(i_ll[0], i_ur[0] + 1), j=slice(i_ll[1], i_ur[1] + 1))
@@ -189,7 +187,7 @@ class WorldViewer:
 
 
 def test():
-    from mopla.parameter import Parameter
+    from mopla.Parameter.parameter import Parameter
 
     par = Parameter(robot='SingleSphere02', obstacle_img=None)
 
