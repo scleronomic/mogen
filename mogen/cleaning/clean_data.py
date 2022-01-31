@@ -193,8 +193,7 @@ def separate_easy_hard(file, i):
 
 def delete_s0(file):
     table = 'paths'
-    w, s = sql2.get_values_sql(file=file, table=table, rows=np.arange(n), columns=['world_i32', 'sample_i32'],
-                               values_only=True)
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
 
     s_not0 = np.nonzero(s != 0)[0]
 
