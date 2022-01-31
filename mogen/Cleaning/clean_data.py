@@ -301,7 +301,7 @@ def main_combine_files():
 
 if __name__ == '__main__':
 
-    main_combine_files()
+    # main_combine_files()
 
     # test_separate_easy_hard()
     robot_id = 'StaticArm04'
