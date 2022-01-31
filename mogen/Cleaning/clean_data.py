@@ -214,11 +214,11 @@ def main_separate_easy_hard(file: str):
     table = 'paths'
 
     print(f"Separate {file} into easy and hard")
-    print('copy initial file -> file_easy')
+    print('Copy initial file -> file_easy')
     copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
-    print(f"total: {n}")
+    print(f"Total: {n}")
     print(f"Separate indices")
 
     iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(n), columns=['world_i32'], values_only=True)
@@ -242,7 +242,7 @@ def main_separate_easy_hard(file: str):
     assert not np.any(i_s == -1)
     assert np.allclose(b_easy, ~b_hard)
 
-    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist()[:1000],), columns='sample_i32')
     print('copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 
@@ -299,9 +299,7 @@ def main_combine_files():
 
 
 if __name__ == '__main__':
-
     # main_combine_files()
-
     # test_separate_easy_hard()
     robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
@@ -309,7 +307,6 @@ if __name__ == '__main__':
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
     main_separate_easy_hard(file=_file)
-
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -322,9 +319,7 @@ if __name__ == '__main__':
 
     # sql2.delete_columns(file=_file, table='paths', columns='q0_f32',)
 
-
     # main_choose_best(file=_file_hard)
-
     # export SQLITE_TMPDIR='/hom_local/tenh_jo'
 
 
