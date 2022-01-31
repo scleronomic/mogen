@@ -122,7 +122,7 @@ def combine_files(old_files, new_file, clean_s0=True):
             f = f2
 
         if clean_s0:
-            reset_sample_i32_0(file=f)
+            delete_s0(file=f)
 
         if i == 0:
             subprocess.call(f"mv {f} {new_file}")
@@ -130,6 +130,7 @@ def combine_files(old_files, new_file, clean_s0=True):
         else:
             sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
 
+        print(sql2.get_n_rows(file=new_file, table=table))
     if old_files[0].startswith('gs://'):
         gcloud2.copy(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
 
