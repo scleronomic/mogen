@@ -115,10 +115,11 @@ def combine_files(old_files, new_file, clean_s0=True):
     new_file_dir = os.path.split(new_file)[0]
     
     for i, f in enumerate(old_files):
+
         if f.startswith('gs://'):
-            gcloud2.copy(src=f, dst=new_file_dir)
-            f = f"{new_file_dir}/{os.path.split(f)[1]}"
-            print(f)
+            f2 = f"{new_file_dir}/{os.path.split(f)[1]}"
+            gcloud2.copy(src=f, dst=f2)
+            f = f2
 
         if clean_s0:
             reset_sample_i32_0(file=f)
