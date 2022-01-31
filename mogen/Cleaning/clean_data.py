@@ -10,7 +10,7 @@ from wzk.gcp import gcloud2
 from wzk import compressed2img, find_largest_consecutives, object2numeric_array, squeeze, tictoc
 from wzk.mpl import new_fig
 
-from mogen.generation.parameter import init_par
+from mogen.Generation.parameter import init_par
 
 
 def check_consistency(robot,
