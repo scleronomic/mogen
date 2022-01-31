@@ -151,9 +151,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
 
 def main_loop(robot_id):
     copy_init_world(robot_id)
-
-    main(robot_id=_robot_id, iw_list=[0], ra='replace', n_samples_per_world=100)
-    worlds = np.arange(10000).astype(int)
+    worlds = np.arange(10000)
 
     for i in range(1000):
         print(i)
@@ -168,8 +166,6 @@ def main_loop_sc(robot_id):
         worlds = [-1]
         with tictoc(f'loop {i}') as _:
             main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=1000, ra='append',)
-
-
 
 
 if __name__ == '__main__':

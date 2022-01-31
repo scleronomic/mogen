@@ -1,22 +1,16 @@
 import os.path
+import subprocess
 
 import numpy as np
 
 from wzk import sql2
 from shutil import copy
+from wzk.gcp import gcloud2
 
 from wzk import compressed2img, find_largest_consecutives, object2numeric_array, squeeze, tictoc
 from wzk.mpl import new_fig
 
-from rokin.Robots import *
-
-# from mopla.main import objective_feasibility
-from mopla.Optimizer import choose_optimum
-from mopla.Optimizer.gradient_descent import gd_chomp
-
-
 from mogen.generation.parameter import init_par
-from mogen.loading.load import create_path_df, create_world_df, get_samples, get_paths
 
 
 def check_consistency(robot,
@@ -83,7 +77,7 @@ def plot(file, i):
     ax.plot(ju, np.cumsum(jc)/jc.sum(), color='blue')
 
 
-def reset_i_sample(file):
+def reset_sample_i32(file):
     table = 'paths'
 
     iw_all = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32'], values_only=True)
@@ -116,7 +110,27 @@ def reset_sample_i32_0(file):
     sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns='sample_i32')
 
 
+def combine_files(old_files, new_file, clean_s0=True):
+    table = 'paths'
+    new_file_dir = os.path.split(new_file)[0]
+    
+    for i, f in enumerate(old_files):
+        if f.startswith('gs://'):
+            gcloud2.copy(src=f, dst=new_file_dir)
+            f = f"{new_file_dir}/{os.path.split(f)[1]}"
+            print(f)
 
+        if clean_s0:
+            reset_sample_i32_0(file=f)
+
+        if i == 0:
+            subprocess.call(f"mv {f} {new_file}")
+
+        else:
+            sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
+
+    if old_files[0].startswith('gs://'):
+        gcloud2.copy(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
 
 
 def main_choose_best(file):
@@ -149,7 +163,7 @@ def main_choose_best(file):
 
     j_delete = np.delete(np.arange(n_old), j)
     sql2.delete_rows(file=file2, table=table, rows=j_delete)
-    reset_i_sample(file2)
+    reset_sample_i32(file2)
 
     print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
 
@@ -276,13 +290,22 @@ def test_separate_easy_hard():
     main_separate_easy_hard(file=file)
 
 
+def main_combine_files():
+    old_files = [f"gs://StaticArm04_{i}.db" for i in range(20)]
+    new_file = '/home/johannes_tenhumberg/sdb/StaticArm04_combined.db'
+    combine_files(old_files=old_files, new_file=new_file)
+
+
 if __name__ == '__main__':
+
+    main_combine_files()
+
     # test_separate_easy_hard()
-    robot_id = 'Justin19'
+    # robot_id = 'Justin19'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    _file = f'/home_local/tenh_jo/{robot_id}_sc'
-    _file_easy = _file + '_easy'
-    _file_hard = _file + '_hard'
+    # _file = f'/home_local/tenh_jo/{robot_id}_sc'
+    # _file_easy = _file + '_easy'
+    # _file_hard = _file + '_hard'
 
     # ¨copy(_file_hard+'copy.db', _file_hard+'.db')
 
