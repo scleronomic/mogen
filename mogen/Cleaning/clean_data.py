@@ -227,22 +227,22 @@ def main_separate_easy_hard(file: str):
     b_easy = np.zeros(n, dtype=bool)
     b_hard = np.zeros(n, dtype=bool)
 
-    for iw_i in np.unique(iw_all):
-        j = np.nonzero(iw_all == iw_i)[0]
-        (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file, i=j)
+    # for iw_i in np.unique(iw_all):
+    #     j = np.nonzero(iw_all == iw_i)[0]
+    #     (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file, i=j)
+    #
+    #     j_easy = j[i_easy]
+    #     j_hard = j[i_hard]
+    #     i_s[j_easy] = i_s_easy
+    #     i_s[j_hard] = i_s_hard
+    #     b_easy[j_easy] = True
+    #     b_hard[j_hard] = True
+    #     print(f"World:{iw_i} | total: {j.size} | easy: {j_easy.size} | hard: {j_hard.size} ")
 
-        j_easy = j[i_easy]
-        j_hard = j[i_hard]
-        i_s[j_easy] = i_s_easy
-        i_s[j_hard] = i_s_hard
-        b_easy[j_easy] = True
-        b_hard[j_hard] = True
-        print(f"World:{iw_i} | total: {j.size} | easy: {j_easy.size} | hard: {j_hard.size} ")
+    # assert not np.any(i_s == -1)
+    # assert np.allclose(b_easy, ~b_hard)
 
-    assert not np.any(i_s == -1)
-    assert np.allclose(b_easy, ~b_hard)
-
-    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist()[:1000],), columns='sample_i32')
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist()[:100],), columns='sample_i32')
     print('copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 
