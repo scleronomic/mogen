@@ -220,8 +220,11 @@ def main_separate_easy_hard(file: str):
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
     print(f"Separate indices")
-    n = 1000
-    iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(n), columns=['world_i32'], values_only=True)
+    i = np.linspace(0, n, 1000).astype(int)
+
+    for i0, i1 in zip(i[:-1], i[1:]):
+        print(i0, i1)
+        iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(i0, i1), columns=['world_i32'], values_only=True)
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
     b_easy = np.zeros(n, dtype=bool)
