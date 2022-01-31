@@ -292,7 +292,7 @@ def test_separate_easy_hard():
 
 
 def main_combine_files():
-    old_files = [f"gs://StaticArm04_{i}.db" for i in range(20)]
+    old_files = [f"gs://tenh_jo/StaticArm04_{i}.db" for i in range(20)]
     new_file = '/home/johannes_tenhumberg/sdb/StaticArm04_combined.db'
     combine_files(old_files=old_files, new_file=new_file)
 
