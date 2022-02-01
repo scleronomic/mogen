@@ -121,7 +121,7 @@ def combine_files(old_files, new_file, clean_s0=True):
             f = f2
 
         if clean_s0:
-            delete_s0(file=f)
+            delete_not_s0(file=f)
 
         if i == 0:
             os.rename(f, new_file)
@@ -192,7 +192,7 @@ def separate_easy_hard(file, i):
     return (i_easy, i_hard), (i_s_easy, i_s_hard)
 
 
-def delete_s0(file):
+def delete_not_s0(file):
     table = 'paths'
     w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
 
@@ -306,6 +306,7 @@ if __name__ == '__main__':
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}_combined'
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
+    reset_sample_i32_0(file=_file)
     main_separate_easy_hard(file=_file)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
