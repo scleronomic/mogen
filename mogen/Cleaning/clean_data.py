@@ -1,13 +1,12 @@
 import os.path
 import subprocess
+from shutil import copy
 
 import numpy as np
 
 from wzk import sql2
-from shutil import copy
+from wzk import compressed2img, find_largest_consecutives, object2numeric_array, squeeze, tictoc, print_progress
 from wzk.gcp import gcloud2
-
-from wzk import compressed2img, find_largest_consecutives, object2numeric_array, squeeze, tictoc
 from wzk.mpl import new_fig
 
 from mogen.Generation.parameter import init_par
@@ -215,44 +214,39 @@ def main_separate_easy_hard(file: str):
 
     print(f"Separate {file} into easy and hard")
     print('Copy initial file -> file_easy')
-    # copy(file, file_easy)
+    copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
-    print(f"Separate indices")
-    i = np.linspace(0, n, 1000).astype(int)
 
-    # for i0, i1 in zip(i[:-1], i[1:]):
-    #     print(i0, i1)
-    #     iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(i0, i1), columns=['world_i32'], values_only=True)
-
+    print(f"Load all world indices:")
     iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
-    return
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
     b_easy = np.zeros(n, dtype=bool)
     b_hard = np.zeros(n, dtype=bool)
 
-    # for iw_i in np.unique(iw_all):
-    #     j = np.nonzero(iw_all == iw_i)[0]
-    #     (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file, i=j)
+    print(f"Separate indices")
+    for iw_i in np.unique(iw_all):
+        j = np.nonzero(iw_all == iw_i)[0]
+        (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file, i=j)
+
+        j_easy = j[i_easy]
+        j_hard = j[i_hard]
+        i_s[j_easy] = i_s_easy
+        i_s[j_hard] = i_s_hard
+        b_easy[j_easy] = True
+        b_hard[j_hard] = True
+        print(f"World:{iw_i} | total: {j.size} | easy: {j_easy.size} | hard: {j_hard.size} ")
     #
-    #     j_easy = j[i_easy]
-    #     j_hard = j[i_hard]
-    #     i_s[j_easy] = i_s_easy
-    #     i_s[j_hard] = i_s_hard
-    #     b_easy[j_easy] = True
-    #     b_hard[j_hard] = True
-    #     print(f"World:{iw_i} | total: {j.size} | easy: {j_easy.size} | hard: {j_hard.size} ")
+    assert not np.any(i_s == -1)
+    assert np.allclose(b_easy, ~b_hard)
 
-    # assert not np.any(i_s == -1)
-    # assert np.allclose(b_easy, ~b_hard)
-
-    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist()[:100],), columns='sample_i32')
-    print('copy file_easy -> file_hard')
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+    print('Copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 
-    print('delete respective complementing rows in file_easy and file_hard')
+    print('Delete respective complementing rows in file_easy and file_hard')
     sql2.delete_rows(file=file_easy, table=table, rows=b_hard)
     sql2.delete_rows(file=file_hard, table=table, rows=b_easy)
 
