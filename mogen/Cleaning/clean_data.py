@@ -96,6 +96,7 @@ def reset_sample_i32_0(file):
 
     print('Load indices')
     w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
+    w100, s100 = sql2.get_values_sql(file=file, table=table, rows=np.arange(100), columns=['world_i32', 'sample_i32'], values_only=True)
     w = np.squeeze(w).astype(np.int32)
     s = np.squeeze(s).astype(np.int32)
     assert np.all(s == 0)
@@ -105,11 +106,12 @@ def reset_sample_i32_0(file):
     b0 = w0[1:] != w0[:-1] + 1
     wb0 = w0[1:][b0]
 
-    for wb_i in wb0:
-        s[wb_i:] += 1
+    for wb0_i in wb0:
+        s[wb0_i:] += 1
 
     print('Set indices')
     sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file, table=table, values=(s[:100].astype(np.int16).tolist(),), columns='sample_i32')
 
 
 def combine_files(old_files, new_file, clean_s0=True):
@@ -306,7 +308,7 @@ if __name__ == '__main__':
     # test_separate_easy_hard()
     robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    _file = f'/home/johannes_tenhumberg/sdb/{robot_id}_combined'
+    _file = f'/home/johannes_tenhumberg/sdb/{robot_id}'
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
     reset_sample_i32_0(file=_file)
