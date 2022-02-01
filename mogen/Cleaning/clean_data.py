@@ -222,7 +222,7 @@ def main_separate_easy_hard(file: str):
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
 
-    print(f"Load all world indices:")
+    print(f"Load all world indices")
     iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
@@ -309,7 +309,7 @@ if __name__ == '__main__':
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}_combined'
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
-    # reset_sample_i32_0(file=_file)
+    reset_sample_i32_0(file=_file)
     main_separate_easy_hard(file=_file)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
