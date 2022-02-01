@@ -226,7 +226,7 @@ def main_separate_easy_hard(file: str):
     #     print(i0, i1)
     #     iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(i0, i1), columns=['world_i32'], values_only=True)
 
-    iw_all = sql2.get_values_sql(file=file, table='paths', rows=np.arange(n), columns=['world_i32'], values_only=True)
+    iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
     return
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
