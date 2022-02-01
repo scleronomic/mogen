@@ -92,6 +92,7 @@ def reset_sample_i32(file):
 
 
 def reset_sample_i32_0(file):
+    print(f'Reset sample_i32 0: {file}')
     table = 'paths'
 
     print('Load indices')
