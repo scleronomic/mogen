@@ -94,11 +94,13 @@ def reset_sample_i32(file):
 def reset_sample_i32_0(file):
     table = 'paths'
 
+    print('Load indices')
     w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
     w = np.squeeze(w).astype(np.int32)
     s = np.squeeze(s).astype(np.int32)
     assert np.all(s == 0)
 
+    print('Update indices')
     w0 = np.nonzero(w == 0)[0]
     b0 = w0[1:] != w0[:-1] + 1
     wb0 = w0[1:][b0]
@@ -106,6 +108,7 @@ def reset_sample_i32_0(file):
     for wb_i in wb0:
         s[wb_i:] += 1
 
+    print('Set indices')
     sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns='sample_i32')
 
 
@@ -306,7 +309,7 @@ if __name__ == '__main__':
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}_combined'
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'
-    reset_sample_i32_0(file=_file)
+    # reset_sample_i32_0(file=_file)
     main_separate_easy_hard(file=_file)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
