@@ -148,7 +148,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
 def main_loop(robot_id):
     copy_init_world(robot_id)
     worlds = np.arange(10000)
-    main(robot_id=robot_id, iw_list=np.range(120), ra='append', s0=0, n_samples_per_world=1)
+    main(robot_id=robot_id, iw_list=np.arange(120), ra='append', s0=0, n_samples_per_world=1)
 
     for i in range(1000):
         print(i)
