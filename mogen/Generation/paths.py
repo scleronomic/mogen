@@ -15,10 +15,7 @@ from mopla.main import chomp_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
-from mogen.Loading.load import create_path_df
-from mogen.Generation.parameter import init_par
-from mogen.Generation.starts_ends import sample_q_start_end
-
+from mogen.Generation import load, parameter, starts_ends
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
@@ -29,9 +26,10 @@ file_stub = file_stub_dict[LOCATION]
 
 
 def copy_init_world(robot_id):
+    file_bucket_stub = 'gs://tenh_jo/{}_worlds0.db'
     call2(cmd=f"sudo chmod 777 -R {os.path.split(file_stub.format(robot_id))[0]}")
     if LOCATION == 'gcp':
-        gcloud2.copy(src=f'gs://tenh_jo/{robot_id}_worlds0.db', dst=file_stub.format(robot_id))
+        gcloud2.copy(src=file_bucket_stub.format(robot_id), dst=file_stub.format(robot_id))
     else:
         pass
 
@@ -56,8 +54,7 @@ def __chomp(q0, q_start, q_end,
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
-    return create_path_df(i_world=i_world, i_sample=i_sample,
-                          q=q, objective=o, feasible=f)
+    return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 def __chomp2(q_start, q_end,
@@ -71,7 +68,7 @@ def __chomp2(q_start, q_end,
     f = feasibility_check(q=q, par=gen.par) == 1
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
-    return create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
+    return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
@@ -80,13 +77,13 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     obstacle_img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
     initialize_oc(par=gen.par, obstacle_img=obstacle_img)
     try:
-        q_start, q_end = sample_q_start_end(robot=gen.par.robot,
-                                            feasibility_check=lambda qq: feasibility_check(q=qq, par=gen.par),
-                                            acceptance_rate=gen.bee_rate)
+        q_start, q_end = starts_ends.sample_q_start_end(robot=gen.par.robot,
+                                                        feasibility_check=lambda qq: feasibility_check(qq, par=gen.par),
+                                                        acceptance_rate=gen.bee_rate)
     except RuntimeError:
-        df = create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
-                            q=np.zeros((1, gen.par.n_waypoints, gen.par.robot.n_dof)),
-                            objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
+        df = load.create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
+                                 q=np.zeros((1, gen.par.n_waypoints, gen.par.robot.n_dof)),
+                                 objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
         return df
 
     get_q0 = InitialGuess.path.q0s_random_wrapper(robot=gen.par.robot, n_multi_start=[[0], [1]],
@@ -120,7 +117,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
 
     @ray.remote
     def sample_ray(_i_w: int, _i_s: int):
-        gen = init_par(robot_id=robot_id)
+        gen = parameter.init_par(robot_id=robot_id)
         _i_w = int(_i_w)
         if _i_w == -1:
             img_cmp = img_cmp0[gen.par.robot.n_dim-1]
@@ -174,4 +171,3 @@ if __name__ == '__main__':
 
     with tictoc('total time') as _:
         main_loop(_robot_id)
-
