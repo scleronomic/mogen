@@ -221,8 +221,8 @@ def main_separate_easy_hard(file: str):
     print(f"Separate {file} into easy and hard")
     print('Copy initial file -> file_easy')
     # sql2.delete_rows(file=file_easy, table=table, rows=np.random.random(int(1e8)) < 0.5)
-    sql2.delete_rows(file=file_easy, table=table, rows=np.arange(int(5e7)))
-
+    sql2.delete_rows(file=file_easy, table=table, rows=np.arange(int(5e6)))
+    return
     copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
