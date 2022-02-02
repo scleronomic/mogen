@@ -218,9 +218,20 @@ def main_separate_easy_hard(file: str):
     file = f"{file}.db"
     table = 'paths'
 
+    b_hard = np.load(f"{os.path.dirname(file)}/b_hard.npy")
+    b_easy = np.logical_not(b_hard)
+
+    print('Delete respective complementing rows in file_easy and file_hard')
+    print('hard', b_hard.sum())
+    print('easy', b_easy.sum())
+    sql2.delete_rows(file=file_easy, table=table, rows=b_hard)
+    sql2.delete_rows(file=file_hard, table=table, rows=b_easy)
+    return
+
+
     print(f"Separate {file} into easy and hard")
     print('Copy initial file -> file_easy')
-    # copy(file, file_easy)
+    copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
@@ -251,10 +262,9 @@ def main_separate_easy_hard(file: str):
     print('Set new indices')
     np.save(f"{os.path.dirname(file)}/b_hard.npy", b_hard)
 
-    # sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
     print('Copy file_easy -> file_hard')
-    # copy(file_easy, file_hard)
-
+    copy(file_easy, file_hard)
 
     print('Delete respective complementing rows in file_easy and file_hard')
     sql2.delete_rows(file=file_easy, table=table, rows=b_hard)
