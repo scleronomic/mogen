@@ -251,6 +251,8 @@ def main_separate_easy_hard(file: str):
     assert not np.any(i_s == -1)
     assert np.allclose(b_easy, ~b_hard)
 
+    print('Set new indices')
+    np.save(f"{os.path.dirname(file)}/b_hard.npy", b_hard)
     sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
     print('Copy file_easy -> file_hard')
     copy(file_easy, file_hard)
