@@ -222,10 +222,6 @@ def main_separate_easy_hard(file: str):
     print('Copy initial file -> file_easy')
     # copy(file, file_easy)
 
-    # sql2.delete_rows(file=file_easy, table=table, rows=np.random.random(int(1e8)) < 0.5)
-    sql2.delete_rows(file=file, table=table, rows=np.arange(int(5e6)))
-    return
-
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
 
@@ -256,7 +252,7 @@ def main_separate_easy_hard(file: str):
     np.save(f"{os.path.dirname(file)}/b_hard.npy", b_hard)
 
     # sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
-    # print('Copy file_easy -> file_hard')
+    print('Copy file_easy -> file_hard')
     # copy(file_easy, file_hard)
 
     print('Delete respective complementing rows in file_easy and file_hard')
@@ -314,7 +310,7 @@ def main_combine_files():
 if __name__ == '__main__':
     # main_combine_files()
     # test_separate_easy_hard()
-    robot_id = 'StaticArm04_2'
+    robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}'
     # _file_easy = _file + '_easy'
