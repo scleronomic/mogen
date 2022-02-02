@@ -255,6 +255,7 @@ def main_separate_easy_hard(file: str):
     print('Copy file_easy -> file_hard')
     # copy(file_easy, file_hard)
 
+
     print('Delete respective complementing rows in file_easy and file_hard')
     sql2.delete_rows(file=file_easy, table=table, rows=b_hard)
     sql2.delete_rows(file=file_hard, table=table, rows=b_easy)
