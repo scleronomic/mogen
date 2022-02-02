@@ -77,8 +77,8 @@ def plot(file, i):
 
 
 def reset_sample_i32(file):
+    print('Reset indices')
     table = 'paths'
-
     iw_all = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32'], values_only=True)
     iw_all = np.squeeze(iw_all).astype(np.int32)
     n = len(iw_all)
@@ -148,9 +148,12 @@ def main_choose_best(file):
     file = f"{file}.db"
     table = 'paths'
 
-    print(f"choose best multi start for {file}")
+    print(f"Choose best multi start for {file}")
+
+    print('Copy initial file -> file2')
     copy(file, file2)
 
+    print('Load data')
     i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=table, rows=-1,
                                          columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
                                          values_only=True)
@@ -170,10 +173,11 @@ def main_choose_best(file):
     n_old = len(i_w)
     n_new = len(j)
 
+    print('Delete worst & infeasible paths')
     j_delete = np.delete(np.arange(n_old), j)
     sql2.delete_rows(file=file2, table=table, rows=j_delete)
-    reset_sample_i32(file2)
 
+    reset_sample_i32(file2)
     print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
 
 
@@ -218,25 +222,12 @@ def main_separate_easy_hard(file: str):
     file = f"{file}.db"
     table = 'paths'
 
-    b_hard = np.load(f"{os.path.dirname(file)}/b_hard.npy")
-    b_easy = np.logical_not(b_hard)
-
-
-    # print(f"Separate {file} into easy and hard")
-    # print('Copy initial file -> file_easy')
-    # copy(file, file_easy)
+    print(f"Separate {file} into easy and hard")
+    print('Copy initial file -> file_easy')
+    copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
-
-
-    print('Delete respective complementing rows in file_easy and file_hard')
-    print('hard', b_hard.sum())
-    print('easy', b_easy.sum())
-    sql2.delete_rows(file=file_easy, table=table, rows=b_hard, batch_size=int(1e5))
-    sql2.delete_rows(file=file_hard, table=table, rows=b_easy, batch_size=int(1e5))
-    return
-
 
     print(f"Load all world indices")
     iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
@@ -327,9 +318,10 @@ if __name__ == '__main__':
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}'
     # _file_easy = _file + '_easy'
-    # _file_hard = _file + '_hard'
+    _file_hard = _file + '_hard'
     # reset_sample_i32_0(file=_file)
-    main_separate_easy_hard(file=_file)
+    # main_separate_easy_hard(file=_file)
+    main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -342,7 +334,6 @@ if __name__ == '__main__':
 
     # sql2.delete_columns(file=_file, table='paths', columns='q0_f32',)
 
-    # main_choose_best(file=_file_hard)
     # export SQLITE_TMPDIR='/hom_local/tenh_jo'
 
 
