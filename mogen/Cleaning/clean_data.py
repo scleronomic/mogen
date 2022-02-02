@@ -221,20 +221,22 @@ def main_separate_easy_hard(file: str):
     b_hard = np.load(f"{os.path.dirname(file)}/b_hard.npy")
     b_easy = np.logical_not(b_hard)
 
-    print('Delete respective complementing rows in file_easy and file_hard')
-    print('hard', b_hard.sum())
-    print('easy', b_easy.sum())
-    sql2.delete_rows(file=file_easy, table=table, rows=b_hard)
-    sql2.delete_rows(file=file_hard, table=table, rows=b_easy)
-    return
 
-
-    print(f"Separate {file} into easy and hard")
-    print('Copy initial file -> file_easy')
-    copy(file, file_easy)
+    # print(f"Separate {file} into easy and hard")
+    # print('Copy initial file -> file_easy')
+    # copy(file, file_easy)
 
     n = sql2.get_n_rows(file=file, table=table)
     print(f"Total: {n}")
+
+
+    print('Delete respective complementing rows in file_easy and file_hard')
+    print('hard', b_hard.sum())
+    print('easy', b_easy.sum())
+    sql2.delete_rows(file=file_easy, table=table, rows=b_hard, batch_size=int(1e5))
+    sql2.delete_rows(file=file_hard, table=table, rows=b_easy, batch_size=int(1e5))
+    return
+
 
     print(f"Load all world indices")
     iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
