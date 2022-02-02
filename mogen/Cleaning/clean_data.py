@@ -158,6 +158,7 @@ def main_choose_best(file):
                                          columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
                                          values_only=True)
     i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
+
     m, _ = find_largest_consecutives(i_s)
     check_iw_is(i_w=i_w, i_s=i_s, m=m)
 
@@ -317,10 +318,14 @@ if __name__ == '__main__':
     robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
     _file = f'/home/johannes_tenhumberg/sdb/{robot_id}'
-    # _file_easy = _file + '_easy'
+    _file_easy = _file + '_easy'
     _file_hard = _file + '_hard'
     # reset_sample_i32_0(file=_file)
     # main_separate_easy_hard(file=_file)
+    print('sort easy')
+    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
+    print('sort hard')
+    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
     main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
