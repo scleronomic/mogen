@@ -322,10 +322,10 @@ if __name__ == '__main__':
     _file_hard = _file + '_hard'
     # reset_sample_i32_0(file=_file)
     # main_separate_easy_hard(file=_file)
-    print('sort easy')
-    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
-    print('sort hard')
-    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
+    # print('sort easy')
+    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
+    # print('sort hard')
+    # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
     main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
