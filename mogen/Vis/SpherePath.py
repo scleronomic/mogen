@@ -83,7 +83,7 @@ class SpherePath:
         self.x_spheres = get_frames_x(q=self.q, robot=self.par.robot)
 
         if self.h_path is None:
-            self.h_path = plt2.plot_x_spheres(x_spheres=self.x_spheres, ax=self.ax)
+            self.h_path = plt2.plot_x_path_arm(x_spheres=self.x_spheres, ax=self.ax)
         else:
             plt2.plot_x_spheres_update(h=self.h_path, x_spheres=self.x_spheres)
 

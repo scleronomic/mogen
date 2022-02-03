@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from wzk.dtypes import str2np
 from wzk.image import compressed2img
 from wzk.numpy2 import squeeze
-from wzk.sql2 import get_n_rows, rename_columns, get_values_sql, df2sql  # noqa
+from wzk import sql2
 from wzk.training import n2train_test, train_test_split  # noqa
 
 meta_df_columns = np.array(['par', 'gd'])
@@ -17,7 +16,7 @@ n_samples_per_world = 1000
 
 def arg_wrapper__i_world(i_worlds, file=None):
     """
-    Return an numpy array of world indices.
+    Return a numpy array of world indices.
     - if i_worlds is an integer
     Helper function to handle the argument i_world.
     If i_world is an integer, wrap it in a list.
@@ -28,7 +27,7 @@ def arg_wrapper__i_world(i_worlds, file=None):
     if isinstance(i_worlds, (int, np.int32, np.int64)):
         i_worlds = int(i_worlds)
         if i_worlds == -1:
-            n_worlds = get_n_rows(file=file, table='worlds')
+            n_worlds = sql2.get_n_rows(file=file, table='worlds')
             i_worlds = list(range(n_worlds))
         else:
             i_worlds = [i_worlds]
@@ -67,7 +66,7 @@ def get_sample_indices(i_worlds=-1, file=None, validation_split=0.2, validation_
 
 def sort_sample_indices(sample_indices):
     """
-    Make a sorted copy of the the sample indices, sort with respect to the world
+    Make a sorted copy of the sample indices, sort with respect to the world
 
     5000, 5001, 5002, ..., 5999
     0000, 0001, 0002, ..., 0999
@@ -152,7 +151,7 @@ def initialize_df():
 
 def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
     data = {key: value for key, value in zip(world_df_columns, [i_world, img_cmp])}
-    data = prepare_data(data)
+    data = sql2.values2bytes(data)
     return pd.DataFrame(data)
 
 
@@ -160,18 +159,8 @@ def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
                    q: np.ndarray,
                    objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
     data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
-    data = prepare_data(data=data)
+    data = sql2.values2bytes(data=data)
     return pd.DataFrame(data)
-
-
-def prepare_data(data: dict) -> dict:
-    for key in data:
-        data[key] = data[key].astype(str2np(key))
-
-        if np.size(data[key][0]) > 1 and not isinstance(data[key][0], bytes):
-            data[key] = [xx.tobytes() for xx in data[key]]
-
-    return data
 
 
 def rename_old_columns(file):
@@ -183,24 +172,25 @@ def rename_old_columns(file):
                    objective='objective_f64',
                    feasible='feasible_b')
 
-    rename_columns(file=file, table='paths', columns=columns)
+    sql2.rename_columns(file=file, table='paths', columns=columns)
 
 
 def get_paths(file, i):
-    i_w, i_s, q, o, f = get_values_sql(file=file, table='paths', rows=i,
-                                       columns=['world_i32', 'sample_i32',
-                                                'q_f32', 'objective_f32', 'feasible_b'], values_only=True)
+    i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table='paths', rows=i,
+                                            columns=['world_i32', 'sample_i32',
+                                                     'q_f32', 'objective_f32', 'feasible_b'], values_only=True)
     i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
     return i_w, i_s, q, o, f
 
 
 def get_worlds(file, i_w, img_shape):
-    img_cmp = get_values_sql(file=file, rows=i_w, table='worlds', columns='img_cmp', values_only=True)
+    img_cmp = sql2.get_values_sql(file=file, table='worlds', rows=i_w,
+                                  columns='img_cmp', values_only=True)
     img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
     return img
 
 
-def get_samples(file, i_s, img_shape):
-    i_w, i_s, q, o, f = get_paths(file, i_s)
+def get_samples(file, i, img_shape):
+    i_w, i_s, q, o, f = get_paths(file, i)
     img = get_worlds(file=file, i_w=i_w, img_shape=img_shape)
     return i_w, i_s, q, img

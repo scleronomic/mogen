@@ -66,8 +66,8 @@ class DraggableSphereRobot:
                                                 radius=self.robot.spheres_rad.mean(),
                                                 callback=self.callback, **style_path)
         self.drag_circles.set_callback(callback=self.update_spheres2q_plot)
-        self.x_spheres_plot_h = plt2.plot_x_spheres(x_spheres=self.x_spheres, ax=self.ax, style_path=style_path,
-                                                    style_arm=style_arm)
+        self.x_spheres_plot_h = plt2.plot_x_path_arm(x_spheres=self.x_spheres, ax=self.ax, style_path=style_path,
+                                                     style_arm=style_arm)
 
     def update_val2plot(self):
         plt2.plot_x_spheres_update(h=self.x_spheres_plot_h, x_spheres=self.x_spheres)
