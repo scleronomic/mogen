@@ -151,7 +151,7 @@ def initialize_df():
 
 def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
     data = {key: value for key, value in zip(world_df_columns, [i_world, img_cmp])}
-    data = sql2.values2bytes(data)
+    data = sql2.values2bytes_dict(data=data)
     return pd.DataFrame(data)
 
 
@@ -159,7 +159,7 @@ def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
                    q: np.ndarray,
                    objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
     data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
-    data = sql2.values2bytes(data=data)
+    data = sql2.values2bytes_dict(data=data)
     return pd.DataFrame(data)
 
 
