@@ -115,7 +115,7 @@ def reset_sample_i32_0(file):
     sql2.set_values_sql(file=file, table=table, values=(s[:100].astype(np.int16).tolist(),), columns='sample_i32')
 
 
-def combine_files(old_files, new_file, clean_s0=True):
+def combine_files(old_files, new_file, clean_s0):
     table = 'paths'
     new_file_dir = os.path.split(new_file)[0]
     
@@ -211,6 +211,7 @@ def delete_not_s0(file):
 
     if np.size(s_not0) > 0:
         i = s_not0[-1]
+        assert i < 10000
         sql2.delete_rows(file=file, table=table,  rows=np.arange(i+1))
 
 
@@ -307,13 +308,14 @@ def test_separate_easy_hard():
 
 
 def main_combine_files():
-    old_files = [f"gs://tenh_jo/StaticArm04_{i}.db" for i in range(20)]
-    new_file = '/home/johannes_tenhumberg/sdb/StaticArm04_combined.db'
+    robot_id = 'Justin19'
+    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(40)]
+    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined.db"
     combine_files(old_files=old_files, new_file=new_file)
 
 
 if __name__ == '__main__':
-    # main_combine_files()
+    main_combine_files()
     # test_separate_easy_hard()
     robot_id = 'StaticArm04'
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
