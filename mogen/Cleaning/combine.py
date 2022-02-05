@@ -120,7 +120,7 @@ def combine_files(old_files, new_file, clean_s0):
     new_file_dir = os.path.split(new_file)[0]
     
     for i, f in enumerate(old_files):
-
+        print(i)
         if f.startswith('gs://'):
             f2 = f"{new_file_dir}/{os.path.split(f)[1]}"
             gcloud2.copy(src=f, dst=f2)
@@ -133,7 +133,9 @@ def combine_files(old_files, new_file, clean_s0):
             os.rename(f, new_file)
 
         else:
+            print(f'concatenate')
             sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
+            print(f'remove')
             os.remove(f)
 
         print(sql2.get_n_rows(file=new_file, table=table))
