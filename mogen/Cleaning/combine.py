@@ -92,7 +92,7 @@ def reset_sample_i32(file):
 
 
 def reset_sample_i32_0(file):
-    print(f'Reset sample_i32 0: {file}')
+    print(f"Reset sample_i32 0: {file}")
     table = 'paths'
 
     print('Load indices')
@@ -307,28 +307,28 @@ def test_separate_easy_hard():
     main_separate_easy_hard(file=file)
 
 
-def main_combine_files():
-    robot_id = 'Justin19'
-    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(40)]
-    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined.db"
+def main_combine_files(robot_id, n, n0=0):
+    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n)]
+    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined_{n0}-{n}.db"
+
     combine_files(old_files=old_files, new_file=new_file)
 
 
 if __name__ == '__main__':
-    main_combine_files()
+    robot_id = 'Justin19'
     # test_separate_easy_hard()
-    robot_id = 'StaticArm04'
-    # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    _file = f'/home/johannes_tenhumberg/sdb/{robot_id}'
-    _file_easy = _file + '_easy'
-    _file_hard = _file + '_hard'
-    # reset_sample_i32_0(file=_file)
-    # main_separate_easy_hard(file=_file)
-    # print('sort easy')
-    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
-    # print('sort hard')
-    # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
-    main_choose_best(file=_file_hard)
+    main_combine_files(robot_id=robot_id, n0=0, n=40)
+    # # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
+    # _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"
+    # _file_easy = _file + '_easy'
+    # _file_hard = _file + '_hard'
+    # # reset_sample_i32_0(file=_file)
+    # # main_separate_easy_hard(file=_file)
+    # # print('sort easy')
+    # # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
+    # # print('sort hard')
+    # # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
+    # main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],

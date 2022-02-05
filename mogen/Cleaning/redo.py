@@ -58,7 +58,7 @@ def adjust_path(file, par, i=None, i_w=None):
 
 def main():
     robot_id = 'StaticArm04'
-    file = f'/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}_hard2.db'
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}_hard2.db"
 
     par = init_par(robot_id).par
 
