@@ -12,27 +12,27 @@ from wzk.mpl import new_fig
 from mogen.Generation.parameter import init_par
 
 
-def check_consistency(robot,
-                      db_file=None,
-                      q=None, f=None, o=None, img=None):
-
-    gen = init_par(robot_id=robot.id)
-
-    if q is None:
-        i_w, i_s, q0, q, o, f = sql2.get_values_sql(file=db_file, table='paths',
-                                                    rows=i,
-                                                    columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32',
-                                                             'objective_f32', 'feasible_f32'],
-                                                    values_only=True)
-
-    if img is None:
-        img_cmp = sql2.get_values_sql(file=db_file, rows=np.arange(300), table='worlds', columns='img_cmp', values_only=True)
-        img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
-
-    q = q.reshape(-1, gen.par.n_waypoints, robot.n_dof).copy()
-
-    o_label, f_label = objective_feasibility(q=q, imgs=img, par=gen.par, iw=i_w)
-    print(f.sum(), f_label.sum(), (f == f_label).mean())
+# def check_consistency(robot,
+#                       db_file=None,
+#                       q=None, f=None, o=None, img=None):
+#
+#     gen = init_par(robot_id=robot.id)
+#
+#     if q is None:
+#         i_w, i_s, q0, q, o, f = sql2.get_values_sql(file=db_file, table='paths',
+#                                                     rows=i,
+#                                                     columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32',
+#                                                              'objective_f32', 'feasible_f32'],
+#                                                     values_only=True)
+#
+#     if img is None:
+#         img_cmp = sql2.get_values_sql(file=db_file, rows=np.arange(300), table='worlds', columns='img_cmp', values_only=True)
+#         img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
+#
+#     q = q.reshape(-1, gen.par.n_waypoints, robot.n_dof).copy()
+#
+#     o_label, f_label = objective_feasibility(q=q, imgs=img, par=gen.par, iw=i_w)
+#     print(f.sum(), f_label.sum(), (f == f_label).mean())
 
 
 def check_iw_is(i_w, i_s, m):
@@ -310,8 +310,7 @@ def test_separate_easy_hard():
 def main_combine_files(robot_id, n, n0=0):
     old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n)]
     new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined_{n0}-{n}.db"
-
-    combine_files(old_files=old_files, new_file=new_file)
+    combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
 if __name__ == '__main__':
