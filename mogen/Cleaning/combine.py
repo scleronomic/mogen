@@ -229,13 +229,13 @@ def main_separate_easy_hard(file: str):
 
     print(f"Separate {file} into easy and hard")
     print('Copy initial file -> file_easy')
-    copy(file, file_easy)
+    # copy(file, file_easy)
 
-    n = sql2.get_n_rows(file=file, table=table)
+    n = sql2.get_n_rows(file=file_easy, table=table)
     print(f"Total: {n}")
 
     print(f"Load all world indices")
-    iw_all = sql2.get_values_sql(file=file, table='paths', rows=-1, columns=['world_i32'], values_only=True)
+    iw_all = sql2.get_values_sql(file=file_easy, table='paths', rows=-1, columns=['world_i32'], values_only=True)
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
     b_easy = np.zeros(n, dtype=bool)
@@ -244,7 +244,7 @@ def main_separate_easy_hard(file: str):
     print(f"Separate indices")
     for iw_i in np.unique(iw_all):
         j = np.nonzero(iw_all == iw_i)[0]
-        (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file, i=j)
+        (i_easy, i_hard), (i_s_easy, i_s_hard) = separate_easy_hard(file=file_easy, i=j)
 
         j_easy = j[i_easy]
         j_hard = j[i_hard]
@@ -258,8 +258,6 @@ def main_separate_easy_hard(file: str):
     assert np.allclose(b_easy, ~b_hard)
 
     print('Set new indices')
-    np.save(f"{os.path.dirname(file)}/b_hard.npy", b_hard)
-
     sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
     print('Copy file_easy -> file_hard')
     copy(file_easy, file_hard)
