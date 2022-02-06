@@ -191,6 +191,7 @@ def separate_easy_hard(file, i):
     i_s = np.squeeze(i_s)
 
     n, i_hard = find_largest_consecutives(x=i_s)
+    print(n)
     if n == 1:
         i_hard = np.array([], dtype=int)
     else:
