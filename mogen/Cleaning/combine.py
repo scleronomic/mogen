@@ -320,18 +320,20 @@ def main_combine_files(robot_id, n, n0=0):
 if __name__ == '__main__':
     robot_id = 'Justin19'
     # test_separate_easy_hard()
-    # main_combine_files(robot_id=robot_id, n0=0, n=40)
+    main_combine_files(robot_id=robot_id, n0=0, n=20)
+    main_combine_files(robot_id=robot_id, n0=20, n=40)
+
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"
-    _file_easy = _file + '_easy'
-    _file_hard = _file + '_hard'
+    # _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"
+    # _file_easy = _file + '_easy'
+    # _file_hard = _file + '_hard'
     # # reset_sample_i32_0(file=_file)
-    main_separate_easy_hard(file=_file)
+    # main_separate_easy_hard(file=_file)
     # # print('sort easy')
     # # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
     # # print('sort hard')
     # # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
-    main_choose_best(file=_file_hard)
+    # main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -345,19 +347,3 @@ if __name__ == '__main__':
     # sql2.delete_columns(file=_file, table='paths', columns='q0_f32',)
 
     # export SQLITE_TMPDIR='/hom_local/tenh_jo'
-
-
-# gcloud compute instances create tenh-sql3
-# --project=neon-polymer-214621
-# --zone=us-central1-a
-# --machine-type=c2-standard-60
-# --network-interface=network-tier=PREMIUM,subnet=default
-# --no-restart-on-failure
-# --maintenance-policy=TERMINATE
-# --preemptible
-# --service-account=508084122889-compute@developer.gserviceaccount.com
-# --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --create-disk=auto-delete=yes,boot=yes,device-name=tenh-sql3,image=projects/debian-cloud/global/images/debian-10-buster-v20220118,mode=rw,size=10,type=projects/neon-polymer-214621/zones/us-central1-a/diskTypes/pd-balanced
-# --local-ssd=interface=SCSI
-# --no-shielded-secure-boot
-# --shielded-vtpm
-# --shielded-integrity-monitoring --labels=user=tenh --reservation-affinity=any
