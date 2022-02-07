@@ -4,7 +4,7 @@ from wzk.gcp.gcloud2 import *
 from wzk.gcp import startup
 
 
-def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=100):
+def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=600):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup'
     snapshot_size = 30

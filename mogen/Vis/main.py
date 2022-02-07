@@ -42,12 +42,14 @@ def plot_path_2d(file, robot_id, i_s):
     close_all()
 
 
-def plot_path_2d_gif(file, robot_id, i):
+def plot_path_2d_gif(file, robot_id, i, file_out=None, qq=None):
 
     par = Parameter(robot=robot_id)
     i_w, i, q, img = get_samples(file=file, i=i, img_shape=par.world.shape)
-    q = q.reshape(-1, par.robot.n_dof)
-
+    if qq is None:
+        q = q.reshape(-1, par.robot.n_dof)
+    else:
+        q = qq.reshape(-1, par.robot.n_dof)
     fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
 
@@ -55,8 +57,9 @@ def plot_path_2d_gif(file, robot_id, i):
         pass
 
     else:
-        fig_file = get_fig_file(file=file, i_w=i_w, i_s=i)
-        robot_2d.animate_arm(ax=ax, robot=par.robot, q=q, n_ss=1, gif=fig_file)
+        if file_out is None:
+            file_out = get_fig_file(file=file, i_w=i_w, i_s=i)
+        robot_2d.animate_arm(ax=ax, robot=par.robot, q=q, n_ss=1, gif=file_out)
         close_all()
 
     return

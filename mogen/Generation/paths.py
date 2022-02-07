@@ -19,7 +19,7 @@ from mogen.Generation import load, parameter, starts_ends
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
-__file_stub_gcp = '/home/johannes_tenhumberg/sdb/{}.db'
+__file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
 
 file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
 file_stub = file_stub_dict[LOCATION]
