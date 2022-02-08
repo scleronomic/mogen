@@ -55,7 +55,7 @@ def mogen_create_instance_local():
 
 
 def mogen_upload2bucket(robot_id, n, n0=0):
-    disks = [f"tenh-ompgen-disk-{i}" for i in range(n0, n)]
+    disks = [f"tenh-ompgen-disk-{i}" for i in range(n0, n0+n)]
     file = f'/home/{GCP_USER}/sdb/{robot_id}.db'
     bucket = 'gs://tenh_jo'
     upload2bucket(disks, file=file, bucket=bucket)
