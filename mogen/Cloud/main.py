@@ -58,7 +58,7 @@ def mogen_upload2bucket(robot_id, n, n0=0):
     disk = "tenh-ompgen-disk-"
     file = f'/home/{GCP_USER}/sdb/{robot_id}.db'
     bucket = 'gs://tenh_jo'
-    upload2bucket(disk=disk, file=file, bucket=bucket)
+    upload2bucket(disk=disk, file=file, bucket=bucket, n=n, n0=n0)
 
 
 if __name__ == '__main__':
