@@ -142,7 +142,7 @@ def combine_files(old_files, new_file, clean_s0):
         print(f"Total number of rows: {n}")
 
     if old_files[0].startswith('gs://'):
-        gcloud2.copy(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
+        gcloud2.gsutil_cp(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
 
 
 def main_choose_best(file):
@@ -330,11 +330,11 @@ def split_df(file):
 
 
 def delete_half():
-    file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
+    file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_20-40.db'
     i = 33897660
     n = 66006680
-    sql2.delete_rows(file=file, table='paths', rows=np.arange(0, i))
-    # sql2.delete_rows(file=file, table='paths', rows=np.arange(i, n))
+    # sql2.delete_rows(file=file, table='paths', rows=np.arange(0, i))
+    sql2.delete_rows(file=file, table='paths', rows=np.arange(i, n))
 
 
 if __name__ == '__main__':
