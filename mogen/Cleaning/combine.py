@@ -339,12 +339,14 @@ def delete_half():
 
 if __name__ == '__main__':
 
-    delete_half()
+    # delete_half()
 
-    # robot_id = 'Justin19'
+    robot_id = 'Justin19'
     # # test_separate_easy_hard()
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
     # main_combine_files(robot_id=robot_id, n0=20, n=40)
+    main_combine_files(robot_id=robot_id, n0=40, n=20)
+    main_combine_files(robot_id=robot_id, n0=60, n=20)
 
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
     # _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"

@@ -50,8 +50,11 @@ def plot_path_gif(robot_id,
     par = init_par(robot_id=robot_id).par
     if file is not None:
         i_w, i_s, q_, img_ = get_samples(file=file, i=i, img_shape=par.world.shape)
-        q = q or q_
-        img = img or img_
+        if q is None:
+            q = q_
+        if img is None:
+            img = img_
+
         file_out = file_out or get_fig_file(file=file, i_w=i_w, i_s=i_s)
     else:
         pass
