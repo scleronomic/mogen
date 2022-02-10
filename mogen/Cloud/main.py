@@ -42,14 +42,16 @@ def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=600):
 def mogen_create_instance_local():
     name = 'tenh-sql-2'
     machine = 'c2-standard-60'
-    snapshot = 'tenh-setup'
+    snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
+    startup_script = startup.make_startup_file(user=GCP_USER,
+                                               bash_file=f"/home/{GCP_USER}/src/mogen/mogen/Cloud/Startup/basic.sh")
 
     disk_boot = dict(name=name, snapshot=snapshot, size=snapshot_size, autodelete='yes', boot='yes')
     disk_local = dict(interface='SCSI', n=8)
     instance = dict(name=name,
                     machine=machine, disks_new=disk_boot, disks_old=None, disks_local=disk_local,
-                    startup_script=None, labels=GCP_USER_LABEL)
+                    startup_script=startup_script, labels=GCP_USER_LABEL)
     cmd = create_instance_cmd(instance)
     subprocess.call(cmd, shell=True)
 

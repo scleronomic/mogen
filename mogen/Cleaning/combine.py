@@ -317,11 +317,34 @@ def main_combine_files(robot_id, n, n0=0):
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
+def split_df(file):
+    file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
+    i_s = sql2.get_values_sql(file=file, table='paths', rows=-1, columns='sample_i32', values_only=True)
+
+    i_s0 = np.nonzero(i_s == 0)[0]
+    i_s00 = np.nonzero(i_s0[1:] != i_s0[:-1] + 1)[0] + 1
+    i_center = i_s00[len(i_s00)//2]
+
+    i_center = i_s0[i_center]
+    print(i_center)
+
+
+def delete_half():
+    file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
+    i = 33897660
+    n = 66006680
+    sql2.delete_rows(file=file, table='paths', rows=np.arange(0, i))
+    # sql2.delete_rows(file=file, table='paths', rows=np.arange(i, n))
+
+
 if __name__ == '__main__':
-    robot_id = 'Justin19'
-    # test_separate_easy_hard()
-    main_combine_files(robot_id=robot_id, n0=0, n=20)
-    main_combine_files(robot_id=robot_id, n0=20, n=40)
+
+    delete_half()
+
+    # robot_id = 'Justin19'
+    # # test_separate_easy_hard()
+    # main_combine_files(robot_id=robot_id, n0=0, n=20)
+    # main_combine_files(robot_id=robot_id, n0=20, n=40)
 
     # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
     # _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"

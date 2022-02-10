@@ -7,7 +7,7 @@ from wzk import safe_makedir
 from wzk import trajectory, sql2
 
 from rokin.Vis import robot_2d, robot_3d
-from mopla.Parameter.parameter import Parameter
+from mogen.Generation.parameter import init_par
 
 from mogen.Generation.load import get_samples
 
@@ -21,7 +21,7 @@ def get_fig_file(file, i_w, i_s):
 
 def plot_path_2d(file, robot_id, i_s):
 
-    par = Parameter(robot=robot_id)
+    par = init_par(robot_id=robot_id).par
     i_w, i_s, q, img = get_samples(file=file, i=i_s, img_shape=par.world.shape)
     q = q.reshape(-1, par.robot.n_dof)
 
@@ -42,38 +42,30 @@ def plot_path_2d(file, robot_id, i_s):
     close_all()
 
 
-def plot_path_2d_gif(file, robot_id, i, file_out=None, qq=None):
+def plot_path_gif(robot_id,
+                  q=None, img=None,
+                  file=None, i=None,
+                  file_out=None):
 
-    par = Parameter(robot=robot_id)
-    i_w, i, q, img = get_samples(file=file, i=i, img_shape=par.world.shape)
-    if qq is None:
-        q = q.reshape(-1, par.robot.n_dof)
+    par = init_par(robot_id=robot_id).par
+    if file is not None:
+        i_w, i_s, q_, img_ = get_samples(file=file, i=i, img_shape=par.world.shape)
+        q = q or q_
+        img = img or img_
+        file_out = file_out or get_fig_file(file=file, i_w=i_w, i_s=i_s)
     else:
-        q = qq.reshape(-1, par.robot.n_dof)
-    fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
-    robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
-
-    if robot_id == 'SingleSphere02':
         pass
 
-    else:
-        if file_out is None:
-            file_out = get_fig_file(file=file, i_w=i_w, i_s=i)
-        robot_2d.animate_arm(ax=ax, robot=par.robot, q=q, n_ss=1, gif=file_out)
-        close_all()
-
-    return
-
-
-def plot_path_3d_gif(file, robot_id, i_s):
-
-    par = Parameter(robot=robot_id)
-    i_w, i_s, q, img = get_samples(file=file, i=i_s, img_shape=par.world.shape)
     q = q.reshape(-1, par.robot.n_dof)
 
-    fig_file = get_fig_file(file=file, i_w=i_w, i_s=i_s)
-    robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=fig_file, screen_size=(1024, 768)), q=q, robot=par.robot,
-                                    kwargs_world=dict(limits=par.world.limits, img=img))
+    if par.world.n_dim == 2:
+        robot_2d.robot_path_interactive(q=q, img=img, par=par, gif=file_out)
+
+    elif par.world.n_dim == 3:
+        robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_out, screen_size=(1024, 768)),
+                                        q=q, robot=par.robot,
+                                        kwargs_world=dict(limits=par.world.limits, img=img))
+
 
 #
 # def plot_dist_to_q0(file, robot, i):
@@ -115,10 +107,14 @@ def main():
     i = 1669455
     i = 3033384
     i = 3130827
+    i = 2020435
+    i = 1111
+    i = 2222
+
     # for i in range(100):
     #     print(i)
         # plot_path_2d(file=file, robot_id=robot_id, i_s=i)
-    plot_path_2d_gif(file=file, robot_id=robot_id, i=i)
+    plot_path_gif(file=file, robot_id=robot_id, i=i)
 
 
 if __name__ == '__main__':
