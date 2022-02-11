@@ -189,10 +189,9 @@ def separate_easy_hard(file, i):
 
     i_s, q = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32', 'q_f32'], values_only=True)
     q0 = q[:, 0]
-    for _ in range(10):
-        xu = q0 + i_s * np.random.random()
-        n, i_hard = find_largest_consecutives(x=xu)
-        print(n, len(i_hard))
+    xu = q0 + i_s * np.random.random()
+    n, i_hard = find_largest_consecutives(x=xu)
+    print('n_consecutives', n)
 
     if n == 1:
         i_hard = np.array([], dtype=int)
@@ -345,15 +344,15 @@ if __name__ == '__main__':
     robot_id = 'Justin19'
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
 
-    _file0 = f"{robot_id}_combined_0-20"
+    _file0 = f"{robot_id}_combined_20-40"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
     _file_easy = _file + '_easy'
     _file_hard = _file + '_hard'
-    # # reset_sample_i32_0(file=_file)
+    _file_hard2 = _file + '_hard'
 
-    # gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
+    gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
     main_separate_easy_hard(file=_file)
 
     print('sort easy')
@@ -362,6 +361,10 @@ if __name__ == '__main__':
     sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
     main_choose_best(file=_file_hard)
 
+    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
+    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
+
+    # # reset_sample_i32_0(file=_file)
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
     #                 dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
