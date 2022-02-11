@@ -123,7 +123,7 @@ def combine_files(old_files, new_file, clean_s0):
         print(i)
         if f.startswith('gs://'):
             f2 = f"{new_file_dir}/{os.path.split(f)[1]}"
-            gcloud2.copy(src=f, dst=f2)
+            gcloud2.gsutil_cp(src=f, dst=f2)
             f = f2
 
         if clean_s0:
@@ -312,8 +312,8 @@ def test_separate_easy_hard():
 
 
 def main_combine_files(robot_id, n, n0=0):
-    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n)]
-    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined_{n0}-{n}.db"
+    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n0+n)]
+    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined_{n0}-{n0+n}.db"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
