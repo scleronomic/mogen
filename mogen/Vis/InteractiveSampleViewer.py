@@ -189,7 +189,7 @@ class InteractiveSampleViewer:
 if __name__ == '__main__':
     par = parameter.Parameter(robot='StaticArm03')
 
-    par.n_waypoints = 10
+    par.n_wp = 10
     print('World Limits:')
     print(par.world.limits)
     print('Robot Limits:')
@@ -372,7 +372,7 @@ if __name__ == '__main__':
     #         self.img_pred = ld.reshape_img(img=x_pred, n_dim=self.g.n_dim, n_samples=1, sample_dim=False,
     #                                        channel_dim=False)
     #         # self.x_pred = path_i.initialize_x0_rrt(x_start=self.x_start, x_end=self.x_end,
-    #         #                                        n_waypoints=self.g.n_waypoints, verbose=1,
+    #         #                                        n_wp=self.g.n_wp, verbose=1,
     #         #                                        p=lambda:
     #         #                                        path_i.sample_from_distribution(prob_img=self.img_pred,
     #         #                                                                        world_size=self.g.world_size,
@@ -444,10 +444,10 @@ if __name__ == '__main__':
     #
     #     if self.g.lll is None:
     #         length_norm = path.get_start_end_normalization(q_start=self.q_start, q_end=self.q_end,
-    #                                                        n_wp=self.g.n_waypoints)
+    #                                                        n_wp=self.g.n_wp)
     #     else:
     #         length_norm = forward.get_beeline_normalization(q_start=self.q_start, q_end=self.q_end,
-    #                                                         n_wp=self.g.n_waypoints, n_joints=self.g.n_joints,
+    #                                                         n_wp=self.g.n_wp, n_joints=self.g.n_joints,
     #                                                         n_spheres_tot=self.g.n_spheres_tot,
     #                                                         lll=self.g.lll, fixed_base=self.g.fixed_base,
     #                                                         infinity_joints=self.g.infinity_joints)
@@ -457,7 +457,7 @@ if __name__ == '__main__':
     #                           n_substeps=5, obst_cost_fun=obstacle_cost_fun, length_norm=length_norm,
     #                           fixed_base=self.g.fixed_base, return_separate=False,
     #                           infinity_joints=self.g.infinity_joints,
-    #                           n_joints=self.g.n_joints, n_spheres_tot=self.g.n_spheres_tot, n_wp=self.g.n_waypoints)
+    #                           n_joints=self.g.n_joints, n_spheres_tot=self.g.n_spheres_tot, n_wp=self.g.n_wp)
     #
     #     return obj
     #
@@ -471,10 +471,10 @@ if __name__ == '__main__':
     #         prediction_img = self.img_pred
     #
     #     # _x_path = opt2.prediction_2_initial_path(xy_start=self.xy_start, xy_end=self.xy_end,
-    #     #                                          prediction=self.prediction_img, world_size=world_size, n_waypoints=9)
+    #     #                                          prediction=self.prediction_img, world_size=world_size, n_wp=9)
     #     # TODO other methods for coming up with an initial guess
     #     tree, _x_path = path_i.initialize_path_rrt(x_start=self.q_start, x_end=self.q_end,
-    #                                                n_waypoints=self.g.n_waypoints,
+    #                                                n_wp=self.g.n_wp,
     #                                                verbose=2, return_tree=True,
     #                                                p=lambda: path_i.sample_from_image(prob_img=prediction_img,
     #                                                                                   world_size=self.g.world_size,
@@ -511,7 +511,7 @@ if __name__ == '__main__':
     #                                         lll=self.g.lll,
     #                                         return_separate=False,
     #                                         infinity_joints=self.g.infinity_joints,
-    #                                         n_wp=self.g.n_waypoints,
+    #                                         n_wp=self.g.n_wp,
     #                                         constraints_x=self.g.constraints_x, constraints_q=self.g.constraints_q)
     #
     #     self.obj_pred_opt = obj_opt

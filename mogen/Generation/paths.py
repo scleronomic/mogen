@@ -82,12 +82,12 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
                                                         acceptance_rate=gen.bee_rate)
     except RuntimeError:
         df = load.create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
-                                 q=np.zeros((1, gen.par.n_waypoints, gen.par.robot.n_dof)),
+                                 q=np.zeros((1, gen.par.n_wp, gen.par.robot.n_dof)),
                                  objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
         return df
 
     get_q0 = InitialGuess.path.q0s_random_wrapper(robot=gen.par.robot, n_multi_start=[[0], [1]],
-                                                  n_waypoints=gen.par.n_waypoints, order_random=True, mode='inner')
+                                                  n_wp=gen.par.n_wp, order_random=True, mode='inner')
     q0 = get_q0(start=q_start, end=q_end)[:1]
 
     if verbose > 0:

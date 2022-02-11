@@ -8,11 +8,11 @@ import mopla.Optimizer.InitialGuess.path as path_i
 
 
 def get_path_sample(robot, directory=None, i_sample_global=0):
-    n_waypoints = 10
+    n_wp = 10
 
     if directory is None:
         q_start, q_end = robot.sample_q(2)
-        q_path = path_i.q0s_random(start=q_start, end=q_end, n_waypoints=n_waypoints, n_multi_start=0,
+        q_path = path_i.q0s_random(start=q_start, end=q_end, n_wp=n_wp, n_multi_start=0,
                                    robot=robot, order_random=True)
     else:
         raise NotImplementedError
@@ -63,7 +63,7 @@ class SpherePath:
         # linear
         print(q_start.shape)
         print(q_end.shape)
-        self.q = get_substeps(x=np.concatenate([q_start, q_end], axis=0), n=self.par.n_waypoints - 1,
+        self.q = get_substeps(x=np.concatenate([q_start, q_end], axis=0), n=self.par.n_wp - 1,
                               is_periodic=self.par.robot.infinity_joints, include_start=True)
 
         # random

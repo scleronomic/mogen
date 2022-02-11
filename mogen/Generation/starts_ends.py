@@ -35,7 +35,7 @@ def __arg_wrapper_acceptance_rate(fun=None):
 
 def __sample_acceptance_bee(start, end, robot, feasibility_check):
     n = 100
-    q = InitialGuess.path.q0s_random(start=start, end=end, n_waypoints=n, n_multi_start=[[0], [1]],
+    q = InitialGuess.path.q0s_random(start=start, end=end, n_wp=n, n_multi_start=[[0], [1]],
                                      robot=robot, order_random=True)
     return feasibility_check(q) == 1
 
@@ -84,7 +84,7 @@ def test_start_end_sampling(par, robot, feasibility_check):
         q_start, q_end = sample_q_start_end(robot=robot, feasibility_check=lambda qq: feasibility_check(q=qq, par=par),
                                             acceptance_rate=0.95)
 
-        q = InitialGuess.path.q0s_random(start=q_start, end=q_end, n_waypoints=100, n_multi_start=[[0], [1]],
+        q = InitialGuess.path.q0s_random(start=q_start, end=q_end, n_wp=100, n_multi_start=[[0], [1]],
                                          robot=robot, order_random=True)
         f[i] = feasibility_check(q, par=par)
         d[i] = np.linalg.norm(q_end-q_start)

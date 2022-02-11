@@ -29,7 +29,7 @@ from mogen.Generation.parameter import init_par
 #         img_cmp = sql2.get_values_sql(file=db_file, rows=np.arange(300), table='worlds', columns='img_cmp', values_only=True)
 #         img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
 #
-#     q = q.reshape(-1, gen.par.n_waypoints, robot.n_dof).copy()
+#     q = q.reshape(-1, gen.par.n_wp, robot.n_dof).copy()
 #
 #     o_label, f_label = objective_feasibility(q=q, imgs=img, par=gen.par, iw=i_w)
 #     print(f.sum(), f_label.sum(), (f == f_label).mean())
@@ -339,27 +339,25 @@ def delete_half():
 
 if __name__ == '__main__':
 
-    # delete_half()
-
-# gcloud compute instances add-metadata tenh-sql-2 --metadata enable-oslogin=TRUE
     robot_id = 'Justin19'
-    # # test_separate_easy_hard()
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
-    # main_combine_files(robot_id=robot_id, n0=20, n=40)
-    main_combine_files(robot_id=robot_id, n0=40, n=20)
-    main_combine_files(robot_id=robot_id, n0=60, n=20)
 
-    # file = f'/net/rmc-lx0062/home_local/tenh_jo/{robot_id}'
-    # _file = f"/home/johannes_tenhumberg/sdb/{robot_id}"
-    # _file_easy = _file + '_easy'
-    # _file_hard = _file + '_hard'
+    _file0 = f"{robot_id}_combined_0-20.db"
+    _file_bucket = f"fs://tenh_jo/{_file0}"
+    _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
+
+    _file_easy = _file + '_easy'
+    _file_hard = _file + '_hard'
     # # reset_sample_i32_0(file=_file)
-    # main_separate_easy_hard(file=_file)
-    # # print('sort easy')
-    # # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
-    # # print('sort hard')
-    # # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
-    # main_choose_best(file=_file_hard)
+
+    gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
+    main_separate_easy_hard(file=_file)
+
+    print('sort easy')
+    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
+    print('sort hard')
+    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
+    main_choose_best(file=_file_hard)
 
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
@@ -369,7 +367,3 @@ if __name__ == '__main__':
     # sql2.alter_table(_file_easy, table='paths', columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
     #                  dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_TEXT, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
     # sql2.squeeze_table(file=_file, table='paths')
-
-    # sql2.delete_columns(file=_file, table='paths', columns='q0_f32',)
-
-    # export SQLITE_TMPDIR='/hom_local/tenh_jo'
