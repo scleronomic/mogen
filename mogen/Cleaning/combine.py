@@ -334,13 +334,14 @@ def delete_half():
     i = 33897660
     n = 66006680
     # sql2.delete_rows(file=file, table='paths', rows=np.arange(0, i))
-    sql2.delete_rows(file=file, table='paths', rows=np.arange(i, n))
+    # sql2.delete_rows(file=file, table='paths', rows=np.arange(i, n))
 
 
 if __name__ == '__main__':
 
     # delete_half()
 
+# gcloud compute instances add-metadata tenh-sql-2 --metadata enable-oslogin=TRUE
     robot_id = 'Justin19'
     # # test_separate_easy_hard()
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
