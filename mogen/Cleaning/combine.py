@@ -239,9 +239,6 @@ def main_separate_easy_hard(file: str):
 
     print(f"Load all world indices")
     iw_all = sql2.get_values_sql(file=file_easy, table='paths', rows=-1, columns=['world_i32'], values_only=True)
-    q = q.reshape((-1, 20, 19))[:, 0, :]
-    dq = np.linalg.norm(q[1:] - q[:-1], axis=-1)
-    i_dq0 = np.nonzero(dq == 0)[0]
 
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
