@@ -342,7 +342,7 @@ if __name__ == '__main__':
     robot_id = 'Justin19'
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
 
-    _file0 = f"{robot_id}_combined_0-20.db"
+    _file0 = f"{robot_id}_combined_0-20"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
