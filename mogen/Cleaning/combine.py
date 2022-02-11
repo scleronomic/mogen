@@ -187,11 +187,13 @@ def main_choose_best(file):
 
 def separate_easy_hard(file, i):
 
-    i_s = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32'], values_only=True)
-    i_s = np.squeeze(i_s)
+    i_s, q = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32', 'q_f32'], values_only=True)
+    q0 = q[:, 0]
+    for _ in range(10):
+        xu = q0 + i_s * np.random.random()
+        n, i_hard = find_largest_consecutives(x=xu)
+        print(n, len(i_hard))
 
-    n, i_hard = find_largest_consecutives(x=i_s)
-    print(n)
     if n == 1:
         i_hard = np.array([], dtype=int)
     else:
@@ -237,6 +239,10 @@ def main_separate_easy_hard(file: str):
 
     print(f"Load all world indices")
     iw_all = sql2.get_values_sql(file=file_easy, table='paths', rows=-1, columns=['world_i32'], values_only=True)
+    q = q.reshape((-1, 20, 19))[:, 0, :]
+    dq = np.linalg.norm(q[1:] - q[:-1], axis=-1)
+    i_dq0 = np.nonzero(dq == 0)[0]
+
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
     b_easy = np.zeros(n, dtype=bool)
