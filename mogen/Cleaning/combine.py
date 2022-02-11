@@ -313,7 +313,7 @@ def test_separate_easy_hard():
 
 def main_combine_files(robot_id, n, n0=0):
     old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n0+n)]
-    new_file = f"/home/johannes_tenhumberg/sdb/{robot_id}_combined_{n0}-{n0+n}.db"
+    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}_combined_{n0}-{n0+n}.db"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
