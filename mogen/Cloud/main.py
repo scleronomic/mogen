@@ -39,8 +39,8 @@ def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=600):
 
 # TODO add script to mount disk
 
-def mogen_create_instance_local():
-    name = 'tenh-sql-2'
+def mogen_create_instance_local(i):
+    name = f"tenh-sql-{i}"
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
@@ -68,4 +68,5 @@ if __name__ == '__main__':
         'start_mogen': mogen_create_instances_and_start,
         'create_local': mogen_create_instance_local,
         'upload': mogen_upload2bucket,
+        'connect2': connect2
     })

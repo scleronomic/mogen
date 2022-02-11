@@ -351,18 +351,24 @@ if __name__ == '__main__':
     _file_easy = _file + '_easy'
     _file_hard = _file + '_hard'
     _file_hard2 = _file + '_hard'
+    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
+    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
 
     gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
     main_separate_easy_hard(file=_file)
-
+    #
     print('sort easy')
     sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
     print('sort hard')
+    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
+    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{_file_hard}.db")
+
     sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
     main_choose_best(file=_file_hard)
-
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
     gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
+
+    #
+    #
 
     # # reset_sample_i32_0(file=_file)
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
