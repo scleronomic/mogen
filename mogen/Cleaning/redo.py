@@ -51,14 +51,14 @@ def adjust_path(file, par, i=None, i_w=None):
 
     q = q[f > 0]
     i = i[f > 0]
-
+    print(f"updated {f.sum()}/{f.size} samples")
     sql2.set_values_sql(file=file, table='paths', values=(q,),
                         columns=['q_f32'], rows=i, lock=None)
 
 
 def main():
     robot_id = 'StaticArm04'
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}_hard2.db"
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     par = init_par(robot_id).par
 
