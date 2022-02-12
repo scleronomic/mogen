@@ -179,7 +179,6 @@ def separate_easy_hard(file, i):
 
     i_s_easy = np.arange(len(i_easy))
     i_s_hard = np.arange(len(i_hard) // n).repeat(n)
-    print(i_s_hard[:100])
     return (i_easy, i_hard), (i_s_easy, i_s_hard)
 
 
@@ -316,12 +315,12 @@ def delete_half():
 if __name__ == '__main__':
 
     robot_id = 'Justin19'
-    i = np.arange(60, 80)
-    i = np.delete(i, 3)
+    # i = np.arange(60, 80)
+    # i = np.delete(i, 3)
     # main_combine_files(robot_id=robot_id, i=i)
 
     tic()
-    _file0 = f"{robot_id}_combined_60-80"
+    _file0 = f"{robot_id}_combined_0-20"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
