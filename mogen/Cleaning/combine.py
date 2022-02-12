@@ -248,7 +248,6 @@ def main_separate_easy_hard(file: str):
     n_hard = sql2.get_n_rows(file=file_hard, table=table)
     print(f"total: {n} | easy: {n_easy} | hard: {n_hard}")
     reset_sample_i32(file=file_easy)
-    reset_sample_i32(file=file_hard)
 
 
 def test_separate_easy_hard():
@@ -317,10 +316,10 @@ def delete_half():
 if __name__ == '__main__':
 
     robot_id = 'Justin19'
-    main_combine_files(robot_id=robot_id, n0=30, n=3)
+    main_combine_files(robot_id=robot_id, n0=60, n=20)
 
     tic()
-    _file0 = f"{robot_id}_combined_30-33"
+    _file0 = f"{robot_id}_combined_60-80"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
@@ -328,20 +327,21 @@ if __name__ == '__main__':
     _file_hard = _file + '_hard'
     _file_hard2 = _file + '_hard2'
     main_separate_easy_hard(file=_file)
+
     # #
     print('sort easy')
     sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     print('sort hard')
     sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
 
-    # print('upload easy and hard')
-    # gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
-    # gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{_file_hard}.db")
+    print('upload easy and hard')
+    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
+    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{_file_hard}.db")
 
     main_choose_best(file=_file_hard)
 
-    # print('upload hard2')
-    # gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
+    print('upload hard2')
+    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
     toc()
 
     #
