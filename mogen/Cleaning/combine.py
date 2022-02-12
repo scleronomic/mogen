@@ -330,6 +330,7 @@ if __name__ == '__main__':
     main_separate_easy_hard(file=_file)
 
     # #
+    gcloud2.gsutil_cp(src=f"gs://tenh_jo/{_file}.db", dst=f"{_file}.db")
     print('sort easy')
     sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     print('sort hard')
@@ -345,9 +346,7 @@ if __name__ == '__main__':
     gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
     toc()
 
-    #
-
-    # # reset_sample_i32_0(file=_file)
+    # reset_sample_i32_0(file=_file)
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
     #                 columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
     #                 dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
@@ -356,3 +355,5 @@ if __name__ == '__main__':
     # sql2.alter_table(_file_easy, table='paths', columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
     #                  dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_TEXT, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
     # sql2.squeeze_table(file=_file, table='paths')
+
+    #
