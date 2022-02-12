@@ -5,34 +5,9 @@ from shutil import copy
 import numpy as np
 
 from wzk import sql2
-from wzk import compressed2img, find_largest_consecutives, object2numeric_array, squeeze, tictoc, print_progress
+from wzk import tic, toc, find_largest_consecutives, squeeze
 from wzk.gcp import gcloud2
 from wzk.mpl import new_fig
-
-from mogen.Generation.parameter import init_par
-
-
-# def check_consistency(robot,
-#                       db_file=None,
-#                       q=None, f=None, o=None, img=None):
-#
-#     gen = init_par(robot_id=robot.id)
-#
-#     if q is None:
-#         i_w, i_s, q0, q, o, f = sql2.get_values_sql(file=db_file, table='paths',
-#                                                     rows=i,
-#                                                     columns=['world_i32', 'sample_i32', 'q0_f32', 'q_f32',
-#                                                              'objective_f32', 'feasible_f32'],
-#                                                     values_only=True)
-#
-#     if img is None:
-#         img_cmp = sql2.get_values_sql(file=db_file, rows=np.arange(300), table='worlds', columns='img_cmp', values_only=True)
-#         img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
-#
-#     q = q.reshape(-1, gen.par.n_wp, robot.n_dof).copy()
-#
-#     o_label, f_label = objective_feasibility(q=q, imgs=img, par=gen.par, iw=i_w)
-#     print(f.sum(), f_label.sum(), (f == f_label).mean())
 
 
 def check_iw_is(i_w, i_s, m):
@@ -50,7 +25,7 @@ def check_iw_is(i_w, i_s, m):
 def plot(file, i):
     # def plot_o_distributions(o):
     o, f = sql2.get_values_sql(file=file, table='paths', rows=i,
-                          columns=['objective', 'feasible'], values_only=True)
+                               columns=['objective', 'feasible'], values_only=True)
 
     o = o.reshape(-1, 50)
     f = f.reshape(-1, 50)
@@ -188,6 +163,7 @@ def main_choose_best(file):
 def separate_easy_hard(file, i):
 
     i_s, q = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32', 'q_f32'], values_only=True)
+    i_s = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32'], values_only=True)
     q0 = q[:, 0]
     xu = q0 + i_s * np.random.random()
     n, i_hard = find_largest_consecutives(x=xu)
@@ -204,7 +180,7 @@ def separate_easy_hard(file, i):
 
     i_s_easy = np.arange(len(i_easy))
     i_s_hard = np.arange(len(i_hard) // n).repeat(n)
-
+    print(i_s_hard[:100])
     return (i_easy, i_hard), (i_s_easy, i_s_hard)
 
 
@@ -343,30 +319,28 @@ if __name__ == '__main__':
 
     robot_id = 'Justin19'
     # main_combine_files(robot_id=robot_id, n0=0, n=20)
-
+    tic()
     _file0 = f"{robot_id}_combined_20-40"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
     _file_easy = _file + '_easy'
     _file_hard = _file + '_hard'
-    _file_hard2 = _file + '_hard'
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
-    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
-
-    gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
-    main_separate_easy_hard(file=_file)
+    _file_hard2 = _file + '_hard2'
     #
-    print('sort easy')
-    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
-    print('sort hard')
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
-    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{_file_hard}.db")
-
-    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
-    main_choose_best(file=_file_hard)
-    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
-
+    # gcloud2.gsutil_cp(src=f"{_file_bucket}.db", dst=f"{_file}.db")
+    main_separate_easy_hard(file=_file)
+    # #
+    # print('sort easy')
+    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'ROWID'])
+    # print('sort hard')
+    # gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{_file_easy}.db")
+    # gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{_file_hard}.db")
+    #
+    # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'ROWID'])
+    # main_choose_best(file=_file_hard)
+    # gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{_file_hard2}.db")
+    # toc()
     #
     #
 
