@@ -287,9 +287,9 @@ def test_separate_easy_hard():
     main_separate_easy_hard(file=file)
 
 
-def main_combine_files(robot_id, n, n0=0):
-    old_files = [f"gs://tenh_jo/{robot_id}_{i}.db" for i in range(n0, n0+n)]
-    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}_combined_{n0}-{n0+n}.db"
+def main_combine_files(robot_id, i):
+    old_files = [f"gs://tenh_jo/{robot_id}_{ii}.db" for ii in i]
+    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}_combined_{i[0]}-{i[-1]}.db"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
@@ -316,7 +316,9 @@ def delete_half():
 if __name__ == '__main__':
 
     robot_id = 'Justin19'
-    main_combine_files(robot_id=robot_id, n0=60, n=20)
+    i = np.arange(60, 80)
+    i = np.delete(i, 3)
+    main_combine_files(robot_id=robot_id, i=i)
 
     tic()
     _file0 = f"{robot_id}_combined_60-80"
