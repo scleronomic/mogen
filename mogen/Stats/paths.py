@@ -6,7 +6,7 @@ from wzk import new_fig
 
 from mogen.Generation.load import sql2, get_samples, get_worlds, get_paths
 from mogen.Generation.parameter import init_par
-from mogen.Cleaning.vis import plot_path_2d_gif
+from mogen.Vis.main import plot_path_gif
 from mogen.Cleaning.clean import update_cast_joint_errors
 
 
@@ -58,6 +58,5 @@ dd = q_length[i] / qq2_length
 fig, ax = new_fig()
 ax.hist(dd, bins=100, alpha=0.5)
 
-# f[i[-100:][::-1]]
-# for ii in i[-100:][::-1]:
-#     plot_path_2d_gif(file=file, robot_id=robot_id, i=ii)
+for ii in i[-100:][::-1]:
+    plot_path_gif(file=file, robot_id=robot_id, i=ii)

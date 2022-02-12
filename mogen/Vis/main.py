@@ -102,22 +102,11 @@ def main():
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}_hard2.db"
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
-    i = 2832983
-    i = 310744
-    i = 2527987
-    i = 3449376
-    i = 1570113
-    i = 1669455
-    i = 3033384
-    i = 3130827
-    i = 2020435
-    i = 1111
-    i = 2222
 
-    # for i in range(100):
-    #     print(i)
+    for i in range(100):
+        print(i)
         # plot_path_2d(file=file, robot_id=robot_id, i_s=i)
-    plot_path_gif(file=file, robot_id=robot_id, i=i)
+        plot_path_gif(file=file, robot_id=robot_id, i=i)
 
 
 if __name__ == '__main__':
