@@ -320,7 +320,7 @@ if __name__ == '__main__':
     # main_combine_files(robot_id=robot_id, i=i)
 
     tic()
-    _file0 = f"{robot_id}_combined_20-40"
+    _file0 = f"{robot_id}_combined_40-60"
     _file_bucket = f"gs://tenh_jo/{_file0}"
     _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
 
