@@ -292,6 +292,15 @@ def main_combine_files(robot_id, i):
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
+def main_combine_files_hard2():
+    old_files = ["gs://tenh_jo/Justin19_combined_0-20_hard2.db",
+                 "gs://tenh_jo/Justin19_combined_20-40_hard2.db",
+                 "gs://tenh_jo/Justin19_combined_40-60_hard2.db",
+                 "gs://tenh_jo/Justin19_combined_60-80_hard2.db"]
+    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2.db"
+    combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
+
+
 def split_df(file):
     file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
     i_s = sql2.get_values_sql(file=file, table='paths', rows=-1, columns='sample_i32', values_only=True)
@@ -313,39 +322,45 @@ def delete_half():
 
 
 if __name__ == '__main__':
+    main_combine_files_hard2()
+    _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2.db"
+    sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    reset_sample_i32(file=_file_hard2)
+    gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
 
-    robot_id = 'Justin19'
-    # i = np.arange(60, 80)
-    # i = np.delete(i, 3)
+
+    # robot_id = 'Justin19'
+    # # i = np.arange(60, 80)
+    # # i = np.delete(i, 3)
     # main_combine_files(robot_id=robot_id, i=i)
-
-    tic()
-    _file0 = f"{robot_id}_combined_40-60"
-    _file_bucket = f"gs://tenh_jo/{_file0}"
-    _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
-
-    _file_easy = _file + '_easy'
-    _file_hard = _file + '_hard'
-    _file_hard2 = _file + '_hard2'
-    gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file)}.db", dst=f"{_file}.db")
-
-    main_separate_easy_hard(file=_file)
-
     #
-    print('sort easy')
-    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
-    print('sort hard')
-    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
-
-    print('upload easy and hard')
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_easy)}.db")
-    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_hard)}.db")
-
-    main_choose_best(file=_file_hard)
-
-    print('upload hard2')
-    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db")
-    toc()
+    # tic()
+    # _file0 = f"{robot_id}_combined_40-60"
+    # _file_bucket = f"gs://tenh_jo/{_file0}"
+    # _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
+    #
+    # _file_easy = _file + '_easy'
+    # _file_hard = _file + '_hard'
+    # _file_hard2 = _file + '_hard2'
+    # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file)}.db", dst=f"{_file}.db")
+    #
+    # main_separate_easy_hard(file=_file)
+    #
+    # #
+    # print('sort easy')
+    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    # print('sort hard')
+    # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    #
+    # print('upload easy and hard')
+    # gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_easy)}.db")
+    # gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_hard)}.db")
+    #
+    # main_choose_best(file=_file_hard)
+    #
+    # print('upload hard2')
+    # gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db")
+    # toc()
 
     # reset_sample_i32_0(file=_file)
     # sql2.copy_table(file=_file, table_src='paths', table_dst='paths2',
