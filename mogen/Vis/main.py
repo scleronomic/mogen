@@ -99,7 +99,8 @@ def main():
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
     robot_id = 'Justin19'
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
+    # file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
+    file = f"/home_local/tenh_jo/{robot_id}.db"
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
 
