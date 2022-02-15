@@ -8,7 +8,6 @@ from wzk import trajectory, sql2
 
 from rokin.Vis import robot_2d, robot_3d
 from mogen.Generation.parameter import init_par
-
 from mogen.Generation.load import get_samples
 
 
@@ -70,6 +69,7 @@ def plot_path_gif(robot_id,
                                         kwargs_world=dict(limits=par.world.limits, img=img))
 
 
+
 #
 # def plot_dist_to_q0(file, robot, i):
 #
@@ -98,12 +98,12 @@ def main():
     # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
-    robot_id = 'StaticArm04'
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}_hard2.db"
+    robot_id = 'Justin19'
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
 
-    for i in range(100):
+    for i in range(10):
         print(i)
         # plot_path_2d(file=file, robot_id=robot_id, i_s=i)
         plot_path_gif(file=file, robot_id=robot_id, i=i)

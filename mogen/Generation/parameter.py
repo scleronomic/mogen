@@ -38,4 +38,7 @@ def init_par(robot_id: str):
     gen.gd.use_loop_instead_of_processes = True
     gen.staircase = staircase
     gen.bee_rate = bee_rate
+
+    gen.gd.hesse_inv = gen.staircase.P_inv_dict[par.n_wp]
+
     return gen

@@ -1,4 +1,4 @@
-
+from wzk import sql2
 
 def update_cast_joint_errors(q, limits, eps=1e-6):
     below_lower = q < limits[:, 0]
@@ -7,6 +7,26 @@ def update_cast_joint_errors(q, limits, eps=1e-6):
     q[below_lower] += eps
     q[above_upper] -= eps
     return q
+
+
+# TODO make as function
+# TODO assert when creating the tables
+
+def set_dtypes(file):
+    print(f'set dtypes {file}')
+    # paths
+    columns_paths_old = sql2.get_columns(file=file, table='paths')
+    columns_paths_new = ['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b']
+    dtypes_paths_new = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER]
+    assert columns_paths_old.name.values == columns_paths_new
+    sql2.alter_table(file, table='paths', columns=columns_paths_new, dtypes=dtypes_paths_new)
+
+    # worlds
+    columns_worlds_old = sql2.get_columns(file=file, table='paths')
+    columns_worlds_new = ['world_i32', 'img_cmp']
+    dtypes_worlds_new = [sql2.TYPE_INTEGER, sql2.TYPE_BLOB]
+    assert columns_worlds_old.name.values == columns_worlds_new
+    sql2.alter_table(file, table='worlds', columns=columns_worlds_new, dtypes=dtypes_worlds_new)
 
 
 from mogen.Generation.parameter import init_par

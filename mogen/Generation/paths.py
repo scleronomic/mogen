@@ -39,9 +39,9 @@ img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
             img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]
 
 
-def __chomp(q0, q_start, q_end,
-            gen,
-            i_world, i_sample):
+def __chomp0(q0, q_start, q_end,
+             gen,
+             i_world, i_sample):
 
     gen.par.q_start, gen.par.q_end = q_start, q_end
 
@@ -57,9 +57,9 @@ def __chomp(q0, q_start, q_end,
     return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
-def __chomp2(q_start, q_end,
-             gen,
-             i_world, i_sample):
+def __chomp_staircase(q_start, q_end,
+                      gen,
+                      i_world, i_sample):
 
     gen.par.q_start, gen.par.q_end = q_start, q_end
 
@@ -93,13 +93,13 @@ def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
     if verbose > 0:
         tic()
 
-    df0 = __chomp(q0=q0, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
+    df0 = __chomp0(q0=q0, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
     if np.all(np.frombuffer(df0.feasible_b[0], dtype=bool)):
         if verbose > 0:
             toc(text=f"{gen.par.robot.id}, {i_world}, {i_sample}")
         return df0
 
-    df = __chomp2(q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
+    df = __chomp_staircase(q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
 
     if verbose > 2:
         j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
