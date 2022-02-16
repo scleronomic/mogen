@@ -64,11 +64,18 @@ def plot_path_gif(robot_id,
         robot_2d.robot_path_interactive(q=q, img=img, par=par, gif=file_out)
 
     elif par.world.n_dim == 3:
-        robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_out, screen_size=(1024, 768)),
+        # robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, screen_size=(1024, 768)),
+        #                                 q=q, robot=par.robot,
+        #                                 kwargs_world=dict(limits=par.world.limits, img=img))
+        robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, screen_size=(512, 384)),
+                                        gif=file_out,
                                         q=q, robot=par.robot,
-                                        kwargs_world=dict(limits=par.world.limits, img=img))
+                                        kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
+        #
 
-
+        # p = robot_3d.plotter_wrapper({})
+        # robot_3d.plot_bool_vol(p=p, img=img, limits=par.world.limits, mode='voxel', opacity=0.5)
+        # p.show()
 
 #
 # def plot_dist_to_q0(file, robot, i):
@@ -99,14 +106,13 @@ def main():
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
     robot_id = 'Justin19'
-    # file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
-    file = f"/home_local/tenh_jo/{robot_id}.db"
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
+    # file = f"/home_local/tenh_jo/{robot_id}.db"
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
 
     for i in range(10):
         print(i)
-        # plot_path_2d(file=file, robot_id=robot_id, i_s=i)
         plot_path_gif(file=file, robot_id=robot_id, i=i)
 
 
