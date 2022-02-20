@@ -60,10 +60,10 @@ def adapt_par(par):
     par.plan.center_of_mass = True
 
     par.qc.q = justin_primitives(justin='getready')
-    par.joint_motion = np.array([200, 100, 100,
-                                 20, 20, 10, 10, 1, 1, 1,
-                                 20, 20, 10, 10, 1, 1, 1,
-                                 5, 5], dtype=float)
+    par.weighting.joint_motion = np.array([200, 100, 100,
+                                           20, 20, 10, 10, 1, 1, 1,
+                                           20, 20, 10, 10, 1, 1, 1,
+                                           5, 5], dtype=float)
 
 
 def generate_ik(gen, img_cmp, i_world, n_samples):
