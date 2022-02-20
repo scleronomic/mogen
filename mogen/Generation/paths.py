@@ -5,7 +5,7 @@ from wzk import tic, toc, tictoc
 from wzk.dlr import LOCATION
 from wzk.ray2 import ray, ray_init
 from wzk.trajectory import inner2full
-from wzk.image import compressed2img, img2compressed
+from wzk.image import compressed2img
 from wzk.sql2 import df2sql, get_values_sql, vacuum
 from wzk.gcp import gcloud2
 from wzk.subprocess2 import call2
@@ -29,14 +29,9 @@ def copy_init_world(robot_id):
     file_bucket_stub = 'gs://tenh_jo/{}_worlds0.db'
     call2(cmd=f"sudo chmod 777 -R {os.path.split(file_stub.format(robot_id))[0]}")
     if LOCATION == 'gcp':
-        gcloud2.copy(src=file_bucket_stub.format(robot_id), dst=file_stub.format(robot_id))
+        gcloud2.gsutil_cp(src=file_bucket_stub.format(robot_id), dst=file_stub.format(robot_id))
     else:
         pass
-
-
-img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
-            img2compressed(img=np.zeros((64, 64), dtype=bool), n_dim=2),
-            img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]
 
 
 def __chomp0(q0, q_start, q_end,
@@ -71,7 +66,7 @@ def __chomp_staircase(q_start, q_end,
     return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
-def sample_path(gen, i_world, i_sample, img_cmp, verbose=0):
+def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
     np.random.seed(None)
 
     obstacle_img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
@@ -116,27 +111,24 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
     file = file_stub.format(robot_id)
 
     @ray.remote
-    def sample_ray(_i_w: int, _i_s: int):
+    def generate_ray(_i_w: int, _i_s: int):
         gen = parameter.init_par(robot_id=robot_id)
         _i_w = int(_i_w)
         if _i_w == -1:
-            img_cmp = img_cmp0[gen.par.robot.n_dim-1]
+            img_cmp = load.img_cmp0[gen.par.robot.n_dim-1]
         else:
             img_cmp = get_values_sql(file=file, rows=_i_w, table='worlds', columns='img_cmp', values_only=True)
 
-        return sample_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=img_cmp, verbose=0)
+        return generate_path(gen=gen, i_world=_i_w, i_sample=_i_s, img_cmp=img_cmp, verbose=0)
 
     with tictoc(text=f"Generating Samples for world {iw_list[0]}-{iw_list[-1]} with {n_samples_per_world} samples") as _:
         futures = []
         for i_w in iw_list:
             for i_s in range(n_samples_per_world):
-                futures.append(sample_ray.remote(i_w, s0+i_s))
+                futures.append(generate_ray.remote(i_w, s0+i_s))
 
         df_list = ray.get(futures)
-
-        df = df_list[0]
-        for df_i in df_list[1:]:
-            df = df.append(df_i)
+        df = load.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
         df2sql(df=df, file=file, table='paths', if_exists=ra)

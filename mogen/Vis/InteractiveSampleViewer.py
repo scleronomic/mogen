@@ -450,13 +450,13 @@ if __name__ == '__main__':
     #                                                         n_wp=self.g.n_wp, n_joints=self.g.n_joints,
     #                                                         n_spheres_tot=self.g.n_spheres_tot,
     #                                                         lll=self.g.lll, fixed_base=self.g.fixed_base,
-    #                                                         infinity_joints=self.g.infinity_joints)
+    #                                                         is_periodic=self.g.is_periodic)
     #
     #     obj = cost.chomp_cost(x_inner=path.x2x_inner(x=x, n_dof=self.g.n_dim + self.g.n_joints), n_dim=self.g.n_dim,
     #                           robot_id=self.g.lll, x_start=self.q_start, x_end=self.q_end, gamma_len=self.gamma_cost,
     #                           n_substeps=5, obst_cost_fun=obstacle_cost_fun, length_norm=length_norm,
     #                           fixed_base=self.g.fixed_base, return_separate=False,
-    #                           infinity_joints=self.g.infinity_joints,
+    #                           is_periodic=self.g.is_periodic,
     #                           n_joints=self.g.n_joints, n_spheres_tot=self.g.n_spheres_tot, n_wp=self.g.n_wp)
     #
     #     return obj
@@ -510,7 +510,7 @@ if __name__ == '__main__':
     #                                         adjust_gd_step_size=self.adjust_gd_step_size, length_norm=True,
     #                                         lll=self.g.lll,
     #                                         return_separate=False,
-    #                                         infinity_joints=self.g.infinity_joints,
+    #                                         is_periodic=self.g.is_periodic,
     #                                         n_wp=self.g.n_wp,
     #                                         constraints_x=self.g.constraints_x, constraints_q=self.g.constraints_q)
     #

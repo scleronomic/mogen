@@ -24,7 +24,7 @@ def plot_path_2d(file, robot_id, i_s):
     i_w, i_s, q, img = get_samples(file=file, i=i_s, img_shape=par.world.shape)
     q = q.reshape(-1, par.robot.n_dof)
 
-    q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.infinity_joints)
+    q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.is_periodic)
 
     fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
@@ -67,7 +67,7 @@ def plot_path_gif(robot_id,
         # robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, screen_size=(1024, 768)),
         #                                 q=q, robot=par.robot,
         #                                 kwargs_world=dict(limits=par.world.limits, img=img))
-        robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, screen_size=(512, 384)),
+        robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_out, screen_size=(512, 384)),
                                         gif=file_out,
                                         q=q, robot=par.robot,
                                         kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))

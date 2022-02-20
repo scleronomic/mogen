@@ -64,7 +64,7 @@ class SpherePath:
         print(q_start.shape)
         print(q_end.shape)
         self.q = get_substeps(x=np.concatenate([q_start, q_end], axis=0), n=self.par.n_wp - 1,
-                              is_periodic=self.par.robot.infinity_joints, include_start=True)
+                              is_periodic=self.par.robot.is_periodic, include_start=True)
 
         # random
         # optimizer

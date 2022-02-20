@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from wzk.image import compressed2img
+from wzk.image import compressed2img, img2compressed
 from wzk.numpy2 import squeeze
 from wzk import sql2
 from wzk.training import n2train_test, train_test_split  # noqa
@@ -194,3 +194,15 @@ def get_samples(file, i, img_shape):
     i_w, i_s, q, o, f = get_paths(file, i)
     img = get_worlds(file=file, i_w=i_w, img_shape=img_shape)
     return i_w, i_s, q, img
+
+
+def combine_df_list(df_list):
+    df = df_list[0]
+    for df_i in df_list[1:]:
+        df = df.append(df_i)
+    return df
+
+
+img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
+            img2compressed(img=np.zeros((64, 64), dtype=bool), n_dim=2),
+            img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]

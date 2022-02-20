@@ -54,13 +54,19 @@ def refine_chomp(file, par, gd,
 
     par.weighting.length = 0
     par.weighting.collision = 1
-    q, o = gd_chomp(q0=q00, par=par, gd=gd)
+
+    with tictoc() as _:
+        q00 = q00[:10]
+        par.q_start = par.q_start[:10]
+        par.q_end = par.q_end[:10]
+        q, o = gd_chomp(q0=q00, par=par, gd=gd)
+
     q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
 
     f0 = feasibility_check(q=q0, par=par)
     f = feasibility_check(q=q, par=par)
-
     o0 = objectives.chomp_cost(q=q0, par=par)
+
     # print(o.mean())
     ff0 = np.round((f0 == 1).mean(), 3)
     ff = np.round((f == 1).mean(), 3)
@@ -82,7 +88,7 @@ def refine_chomp(file, par, gd,
 def adjust_path(file, par, i=None, i_w=None):
     i, q0, img = get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
-    q = trajectory.get_path_adjusted(q0, m=50, is_periodic=par.robot.infinity_joints)
+    q = trajectory.get_path_adjusted(q0, m=50, is_periodic=par.robot.is_periodic)
     f = feasibility_check(q=q, par=par)
     o0 = objectives.chomp_cost(q=q0, par=par)
     o = objectives.chomp_cost(q=q, par=par)
@@ -99,6 +105,7 @@ def adjust_path(file, par, i=None, i_w=None):
 
 def main():
     robot_id = 'StaticArm04'
+    robot_id = 'Justin19'
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     gen = init_par(robot_id)
