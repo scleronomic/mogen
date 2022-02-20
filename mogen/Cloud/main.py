@@ -8,7 +8,7 @@ def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=600):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
-    disk_size = 20
+    disk_size = 100
     startup_script = startup.make_startup_file(user=GCP_USER,
                                                bash_file=f"/home/{GCP_USER}/src/mogen/mogen/Cloud/Startup/ompgen.sh")
 
