@@ -123,9 +123,9 @@ def main(robot_id, iw_list, n_samples_per_world=1000, ra='append'):
 
 def main_loop_sc(robot_id):
     for i in range(10000):
-        worlds = [-1] * 60
+        worlds = [-1] * 600
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=10, ra='append',)
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=100, ra='append',)
 
 
 if __name__ == '__main__':
