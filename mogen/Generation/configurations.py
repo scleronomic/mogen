@@ -84,8 +84,8 @@ def generate_ik(gen, img_cmp, i_world, n_samples):
 
         print((status == 1).sum())
         if np.any(status == 1):
-            df = load.create_path_df(i_world=i_world, i_sample=np.array(i), q=q_opt,
-                                     objective=cost, feasible=np.ones(1, dtype=bool))
+            df = load.create_path_df(i_world=np.array([i_world]), i_sample=np.array([i]), q=q_opt,
+                                     objective=np.array(([cost.min()])), feasible=np.ones(1, dtype=bool))
             df_list.append(df)
 
     return load.combine_df_list(df_list)
