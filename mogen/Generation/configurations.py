@@ -135,5 +135,3 @@ if __name__ == '__main__':
 
     with tictoc() as _:
         main_loop_sc(robot_id=_robot_id)
-
-    # TODO add good weighting for q close

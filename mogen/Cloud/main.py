@@ -4,16 +4,17 @@ from wzk.gcp.gcloud2 import *
 from wzk.gcp import startup
 
 
-def mogen_create_instances_and_start(name='ompgen', n=10, n0=0, sleep=600):
+def gen__create_instances_and_start(mode='paths', n=10, n0=0,
+                                    disk_size=20,
+                                    sleep=600):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
-    disk_size = 100
     startup_script = startup.make_startup_file(user=GCP_USER,
-                                               bash_file=f"/home/{GCP_USER}/src/mogen/mogen/Cloud/Startup/ompgen.sh")
+                                               bash_file=f"/home/{GCP_USER}/src/mogen/mogen/Cloud/Startup/{mode}.sh")
 
-    instance_list = [f"{GCP_USER_SHORT}-{name}-{n0+i}" for i in range(n)]
-    disk_list = [f"{GCP_USER_SHORT}-{name}-disk-{n0+i}" for i in range(n)]
+    instance_list = [f"{GCP_USER_SHORT}-{mode}-{n0+i}" for i in range(n)]
+    disk_list = [f"{GCP_USER_SHORT}-{mode}-disk-{n0+i}" for i in range(n)]
 
     cmd_disks = []
     cmd_instances = []
@@ -65,7 +66,7 @@ def mogen_upload2bucket(robot_id, n, n0=0):
 
 if __name__ == '__main__':
     fire.Fire({
-        'start_mogen': mogen_create_instances_and_start,
+        'start_gen': gen__create_instances_and_start,
         'create_local': mogen_create_instance_local,
         'upload': mogen_upload2bucket,
         'connect2': connect2
