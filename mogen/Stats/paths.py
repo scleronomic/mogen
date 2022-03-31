@@ -39,7 +39,6 @@ q_bee_step = np.linalg.norm(np.diff(q_bee, axis=-2), axis=-1).max(axis=-1)
 # i = np.argsort(q_length/q_bee_length)
 i = np.argsort(q_max_step/q_bee_step)
 i = i[-10000:][::-1]
-
 qq = q[i]
 qq2 = trajectory.get_path_adjusted(qq, m=100)
 ff = feasibility_check(q=qq2, par=par)
@@ -52,6 +51,9 @@ dd = q_length[i] / qq2_length
 # ax.hist(dd, bins=100, alpha=0.5)
 
 # for ii in i[-100:][::-1]:
-for ii in range(1):
-    print(i)
-    plot_path_gif(file=file, robot_id=robot_id, i=ii)
+# for ii in [np.random.randint(low=0, high=100000)]:
+ii = np.random.randint(low=0, high=100000)
+print(ii)
+# ii = 83642
+plot_path_gif(file=file, robot_id=robot_id, i=ii)
+

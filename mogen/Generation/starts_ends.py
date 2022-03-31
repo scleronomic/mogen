@@ -4,16 +4,15 @@ from rokin.sample_configurations import sample_q
 from mopla.Optimizer import InitialGuess
 
 
-# FINDING:
-#   The length between start and end configuration is not really a good measure for telling hoq difficult a path is
-#   A better one might be to check if thee straight line connection between A and B is feasible:
-#   if it is, the path is easy - if not, the path is hard
-#   The disadvantage of this method is that it is just boolean and no continuous metric.
-#   All the metrics I can think of tell you only how hard thee problem is after the fact.
-#   If you tried 100 multistarts and none succeeded, the problem was very hard, or probably insolvable...
-#   If 100 / 100 succeed, than the problem was easy
-#   But if only 10 / 100 succeed, can the problem itself still be easy, solvable through a straight line
-#   but all the multistarts get stuck in thee difficult environment
+# The length between start and end configuration is not really a good measure for telling hoq difficult a path is
+# A better one might be to check if thee straight line connection between A and B is feasible:
+# if it is, the path is easy - if not, the path is hard
+# The disadvantage of this method is that it is just boolean and no continuous metric.
+# All the metrics I can think of tell you only how hard thee problem is after the fact.
+# If you tried 100 multistarts and none succeeded, the problem was very hard, or probably insolvable...
+# If 100 / 100 succeed, than the problem was easy
+# But if only 10 / 100 succeed, can the problem itself still be easy, solvable through a straight line
+# but all the multistarts get stuck in thee difficult environment
 
 
 def __arg_wrapper_acceptance_rate(fun=None):

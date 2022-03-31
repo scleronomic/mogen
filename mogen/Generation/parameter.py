@@ -1,7 +1,7 @@
 import numpy as np
 
 from rokin.Robots import *
-from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm
+from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02
 
 
 class Generation:
@@ -14,8 +14,7 @@ class Generation:
 def init_par(robot_id: str):
 
     if robot_id == 'SingleSphere02':
-        robot = SingleSphere02(radius=0.25)
-        raise NotImplementedError
+        par, gd, staircase = get_par_singlesphere02(radius=0.25)
 
     elif robot_id == 'StaticArm04':
         par, gd, staircase = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)

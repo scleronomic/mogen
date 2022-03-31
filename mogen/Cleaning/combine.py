@@ -1,11 +1,10 @@
 import os.path
-import subprocess
 from shutil import copy
 
 import numpy as np
 
 from wzk import sql2
-from wzk import tic, toc, find_largest_consecutives, squeeze
+from wzk import find_largest_consecutives, squeeze
 from wzk.gcp import gcloud2
 from wzk.mpl import new_fig
 
@@ -72,7 +71,6 @@ def reset_sample_i32_0(file):
 
     print('Load indices')
     w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
-    w100, s100 = sql2.get_values_sql(file=file, table=table, rows=np.arange(100), columns=['world_i32', 'sample_i32'], values_only=True)
     w = np.squeeze(w).astype(np.int32)
     s = np.squeeze(s).astype(np.int32)
     assert np.all(s == 0)

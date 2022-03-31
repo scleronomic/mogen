@@ -11,9 +11,6 @@ def update_cast_joint_errors(q, limits, eps=1e-6):
     return q
 
 
-# TODO make as function
-# TODO assert when creating the tables
-
 def set_dtypes(file):
     print(f'set dtypes {file}')
     # paths

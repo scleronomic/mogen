@@ -18,10 +18,11 @@ def get_fig_file(file, i_w, i_s):
     return fig_file
 
 
-def plot_path_2d(file, robot_id, i_s):
+def plot_path_2d(robot_id, file, i):
 
     par = init_par(robot_id=robot_id).par
-    i_w, i_s, q, img = get_samples(file=file, i=i_s, img_shape=par.world.shape)
+    i_w, i_s, q, img = get_samples(file=file, i=i, img_shape=par.world.shape)
+    print(i_w, i_s)
     q = q.reshape(-1, par.robot.n_dof)
 
     q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.is_periodic)
@@ -30,14 +31,15 @@ def plot_path_2d(file, robot_id, i_s):
     robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
 
     if robot_id == 'SingleSphere02':
-        robot_2d.plot_x_path(ax=ax, x=q, r=par.robot.spheres_rad, marker='o', color='blue')
-        robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='red')
+        robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='#CCCCCC')
+        robot_2d.plot_x_path(ax=ax, x=q2[:1], r=par.robot.spheres_rad, marker='o', color='#3399FF')
+        robot_2d.plot_x_path(ax=ax, x=q2[-1:], r=par.robot.spheres_rad, marker='o', color='#FF3333')
 
     else:
         robot_2d.plot_x_path_arm(q=q, robot=par.robot, ax=ax)
 
     fig_file = get_fig_file(file=file, i_w=i_w, i_s=i_s)
-    save_fig(file=fig_file, fig=fig, formats='png')
+    save_fig(file=fig_file, fig=fig, formats='pdf')
     close_all()
 
 
@@ -59,20 +61,24 @@ def plot_path_gif(robot_id,
         pass
 
     q = q.reshape(-1, par.robot.n_dof)
-
+    # q = trajectory.get_substeps_adjusted(q, n=100)
     if par.world.n_dim == 2:
         robot_2d.robot_path_interactive(q=q, img=img, par=par, gif=file_out)
 
     elif par.world.n_dim == 3:
-        # robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, screen_size=(1024, 768)),
-        #                                 q=q, robot=par.robot,
-        #                                 kwargs_world=dict(limits=par.world.limits, img=img))
-        robot_3d.robot_path_interactive(p=dict(off_screen=True, gif=file_out, screen_size=(512, 384)),
-                                        gif=file_out,
-                                        q=q, robot=par.robot,
+        print(file_out)
+        robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
+                                        q=q, robot=par.robot, gif=file_out,
                                         kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
-        #
 
+        # p = robot_3d.pv.Plotter()
+        # p = dict(off_screen=False, gif=file_out, screen_size=(512, 384))
+        # robot_3d.robot_path_interactive(p=p,
+        #                                 gif=file_out,
+        #                                 q=q, robot=par.robot,
+        #                                 kwargs_robot=dict(mode=['mesh', 'sphere']),
+        #                                 kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
+        #
         # p = robot_3d.plotter_wrapper({})
         # robot_3d.plot_bool_vol(p=p, img=img, limits=par.world.limits, mode='voxel', opacity=0.5)
         # p.show()
@@ -106,14 +112,22 @@ def main():
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
     robot_id = 'Justin19'
+    # robot_id = 'SingleSphere02'
+    # robot_id = 'JustinArm07'
+    # robot_id = 'StaticArm04'
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
     # file = f"/home_local/tenh_jo/{robot_id}.db"
 
     # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
 
-    for i in range(10):
-        print(i)
-        plot_path_gif(file=file, robot_id=robot_id, i=i)
+    plot_path_gif(file=file, robot_id=robot_id, i=0)
+
+    # for i in range(20):
+    #     print(i)
+    #     print()
+    #     i = np.random.randint(0, int(1e6))
+    #     plot_path_gif(file=file, robot_id=robot_id, i=i)
+    #     plot_path_2d(file=file, robot_id=robot_id, i=i)
 
 
 if __name__ == '__main__':
