@@ -138,7 +138,7 @@ def refine_adjust_steps(file, par, i=None, i_w=None):
 def main():
     robot_id = 'StaticArm04'
     # robot_id = 'Justin19'
-    robot_id = 'SingleSphere02'
+    # robot_id = 'SingleSphere02'
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     gen = init_par(robot_id)
@@ -147,22 +147,21 @@ def main():
     # gd.stepsize = 0.1
     gd.n_steps = 100
     i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
-    wrong_worlds = []
-    for i_w in np.arange(0, 10000):
+    for i_w in np.arange(0, 100):
         print('World', i_w)
         # adjust_path(file=file, par=par, i=None, i_w=(i_w, i_w_all))
         # with tictoc(text=f'World {i_w}') as _:
-        try:
-            refine_chomp(file=file, par=par, gd=gd,
-                         q0_fun=None, i_w=(i_w, i_w_all), verbose=1)
-        except:
-            wrong_worlds.append(i_w)
+        refine_chomp(file=file, par=par, gd=gd,
+                     q0_fun=None, i_w=(i_w, i_w_all), verbose=1)
 
-    print(wrong_worlds)
+    # print(wrong_worlds)
 
 
 if __name__ == '__main__':
-    # main()
+    main()
+
+
+def check_worlds_img_cmp():
     robot_id = 'SingleSphere02'
 
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
@@ -173,12 +172,13 @@ if __name__ == '__main__':
 
     from wzk.image import compressed2img, zlib
     # print(img_cmp[1001])
-    i = 88
-    for i in range(10000):
+    for i in range(2000):
         try:
             img = compressed2img(img_cmp=img_cmp[i], shape=img_shape, dtype=bool)
         except zlib.error:
             print(i)
 
-# [88, 391, 785, 964, 1000, ...}
+    i_w = sql2.get_values_sql(file=file, table='paths', rows=-1, columns='world_i32', values_only=True)
+    u, c = np.unique(i_w, return_counts=True)
+    # [88, 391, 785, 964, 1000, ...}
 

@@ -15,7 +15,7 @@ from mopla.main import chomp_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
-from mogen.Generation import load, parameter, starts_ends
+from mogen.Generation import data, parameter, starts_ends
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
@@ -49,7 +49,7 @@ def __chomp0(q0, q_start, q_end,
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
-    return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
+    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 def __chomp_staircase(q_start, q_end,
@@ -63,7 +63,7 @@ def __chomp_staircase(q_start, q_end,
     f = feasibility_check(q=q, par=gen.par) == 1
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
-    return load.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
+    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
 
 
 def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
@@ -76,7 +76,7 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
                                                         feasibility_check=lambda qq: feasibility_check(qq, par=gen.par),
                                                         acceptance_rate=gen.bee_rate)
     except RuntimeError:
-        df = load.create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
+        df = data.create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
                                  q=np.zeros((1, gen.par.n_wp, gen.par.robot.n_dof)),
                                  objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
         return df
@@ -115,7 +115,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
         gen = parameter.init_par(robot_id=robot_id)
         _i_w = int(_i_w)
         if _i_w == -1:
-            img_cmp = load.img_cmp0[gen.par.robot.n_dim-1]
+            img_cmp = data.img_cmp0[gen.par.robot.n_dim-1]
         else:
             img_cmp = get_values_sql(file=file, rows=_i_w, table='worlds', columns='img_cmp', values_only=True)
 
@@ -128,10 +128,10 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
                 futures.append(generate_ray.remote(i_w, s0+i_s))
 
         df_list = ray.get(futures)
-        df = load.combine_df_list(df_list)
+        df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
-        df2sql(df=df, file=file, table='paths', if_exists=ra)
+        df2sql(df=df, file=file, table='paths', dtype=data.path_df_dtypes, if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df
@@ -141,7 +141,7 @@ def main_loop(robot_id):
     copy_init_world(robot_id)
     worlds = np.arange(10000)
 
-    for i in range(1000):
+    for i in range(100000):
         print(i)
         with tictoc() as _:
             main(robot_id=robot_id, iw_list=worlds, ra='append', s0=i, n_samples_per_world=1)
@@ -159,7 +159,7 @@ def main_loop_sc(robot_id):
 if __name__ == '__main__':
 
     ray_init(perc=100)
-    _robot_id = 'Justin19'
+    _robot_id = 'SingleSphere02'
 
     with tictoc('total time') as _:
         main_loop(_robot_id)

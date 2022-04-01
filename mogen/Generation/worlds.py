@@ -11,7 +11,7 @@ from mopla.World import create_perlin_image, create_rectangle_image
 from mopla.Optimizer import feasibility_check
 from mopla.Parameter import parameter
 
-from mogen.Generation.load import create_world_df
+from mogen.Generation import data
 
 
 def sample_worlds(par, n, mode='perlin',
@@ -63,7 +63,7 @@ def sample_worlds(par, n, mode='perlin',
                                                 kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
-    world_df = create_world_df(i_world=np.arange(n), img_cmp=img_list)
+    world_df = data.create_world_df(i_world=np.arange(n), img_cmp=img_list)
     return world_df
 
 
@@ -92,24 +92,20 @@ def get_robot_max_reach(robot):
 
 def main():
     from shutil import copy
-    from mopla.Parameter import get_par_staticarm, get_par_justin19
-    # par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]
-    par = get_par_justin19()[0]
+    from mopla.Parameter import get_par_staticarm, get_par_justin19, get_par_singlesphere02, get_par_justinarm07
+    # par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]   # threshold=0.5
+    # par = get_par_justin19()[0]  # threshold=0.40
+    # par = get_par_justinarm07()[0]   # threshold=0.35
+    par = get_par_singlesphere02()[0]  # threshold=0.40
 
     # file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
-    file = f"/Users/jote/Documents/Code/Python/DLR/mogen/{par.robot.id}.db"
-    # file2 = f"/home/johannes_tenhumberg/sdb/{par.robot.id}_worlds0.db"
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds.db"
     # copy(file, file2)
 
-    # robot = SingleSphere02(radius=0.25)
-    # robot = JustinArm07()  # threshold=0.35
-    # robot = Justin19()  # threshold=0.40
-    # robot = StaticArm(n_dof=4, lengths=0.25, widths=0.1)  # threshold=0.5
     # print(get_robot_max_reach(robot))
+    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(threshold=0.40, mode='old'), verbose=1)
 
-    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(threshold=0.40), verbose=1)
-
-    df2sql(df=df, file=file, table='worlds', if_exists='replace')
+    df2sql(df=df, file=file, table='worlds', dtype=data.world_df_dtypes, if_exists='replace')
     # TODO add meta table where all the robot parameters are listed
 
 

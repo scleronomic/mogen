@@ -17,7 +17,7 @@ def set_dtypes(file):
     columns_paths_old = sql2.get_columns(file=file, table='paths')
     columns_paths_new = ['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b']
     dtypes_paths_new = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER]
-    assert np.all(columns_paths_old.name.values == columns_paths_new)
+    assert np.all(columns_paths_old.name.values == columns_paths_new), f"{columns_paths_old.name.values} \n {columns_paths_new}"
     sql2.alter_table(file, table='paths', columns=columns_paths_new, dtypes=dtypes_paths_new)
 
     # worlds
@@ -26,6 +26,13 @@ def set_dtypes(file):
     dtypes_worlds_new = [sql2.TYPE_INTEGER, sql2.TYPE_BLOB]
     assert np.all(columns_worlds_old.name.values == columns_worlds_new)
     sql2.alter_table(file, table='worlds', columns=columns_worlds_new, dtypes=dtypes_worlds_new)
+
+
+if __name__ == '__main__':
+    robot_id = 'SingleSphere02'
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
+    # sql2.delete_columns(file=file, table='paths', columns='q0_f32')
+    set_dtypes(file)
 
 
 from mogen.Generation.parameter import init_par

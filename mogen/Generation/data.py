@@ -8,10 +8,13 @@ from wzk.training import n2train_test, train_test_split  # noqa
 
 meta_df_columns = np.array(['par', 'gd'])
 world_df_columns = np.array(['world_i32', 'img_cmp'])
+world_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_BLOB]
 path_df_columns = np.array(['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'])
-
-
+path_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_NUMERIC, sql2.TYPE_INTEGER]
 n_samples_per_world = 1000
+
+world_df_dtypes = {k: v for (k, v) in zip(world_df_columns, world_df_dtypes)}
+path_df_dtypes = {k: v for (k, v) in zip(path_df_columns, path_df_dtypes)}
 
 
 def arg_wrapper__i_world(i_worlds, file=None):
