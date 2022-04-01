@@ -26,10 +26,11 @@ file_stub = file_stub_dict[LOCATION]
 
 
 def copy_init_world(robot_id):
-    file_bucket_stub = 'gs://tenh_jo/{}_worlds0.db'
+    file_bucket_stub = 'gs://tenh_jo/{}/{}_worlds0.db'
+
     call2(cmd=f"sudo chmod 777 -R {os.path.split(file_stub.format(robot_id))[0]}")
     if LOCATION == 'gcp':
-        gcloud2.gsutil_cp(src=file_bucket_stub.format(robot_id), dst=file_stub.format(robot_id))
+        gcloud2.gsutil_cp(src=file_bucket_stub.format(robot_id, robot_id), dst=file_stub.format(robot_id))
     else:
         pass
 
