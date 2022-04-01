@@ -4,7 +4,7 @@ from wzk.gcp.gcloud2 import *
 from wzk.gcp import startup
 
 
-def gen__create_instances_and_start(mode='genpaths', n=10, n0=0,
+def gen__create_instances_and_start(mode='genpath', n=10, n0=0,
                                     disk_size=20,
                                     sleep=600):
     machine = 'c2-standard-60'
