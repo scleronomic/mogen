@@ -234,12 +234,11 @@ def main_recalculate_objective(file):
 
 
 if __name__ == '__main__':
-    # fire.Fire({
-    #     'objective': main_recalculate_objective,
-    #     'chomp': main_refine_chomp
-    # })
+    fire.Fire({
+        'objective': main_recalculate_objective,
+        'chomp': main_refine_chomp
+    })
 
-    parameter.get_robot_str(s='wehqaerertJustin19asdfsrgtsr')
     # main_recalculate_objective(robot_id='SingleSphere02')
 
 
