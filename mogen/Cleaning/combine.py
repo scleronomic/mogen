@@ -11,6 +11,7 @@ from wzk.mpl import new_fig
 
 
 def check_iw_is(i_w, i_s, m):
+    print('m', m)
     i_w = i_w.copy()
     i_w = i_w.reshape(-1, m)
     bw = np.unique(i_w, axis=1)
