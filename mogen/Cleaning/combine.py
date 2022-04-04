@@ -210,6 +210,7 @@ def main_choose_best(file):
     i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
 
     m, _ = find_largest_consecutives(i_s)
+    m = 11  # TODO
     check_iw_is(i_w=i_w, i_s=i_s, m=m)
 
     o_max = o.max()
