@@ -8,7 +8,7 @@ from wzk import trajectory, sql2
 
 from rokin.Vis import robot_2d, robot_3d
 from mogen.Generation.parameter import init_par
-from mogen.Generation.load import get_samples
+from mogen.Generation.data import get_samples
 
 
 def get_fig_file(file, i_w, i_s):
@@ -111,8 +111,8 @@ def main():
     # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
     # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
 
-    robot_id = 'Justin19'
-    # robot_id = 'SingleSphere02'
+    # robot_id = 'Justin19'
+    robot_id = 'SingleSphere02'
     # robot_id = 'JustinArm07'
     # robot_id = 'StaticArm04'
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
@@ -122,12 +122,12 @@ def main():
 
     plot_path_gif(file=file, robot_id=robot_id, i=0)
 
-    # for i in range(20):
-    #     print(i)
-    #     print()
-    #     i = np.random.randint(0, int(1e6))
-    #     plot_path_gif(file=file, robot_id=robot_id, i=i)
-    #     plot_path_2d(file=file, robot_id=robot_id, i=i)
+    for i in range(1000):
+        # print(i)
+        # print()
+        # i = np.random.randint(0, int(1e6))
+        # plot_path_gif(file=file, robot_id=robot_id, i=i)
+        plot_path_2d(file=file, robot_id=robot_id, i=i)
 
 
 if __name__ == '__main__':

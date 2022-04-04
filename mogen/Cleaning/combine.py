@@ -332,12 +332,12 @@ def delete_half():
 
 
 if __name__ == '__main__':
-    fire.Fire({
-        'combine': main_combine_files,
-        'separate': main_separate_easy_hard,
-        'choose_best': main_choose_best,
-
-    })
+    # fire.Fire({
+    #     'combine': main_combine_files,
+    #     'separate': main_separate_easy_hard,
+    #     'choose_best': main_choose_best,
+    #
+    # })
 
     # main_combine_files_hard2()
     # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
@@ -346,28 +346,31 @@ if __name__ == '__main__':
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
 
 
-    # robot_id = 'Justin19'
+    robot_id = 'SingleSphere'
     # # i = np.arange(60, 80)
     # # i = np.delete(i, 3)
     # main_combine_files(robot_id=robot_id, i=i)
     #
     # tic()
-    # _file0 = f"{robot_id}_combined_40-60"
+    _file0 = f"{robot_id}"
     # _file_bucket = f"gs://tenh_jo/{_file0}"
-    # _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
+    _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
     #
-    # _file_easy = _file + '_easy'
-    # _file_hard = _file + '_hard'
-    # _file_hard2 = _file + '_hard2'
+    _file_easy = _file + '_easy'
+    _file_hard = _file + '_hard'
+    _file_hard2 = _file + '_hard2'
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file)}.db", dst=f"{_file}.db")
     #
     # main_separate_easy_hard(file=_file)
     #
     # #
-    # print('sort easy')
-    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
-    # print('sort hard')
-    # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    print('sort easy')
+    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    print('sort hard')
+    sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    print('sort hard 2')
+    sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+
     #
     # print('upload easy and hard')
     # gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/{os.path.basename(_file_easy)}.db")
