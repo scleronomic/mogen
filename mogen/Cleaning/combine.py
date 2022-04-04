@@ -192,6 +192,7 @@ def test_separate_easy_hard():
 
 def main_choose_best(file):
 
+    file = os.path.splitext(file)[0]
     file2 = f"{file}2.db"
     file = f"{file}.db"
     table = 'paths'
