@@ -193,6 +193,43 @@ def delete_not_s0(file):
         sql2.delete_rows(file=file, table=table,  rows=np.arange(i+1))
 
 
+def test_separate_easy_hard():
+    import pandas as pd
+    columns = ['world_i32', 'sample_i32', 'x']
+    data = [[0, 0, 0],
+            [0, 1, 1],
+            [0, 2, 'a'],
+            [0, 2, 2],
+            [0, 2, 2],
+            [0, 3, 3],
+            [0, 4, 4],
+            [0, 5, 'a'],
+            [0, 5, 5],
+            [0, 5, 5],
+            [1, 0, 1],
+            [1, 1, 2],
+            [1, 2, 3],
+            [1, 3, 4],
+            [1, 4, 5],
+            [2, 0, 'a'],
+            [2, 0, 2],
+            [2, 0, 2],
+            [2, 1, 'a'],
+            [2, 1, 3],
+            [2, 1, 3],
+            [2, 2, 'a'],
+            [2, 2, 4],
+            [2, 2, 4]]
+
+    df = pd.DataFrame(columns=columns, data=data, index=None)
+
+    file = '/Users/jote/Documents/Code/Python/DLR/wzk/wzk/tests/dummy.db'
+    table = 'paths'
+    sql2.df2sql(df=df, file=file, table=table, if_exists='replace')
+
+    main_separate_easy_hard(file=file)
+
+
 def main_separate_easy_hard(file: str):
 
     file, _ = os.path.splitext(file)
@@ -248,43 +285,6 @@ def main_separate_easy_hard(file: str):
     reset_sample_i32(file=file_easy)
 
 
-def test_separate_easy_hard():
-    import pandas as pd
-    columns = ['world_i32', 'sample_i32', 'x']
-    data = [[0, 0, 0],
-            [0, 1, 1],
-            [0, 2, 'a'],
-            [0, 2, 2],
-            [0, 2, 2],
-            [0, 3, 3],
-            [0, 4, 4],
-            [0, 5, 'a'],
-            [0, 5, 5],
-            [0, 5, 5],
-            [1, 0, 1],
-            [1, 1, 2],
-            [1, 2, 3],
-            [1, 3, 4],
-            [1, 4, 5],
-            [2, 0, 'a'],
-            [2, 0, 2],
-            [2, 0, 2],
-            [2, 1, 'a'],
-            [2, 1, 3],
-            [2, 1, 3],
-            [2, 2, 'a'],
-            [2, 2, 4],
-            [2, 2, 4]]
-
-    df = pd.DataFrame(columns=columns, data=data, index=None)
-
-    file = '/Users/jote/Documents/Code/Python/DLR/wzk/wzk/tests/dummy.db'
-    table = 'paths'
-    sql2.df2sql(df=df, file=file, table=table, if_exists='replace')
-
-    main_separate_easy_hard(file=file)
-
-
 def main_combine_files(robot_id, i):
     if isinstance(i, str):
         i = eval(i, {'__builtins__': None}, {})
@@ -331,6 +331,7 @@ def delete_half():
 if __name__ == '__main__':
     fire.Fire({
         'combine': main_combine_files,
+        'separate': main_separate_easy_hard
     })
 
     # main_combine_files_hard2()
