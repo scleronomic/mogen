@@ -332,7 +332,7 @@ if __name__ == '__main__':
     fire.Fire({
         'combine': main_combine_files,
         'separate': main_separate_easy_hard,
-        'choose_best': main_separate_easy_hard,
+        'choose_best': main_choose_best,
 
     })
 
