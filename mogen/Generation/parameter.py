@@ -1,5 +1,7 @@
 import numpy as np
 
+from wzk.strings import find_one_of_n
+
 from rokin.Robots import *
 from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02
 
@@ -9,6 +11,13 @@ class Generation:
                  'gd',
                  'staircase',
                  'bee_rate')
+
+
+__robots = ['SingleSphere02', 'StaticArm04', 'JustinArm07', 'Justin19']
+
+
+def get_robot_str(s):
+    return find_one_of_n(s=s, n=__robots)
 
 
 def init_par(robot_id: str):

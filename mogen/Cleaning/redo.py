@@ -1,9 +1,12 @@
-import numpy as np
-
 from multiprocessing import Lock
+
+import numpy as np
+import fire
+
 from wzk import sql2, trajectory
 from wzk import safe_unify, tictoc
 from wzk.mpl import new_fig, remove_duplicate_labels
+from wzk.ray2 import ray, ray_init
 
 from rokin.Vis.robot_2d import plot_img_patch_w_outlines
 from mopla.Optimizer import feasibility_check, objectives
@@ -11,8 +14,6 @@ from mopla.Optimizer.gradient_descent import gd_chomp
 from mopla.Parameter.parameter import initialize_oc
 
 from mogen.Generation import data, parameter
-from wzk.ray2 import ray, ray_init
-
 
 
 def get_samples_for_world(file, par, i=None, i_w=None):
@@ -187,10 +188,11 @@ def check_worlds_img_cmp():
     u, c = np.unique(i_w, return_counts=True)
 
 
-def main_refine_chomp(robot_id):
+def main_refine_chomp(file):
     lock = Lock()
 
-    file = data.get_file(robot_id=robot_id)
+    robot_id = parameter.get_robot_str(file)
+
     i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
     iw_list = np.unique(i_w_all)
 
@@ -217,9 +219,31 @@ def main_refine_chomp(robot_id):
     print(f"{np.sum(res)} / {np.size(res)}")
 
 
-if __name__ == '__main__':
+def main_recalculate_objective(file):
 
-    ray_init(perc=100)
-    main_refine_chomp(robot_id='StaticArm04')
+    robot_id = parameter.get_robot_str(file)
+    i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
+    iw_list = np.unique(i_w_all)
+
+    gen = parameter.init_par(robot_id)
+    par, gd = gen.par, gen.gd
+
+    for i_w in iw_list:
+        with tictoc(text=f'World {i_w}') as _:
+            recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all), )
+
+
+if __name__ == '__main__':
+    fire.Fire({
+        'objective': main_recalculate_objective,
+        'chomp': main_refine_chomp
+    })
+
+    # main_recalculate_objective(robot_id='SingleSphere02')
+
+
+
+    # ray_init(perc=100)
+    # main_refine_chomp(robot_id='StaticArm04')
 
 
