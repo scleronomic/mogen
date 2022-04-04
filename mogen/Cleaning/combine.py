@@ -321,7 +321,7 @@ def delete_half():
 
 if __name__ == '__main__':
     # main_combine_files_hard2()
-    _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
+    # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
     gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")

@@ -10,8 +10,7 @@ from mopla.Optimizer import feasibility_check, objectives
 from mopla.Optimizer.gradient_descent import gd_chomp
 from mopla.Parameter.parameter import initialize_oc
 
-from mogen.Generation.load import get_samples, get_paths, get_worlds
-from mogen.Generation.parameter import init_par
+from mogen.Generation import data, parameter
 
 
 def get_samples_for_world(file, par, i=None, i_w=None):
@@ -19,10 +18,10 @@ def get_samples_for_world(file, par, i=None, i_w=None):
         i_w, i_w_all = i_w
         i = np.nonzero(i_w_all == i_w)[0]
 
-    i_w, i_s, q, o, f = get_paths(file, i)
+    i_w, i_s, q, o, f = data.get_paths(file, i)
     q = q.reshape((len(i), par.n_wp, par.robot.n_dof))
     i_w = safe_unify(i_w)
-    img = get_worlds(file=file, i_w=i_w, img_shape=par.world.shape)
+    img = data.get_worlds(file=file, i_w=i_w, img_shape=par.world.shape)
 
     q_start, q_end = q[..., 0, :], q[..., -1, :]
     par.q_start, par.q_end = q_start, q_end
@@ -38,7 +37,7 @@ def update_objective(file, par, i=None, i_w=None):
 
 
 def plot_redo(q, q0,
-              par):
+              par, j, f):
     # TODO If f is False check, f0 again, than f0 with more substeps, if all is False, than the label was not
     # correct to begin with
     #
@@ -73,8 +72,8 @@ def refine_chomp(file, par, gd,
     q, o = gd_chomp(q0=q00, par=par, gd=gd)
 
     q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
-    f = feasibility_check(q=q, par=par)
 
+    f = feasibility_check(q=q, par=par)
     f0 = feasibility_check(q=q0, par=par)
 
     # TODO use the correct metric, if i want to do the same thing for IK
@@ -135,30 +134,23 @@ def refine_adjust_steps(file, par, i=None, i_w=None):
                         columns=['q_f32'], rows=i, lock=None)
 
 
-def main():
-    robot_id = 'StaticArm04'
-    # robot_id = 'Justin19'
-    # robot_id = 'SingleSphere02'
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
+def main(robot_id):
 
-    gen = init_par(robot_id)
+    file = data.get_file(robot_id=robot_id)
+
+    gen = parameter.init_par(robot_id)
     par, gd = gen.par, gen.gd
-    par.oc.n_substeps_check += 10
+    par.oc.n_substeps_check += 2
     # gd.stepsize = 0.1
     gd.n_steps = 100
+    print(gd.n_processes)
     i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
     for i_w in np.arange(0, 100):
-        print('World', i_w)
-        # adjust_path(file=file, par=par, i=None, i_w=(i_w, i_w_all))
-        # with tictoc(text=f'World {i_w}') as _:
-        refine_chomp(file=file, par=par, gd=gd,
-                     q0_fun=None, i_w=(i_w, i_w_all), verbose=1)
-
-    # print(wrong_worlds)
-
-
-if __name__ == '__main__':
-    main()
+        # print('World', i_w)
+        with tictoc(text=f'World {i_w}') as _:
+            refine_chomp(file=file, par=par, gd=gd,
+                         q0_fun=None, i_w=(i_w, i_w_all), verbose=1)
+            # adjust_path(file=file, par=par, i=None, i_w=(i_w, i_w_all))
 
 
 def check_worlds_img_cmp():
@@ -180,5 +172,9 @@ def check_worlds_img_cmp():
 
     i_w = sql2.get_values_sql(file=file, table='paths', rows=-1, columns='world_i32', values_only=True)
     u, c = np.unique(i_w, return_counts=True)
-    # [88, 391, 785, 964, 1000, ...}
+
+
+if __name__ == '__main__':
+    main(robot_id='StaticArm04')
+
 

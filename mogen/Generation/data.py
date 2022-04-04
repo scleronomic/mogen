@@ -5,6 +5,7 @@ from wzk.image import compressed2img, img2compressed
 from wzk.numpy2 import squeeze
 from wzk import sql2
 from wzk.training import n2train_test, train_test_split  # noqa
+from wzk.dlr import LOCATION
 
 meta_df_columns = np.array(['par', 'gd'])
 world_df_columns = np.array(['world_i32', 'img_cmp'])
@@ -15,6 +16,18 @@ n_samples_per_world = 1000
 
 world_df_dtypes = {k: v for (k, v) in zip(world_df_columns, world_df_dtypes)}
 path_df_dtypes = {k: v for (k, v) in zip(path_df_columns, path_df_dtypes)}
+
+
+__file_stub_dlr = '/home_local/tenh_jo/{}.db'
+__file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/{}.db'
+__file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
+
+__file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
+__file_stub = __file_stub_dict[LOCATION]
+
+
+def get_file(robot_id):
+    return __file_stub.format(*[robot_id]*2)
 
 
 def arg_wrapper__i_world(i_worlds, file=None):

@@ -17,20 +17,15 @@ from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Generation import data, parameter, starts_ends
 
-__file_stub_dlr = '/home_local/tenh_jo/{}.db'
-__file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}_sc.db'
-__file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
-
-file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
-file_stub = file_stub_dict[LOCATION]
-
 
 def copy_init_world(robot_id):
     file_bucket_stub = 'gs://tenh_jo/{}/{}_worlds0.db'
+    file_bucket = file_bucket_stub.format(*[robot_id] * 2)
+    file = data.get_file(robot_id)
 
-    call2(cmd=f"sudo chmod 777 -R {os.path.split(file_stub.format(robot_id))[0]}")
+    call2(cmd=f"sudo chmod 777 -R {os.path.split(file)[0]}")
     if LOCATION == 'gcp':
-        gcloud2.gsutil_cp(src=file_bucket_stub.format(robot_id, robot_id), dst=file_stub.format(robot_id))
+        gcloud2.gsutil_cp(src=file_bucket, dst=file)
     else:
         pass
 
@@ -109,7 +104,7 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
 
 def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append'):
-    file = file_stub.format(robot_id)
+    file = data.get_file(robot_id)
 
     @ray.remote
     def generate_ray(_i_w: int, _i_s: int):
