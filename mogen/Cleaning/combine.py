@@ -290,7 +290,7 @@ def main_combine_files(robot_id, i):
         i = list(range(i[0], i[1]))
 
     old_files = [f"gs://tenh_jo/{robot_id}/{robot_id}_{ii}.db" for ii in i]
-    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
+    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}/{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
