@@ -286,6 +286,9 @@ def test_separate_easy_hard():
 
 
 def main_combine_files(robot_id, i):
+    if isinstance(i, str):
+        i = eval(i, {'__builtins__': None}, {})
+
     if len(i) == 2 and i[1] > i[0]:
         i = list(range(i[0], i[1]))
 
