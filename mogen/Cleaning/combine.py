@@ -2,6 +2,7 @@ import os.path
 from shutil import copy
 
 import numpy as np
+import fire
 
 from wzk import sql2
 from wzk import find_largest_consecutives, squeeze
@@ -285,7 +286,10 @@ def test_separate_easy_hard():
 
 
 def main_combine_files(robot_id, i):
-    old_files = [f"gs://tenh_jo/{robot_id}_{ii}.db" for ii in i]
+    if len(i) == 2 and i[1] > i[0]:
+        i = list(range(i[0], i[1]))
+
+    old_files = [f"gs://tenh_jo/{robot_id}/{robot_id}_{ii}.db" for ii in i]
     new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
@@ -320,11 +324,15 @@ def delete_half():
 
 
 if __name__ == '__main__':
+    fire.Fire({
+        'combine': main_combine_files,
+    })
+
     # main_combine_files_hard2()
     # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
-    gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
+    # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
 
 
     # robot_id = 'Justin19'

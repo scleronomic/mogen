@@ -1,4 +1,3 @@
-import fire
 import time
 from wzk.gcp.gcloud2 import *
 from wzk.gcp import startup
