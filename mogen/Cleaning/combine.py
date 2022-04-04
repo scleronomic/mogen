@@ -119,46 +119,6 @@ def combine_files(old_files, new_file, clean_s0):
         gcloud2.gsutil_cp(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
 
 
-def main_choose_best(file):
-
-    file2 = f"{file}2.db"
-    file = f"{file}.db"
-    table = 'paths'
-
-    print(f"Choose best multi start for {file}")
-
-    print('Copy initial file -> file2')
-    copy(file, file2)
-
-    print('Load data')
-    i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=table, rows=-1,
-                                         columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
-                                         values_only=True)
-    i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
-
-    m, _ = find_largest_consecutives(i_s)
-    check_iw_is(i_w=i_w, i_s=i_s, m=m)
-
-    o_max = o.max()
-    o2 = o.copy()
-
-    o2[f != 1] += o_max
-    o2 = o2.reshape(-1, m)
-    j = np.argmin(o2, axis=-1) + np.arange(len(o2))*m
-
-    j = j[f[j] == 1]
-
-    n_old = len(i_w)
-    n_new = len(j)
-
-    print('Delete worst & infeasible paths')
-    j_delete = np.delete(np.arange(n_old), j)
-    sql2.delete_rows(file=file2, table=table, rows=j_delete)
-
-    reset_sample_i32(file2)
-    print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
-
-
 def separate_easy_hard(file, i):
 
     i_s, q = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32', 'q_f32'], values_only=True)
@@ -228,6 +188,46 @@ def test_separate_easy_hard():
     sql2.df2sql(df=df, file=file, table=table, if_exists='replace')
 
     main_separate_easy_hard(file=file)
+
+
+def main_choose_best(file):
+
+    file2 = f"{file}2.db"
+    file = f"{file}.db"
+    table = 'paths'
+
+    print(f"Choose best multi start for {file}")
+
+    print('Copy initial file -> file2')
+    copy(file, file2)
+
+    print('Load data')
+    i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=table, rows=-1,
+                                         columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
+                                         values_only=True)
+    i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
+
+    m, _ = find_largest_consecutives(i_s)
+    check_iw_is(i_w=i_w, i_s=i_s, m=m)
+
+    o_max = o.max()
+    o2 = o.copy()
+
+    o2[f != 1] += o_max
+    o2 = o2.reshape(-1, m)
+    j = np.argmin(o2, axis=-1) + np.arange(len(o2))*m
+
+    j = j[f[j] == 1]
+
+    n_old = len(i_w)
+    n_new = len(j)
+
+    print('Delete worst & infeasible paths')
+    j_delete = np.delete(np.arange(n_old), j)
+    sql2.delete_rows(file=file2, table=table, rows=j_delete)
+
+    reset_sample_i32(file2)
+    print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
 
 
 def main_separate_easy_hard(file: str):
@@ -331,7 +331,9 @@ def delete_half():
 if __name__ == '__main__':
     fire.Fire({
         'combine': main_combine_files,
-        'separate': main_separate_easy_hard
+        'separate': main_separate_easy_hard,
+        'choose_best': main_separate_easy_hard,
+
     })
 
     # main_combine_files_hard2()

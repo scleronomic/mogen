@@ -1,6 +1,6 @@
 import numpy as np
 
-# from multiprocessing import Lock
+from multiprocessing import Lock
 from wzk import sql2, trajectory
 from wzk import safe_unify, tictoc
 from wzk.mpl import new_fig, remove_duplicate_labels
@@ -11,6 +11,8 @@ from mopla.Optimizer.gradient_descent import gd_chomp
 from mopla.Parameter.parameter import initialize_oc
 
 from mogen.Generation import data, parameter
+from wzk.ray2 import ray, ray_init
+
 
 
 def get_samples_for_world(file, par, i=None, i_w=None):
@@ -58,10 +60,21 @@ def plot_redo(q, q0,
         remove_duplicate_labels(ax=ax)
 
 
+def recalculate_objective(file, par,
+                          i=None, i_w=None,
+                          lock=None):
+    i, q, img = get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
+
+    o = objectives.o_len.len_q_cost(q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
+
+    sql2.set_values_sql(file=file, table='paths', values=(o,), columns=['objective_f32'], rows=i, lock=lock)
+
+
 def refine_chomp(file, par, gd,
                  q0_fun=None,
                  i=None, i_w=None,
-                 verbose=0):
+                 verbose=0,
+                 lock=None):
     i, q0, img = get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     if q0_fun is not None:
@@ -84,10 +97,10 @@ def refine_chomp(file, par, gd,
         if b.sum() > 0:
             if new:
                 sql2.set_values_sql(file=file, table='paths', values=(q[b], o[b], f[b]),
-                                    columns=['q_f32'], rows=i[b], lock=None)
+                                    columns=['q_f32', 'objective_f32', 'feasible_b'], rows=i[b], lock=lock)
             else:
                 sql2.set_values_sql(file=file, table='paths', values=(q0[b], o0[b], f0[b]),
-                                    columns=['q_f32'], rows=i[b], lock=None)
+                                    columns=['q_f32', 'objective_f32', 'feasible_b'], rows=i[b], lock=lock)
 
     b_fb = np.logical_and(f == +1, o < o0)  # feasible and better
     b_nfb = np.logical_and(np.logical_and(f0 == -1, f == -1), o < o0)  # not feasible and better
@@ -140,10 +153,10 @@ def main(robot_id):
 
     gen = parameter.init_par(robot_id)
     par, gd = gen.par, gen.gd
+
     par.oc.n_substeps_check += 2
-    # gd.stepsize = 0.1
     gd.n_steps = 100
-    print(gd.n_processes)
+
     i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
     for i_w in np.arange(0, 100):
         # print('World', i_w)
@@ -174,7 +187,39 @@ def check_worlds_img_cmp():
     u, c = np.unique(i_w, return_counts=True)
 
 
+def main_refine_chomp(robot_id):
+    lock = Lock()
+
+    file = data.get_file(robot_id=robot_id)
+    i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
+    iw_list = np.unique(i_w_all)
+
+    @ray.remote
+    def refine_ray(i):
+        gen = parameter.init_par(robot_id)
+        par, gd = gen.par, gen.gd
+
+        par.oc.n_substeps_check += 2
+        gd.n_steps = 100
+
+        with tictoc(text=f'World {i_w}') as _:
+            refine_chomp(file=file, par=par, gd=gd,
+                         q0_fun=None, i_w=(i, i_w_all), verbose=1, lock=lock)
+
+        return 1
+
+    futures = []
+    for i_w in iw_list:
+        futures.append(refine_ray.remote(i_w))
+
+    res = ray.get(futures)
+
+    print(f"{np.sum(res)} / {np.size(res)}")
+
+
 if __name__ == '__main__':
-    main(robot_id='StaticArm04')
+
+    ray_init(perc=100)
+    main_refine_chomp(robot_id='StaticArm04')
 
 
