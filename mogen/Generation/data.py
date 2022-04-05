@@ -3,20 +3,35 @@ import pandas as pd
 
 from wzk.image import compressed2img, img2compressed
 from wzk.numpy2 import squeeze
-from wzk import sql2
+from wzk import sql2, safe_unify
 from wzk.training import n2train_test, train_test_split  # noqa
 from wzk.dlr import LOCATION
 
+from mopla.Parameter.parameter import initialize_oc
+
+
 meta_df_columns = np.array(['par', 'gd'])
-world_df_columns = np.array(['world_i32', 'img_cmp'])
+
+# worlds
+T_WORLDS = 'worlds'
+C_WORLD_I = 'world_i32'
+C_IMG_CMP = 'img_cmp'
+world_df_columns = np.array([C_WORLD_I, C_IMG_CMP])
 world_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_BLOB]
-path_df_columns = np.array(['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'])
+
+# paths
+T_PATHS = 'paths'
+C_SAMPLE_I = 'sample_i32'
+C_Q_F32 = 'q_f32'
+C_OBJECTIVE_F = 'objective_f32'
+C_FEASIBLE_I = 'feasible_b'
+path_df_columns = np.array([C_WORLD_I, C_SAMPLE_I, C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I])
 path_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_NUMERIC, sql2.TYPE_INTEGER]
-n_samples_per_world = 1000
 
 world_df_dtypes = {k: v for (k, v) in zip(world_df_columns, world_df_dtypes)}
 path_df_dtypes = {k: v for (k, v) in zip(path_df_columns, path_df_dtypes)}
 
+n_samples_per_world = 1000
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/{}.db'
@@ -24,6 +39,10 @@ __file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
 
 __file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
 __file_stub = __file_stub_dict[LOCATION]
+
+img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
+            img2compressed(img=np.zeros((64, 64), dtype=bool), n_dim=2),
+            img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]
 
 
 def get_file(robot_id):
@@ -181,27 +200,54 @@ def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
 
 def rename_old_columns(file):
     # TODO not for ever needed
-    columns = dict(i_world='world_i64',
-                   i_sample='sample_i64',
-                   q0='q0_f64',
-                   q='q_f64',
-                   objective='objective_f64',
-                   feasible='feasible_b')
+    # columns = dict(i_world='world_i64',
+    #                i_sample='sample_i64',
+    #                q0='q0_f64',
+    #                q='q_f64',
+    #                objective='objective_f64',
+    #                feasible='feasible_b')
 
-    sql2.rename_columns(file=file, table='paths', columns=columns)
+    columns_paths = dict(world_i32='world_i32',
+                         sample_i32='sample_i32',
+                         q_f32='q_f32',
+                         objective_f32='objective_f32',
+                         feasible_b='feasible_b')
+
+    columns_worlds = dict(world_i32='world_i',
+                          img_cmp='img_cmp')
+
+    sql2.rename_columns(file=file, table='paths', columns=columns_paths)
+    sql2.rename_columns(file=file, table='worlds', columns=columns_worlds)
+    print('tables renamed!')
+
+
+def get_samples_for_world(file, par, i=None, i_w=None):
+    if i_w is not None:
+        i_w, i_w_all = i_w
+        i = np.nonzero(i_w_all == i_w)[0]
+
+    i_w, i_s, q, o, f = get_paths(file, i)
+    q = q.reshape((len(i), par.n_wp, par.robot.n_dof))
+    i_w = safe_unify(i_w)
+    img = get_worlds(file=file, i_w=i_w, img_shape=par.world.shape)
+
+    q_start, q_end = q[..., 0, :], q[..., -1, :]
+    par.q_start, par.q_end = q_start, q_end
+    initialize_oc(par=par, obstacle_img=img)
+    return i, q, img
 
 
 def get_paths(file, i):
-    i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table='paths', rows=i,
-                                            columns=['world_i32', 'sample_i32',
-                                                     'q_f32', 'objective_f32', 'feasible_b'], values_only=True)
+    i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table=T_PATHS, rows=i,
+                                            columns=[C_WORLD_I, C_SAMPLE_I,
+                                                     C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I], values_only=True)
     i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
     return i_w, i_s, q, o, f
 
 
 def get_worlds(file, i_w, img_shape):
-    img_cmp = sql2.get_values_sql(file=file, table='worlds', rows=i_w,
-                                  columns='img_cmp', values_only=True)
+    img_cmp = sql2.get_values_sql(file=file, table=T_WORLDS, rows=i_w,
+                                  columns=C_IMG_CMP, values_only=True)
     img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
     return img
 
@@ -219,6 +265,7 @@ def combine_df_list(df_list):
     return df
 
 
-img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
-            img2compressed(img=np.zeros((64, 64), dtype=bool), n_dim=2),
-            img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]
+if __name__ == '__main__':
+    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+
+    rename_old_columns(_file)

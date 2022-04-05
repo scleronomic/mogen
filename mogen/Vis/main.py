@@ -7,8 +7,8 @@ from wzk import safe_makedir
 from wzk import trajectory, sql2
 
 from rokin.Vis import robot_2d, robot_3d
-from mogen.Generation.parameter import init_par
-from mogen.Generation.data import get_samples
+
+from mogen.Generation import data, parameter
 
 
 def get_fig_file(file, i_w, i_s):
@@ -18,39 +18,14 @@ def get_fig_file(file, i_w, i_s):
     return fig_file
 
 
-def plot_path_2d(robot_id, file, i):
-
-    par = init_par(robot_id=robot_id).par
-    i_w, i_s, q, img = get_samples(file=file, i=i, img_shape=par.world.shape)
-    print(i_w, i_s)
-    q = q.reshape(-1, par.robot.n_dof)
-
-    q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.is_periodic)
-
-    fig, ax = robot_2d.new_world_fig(limits=par.world.limits)
-    robot_2d.plot_img_patch_w_outlines(ax=ax, img=img, limits=par.world.limits)
-
-    if robot_id == 'SingleSphere02':
-        robot_2d.plot_x_path(ax=ax, x=q2, r=par.robot.spheres_rad, marker='o', color='#CCCCCC')
-        robot_2d.plot_x_path(ax=ax, x=q2[:1], r=par.robot.spheres_rad, marker='o', color='#3399FF')
-        robot_2d.plot_x_path(ax=ax, x=q2[-1:], r=par.robot.spheres_rad, marker='o', color='#FF3333')
-
-    else:
-        robot_2d.plot_x_path_arm(q=q, robot=par.robot, ax=ax)
-
-    fig_file = get_fig_file(file=file, i_w=i_w, i_s=i_s)
-    save_fig(file=fig_file, fig=fig, formats='pdf')
-    close_all()
-
-
-def plot_path_gif(robot_id,
+def input_wrapper(robot_id,
                   q=None, img=None,
                   file=None, i=None,
                   file_out=None):
+    par = parameter.init_par(robot_id=robot_id).par
 
-    par = init_par(robot_id=robot_id).par
     if file is not None:
-        i_w, i_s, q_, img_ = get_samples(file=file, i=i, img_shape=par.world.shape)
+        i_w, i_s, q_, img_ = data.get_samples(file=file, i=i, img_shape=par.world.shape)
         if q is None:
             q = q_
         if img is None:
@@ -61,15 +36,53 @@ def plot_path_gif(robot_id,
         pass
 
     q = q.reshape(-1, par.robot.n_dof)
-    # q = trajectory.get_substeps_adjusted(q, n=100)
+    return par, q, img, file_out
+
+
+def plot_path_2d(robot_id, file, i):
+
+    par = parameter.init_par(robot_id=robot_id).par
+    i_w, i_s, q, img = data.get_samples(file=file, i=i, img_shape=par.world.shape)
+    q = q.reshape(-1, par.robot.n_dof)
+    q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.is_periodic)
+
+    ax, h = robot_2d.plot_path(q=q2, img=img, par=par)
+    fig_file = get_fig_file(file=file, i_w=i_w, i_s=i_s)
+    save_fig(file=fig_file, fig=ax.figure, formats='pdf')
+    close_all()
+
+
+def plot_path(robot_id,
+              q=None, img=None,
+              file=None, i=None,
+              file_out=None,
+              formats=None):
+
+    par, q, img, file_out = input_wrapper(robot_id=robot_id, q=q, img=img, file=file, i=i, file_out=file_out)
+
     if par.world.n_dim == 2:
-        robot_2d.robot_path_interactive(q=q, img=img, par=par, gif=file_out)
+        ax, h = robot_2d.plot_path(q=q, img=img, par=par)
+        save_fig(file=file_out, fig=ax.figure, formats=formats)
+        close_all()
+
+    if par.world.n_dim == 3:
+        raise NotImplementedError
+
+
+def animate_path(robot_id,
+                 q=None, img=None,
+                 file=None, i=None,
+                 file_out=None):
+
+    par, q, img, file_out = input_wrapper(robot_id=robot_id, q=q, img=img, file=file, i=i, file_out=file_out)
+
+    if par.world.n_dim == 2:
+        robot_2d.animate_path(q=q, img=img, par=par, gif=file_out)
 
     elif par.world.n_dim == 3:
-        print(file_out)
-        robot_3d.robot_path_interactive(p=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
-                                        q=q, robot=par.robot, gif=file_out,
-                                        kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
+        robot_3d.animate_path(p=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
+                              q=q, robot=par.robot, gif=file_out,
+                              kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
 
         # p = robot_3d.pv.Plotter()
         # p = dict(off_screen=False, gif=file_out, screen_size=(512, 384))
@@ -103,32 +116,37 @@ def plot_path_gif(robot_id,
 #     save_fig(fig=fig, file=file_hist, formats='png')
 
 
-def main():
-
-    # robot = Justin19()
-    # robot = SingleSphere02(radius=0.25)
-    # robot = SingleSphere02(radius=0.25)
-    # file_easy = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_easy.db'
-    # file_hard = f'/net/rmc-lx0062/home_local/tenh_jo/{robot.id}_hard.db'
-
-    # robot_id = 'Justin19'
-    robot_id = 'SingleSphere02'
-    # robot_id = 'JustinArm07'
-    # robot_id = 'StaticArm04'
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
-    # file = f"/home_local/tenh_jo/{robot_id}.db"
-
-    # plot_dist_to_q0(file=file_easy, robot=robot, i=np.arange(10000))
-
-    plot_path_gif(file=file, robot_id=robot_id, i=0)
-
-    for i in range(1000):
-        # print(i)
-        # print()
-        # i = np.random.randint(0, int(1e6))
+def plot_paths(file, i_w):
+    robot_id = parameter.get_robot_str(file)
+    for i in range(20):
         # plot_path_gif(file=file, robot_id=robot_id, i=i)
         plot_path_2d(file=file, robot_id=robot_id, i=i)
 
 
+def plot_all_paths_in_world(file, i_w):
+    robot_id = parameter.get_robot_str(file)
+    i_w_all = sql2.get_values_sql(file=file, table='paths', columns='world_i32', rows=-1, values_only=True)
+
+    gen = parameter.init_par(robot_id)
+    par, gd = gen.par, gen.gd
+
+    for iwi in i_w:
+        i, q, img = data.get_samples_for_world(file=file, par=par, i=None, i_w=(iwi, i_w_all))
+
+        fig, ax = new_fig(aspect=1)
+        robot_2d.plot_img_patch_w_outlines(ax=ax, img=par.oc.img, limits=par.world.limits)
+
+        for qq in q:
+            ax.plot(*qq.T, color='b', marker='o', markersize=10, alpha=0.1)
+
+        fig_file = get_fig_file(file=file, i_w=iwi, i_s='')[:-2]
+        save_fig(file=fig_file, fig=fig, formats='pdf')
+        close_all()
+
+
 if __name__ == '__main__':
-    main()
+    _robot_id = 'SingleSphere02'
+    _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
+
+    plot_paths(file=_file, i_w=range(100))
+    # plot_all_paths_in_world(file=file, i_w=range(10, 100))

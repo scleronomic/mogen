@@ -9,6 +9,8 @@ from wzk import find_largest_consecutives, squeeze
 from wzk.gcp import gcloud2
 from wzk.mpl import new_fig
 
+from mogen.Generation import data
+
 
 def check_iw_is(i_w, i_s, m):
     print('m', m)
@@ -25,8 +27,8 @@ def check_iw_is(i_w, i_s, m):
 
 def plot(file, i):
     # def plot_o_distributions(o):
-    o, f = sql2.get_values_sql(file=file, table='paths', rows=i,
-                               columns=['objective', 'feasible'], values_only=True)
+    o, f = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i,
+                               columns=[data.C_OBJECTIVE_F, data.C_FEASIBLE_I], values_only=True)
 
     o = o.reshape(-1, 50)
     f = f.reshape(-1, 50)
@@ -54,8 +56,8 @@ def plot(file, i):
 
 def reset_sample_i32(file):
     print('Reset indices')
-    table = 'paths'
-    iw_all = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32'], values_only=True)
+    table = data.T_PATHS
+    iw_all = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I], values_only=True)
     iw_all = np.squeeze(iw_all).astype(np.int32)
     n = len(iw_all)
     i_s = np.full(n, -1, dtype=np.int32)
@@ -64,15 +66,16 @@ def reset_sample_i32(file):
         j = np.nonzero(iw_all == iw_i)[0]
         i_s[j] = np.arange(len(j))
 
-    sql2.set_values_sql(file=file, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file, table=table, values=(i_s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
 
 
 def reset_sample_i32_0(file):
     print(f"Reset sample_i32 0: {file}")
-    table = 'paths'
+    table = data.T_PATHS
 
     print('Load indices')
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I],
+                               values_only=True)
     w = np.squeeze(w).astype(np.int32)
     s = np.squeeze(s).astype(np.int32)
     assert np.all(s == 0)
@@ -86,8 +89,8 @@ def reset_sample_i32_0(file):
         s[wb0_i:] += 1
 
     print('Set indices')
-    sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns='sample_i32')
-    sql2.set_values_sql(file=file, table=table, values=(s[:100].astype(np.int16).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
+    sql2.set_values_sql(file=file, table=table, values=(s[:100].astype(np.int16).tolist(),), columns=data.C_SAMPLE_I)
 
 
 def combine_files(old_files, new_file, clean_s0):
@@ -122,7 +125,8 @@ def combine_files(old_files, new_file, clean_s0):
 
 def separate_easy_hard(file, i):
 
-    i_s, q = sql2.get_values_sql(file=file, table='paths', rows=i, columns=['sample_i32', 'q_f32'], values_only=True)
+    i_s, q = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i,
+                                 columns=[data.C_SAMPLE_I, data.C_Q_F32], values_only=True)
     q0 = q[:, 0]
     xu = q0 + i_s * np.random.random()
     n, i_hard = find_largest_consecutives(x=xu)
@@ -144,7 +148,8 @@ def separate_easy_hard(file, i):
 
 def delete_not_s0(file):
     table = 'paths'
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=['world_i32', 'sample_i32'], values_only=True)
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I],
+                               values_only=True)
 
     s_not0 = np.nonzero(s != 0)[0]
 
@@ -250,7 +255,8 @@ def main_separate_easy_hard(file: str):
     print(f"Total: {n}")
 
     print(f"Load all world indices")
-    iw_all = sql2.get_values_sql(file=file_easy, table='paths', rows=-1, columns=['world_i32'], values_only=True)
+    iw_all = sql2.get_values_sql(file=file_easy, table=data.T_PATHS, rows=-1, columns=[data.C_WORLD_I],
+                                 values_only=True)
 
     iw_all = iw_all.astype(np.int32)
     i_s = np.full(n, -1)
@@ -274,7 +280,7 @@ def main_separate_easy_hard(file: str):
     assert np.allclose(b_easy, ~b_hard)
 
     print('Set new indices')
-    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns='sample_i32')
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
     print('Copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 
@@ -313,7 +319,7 @@ def main_combine_files_hard2():
 
 def split_df(file):
     file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
-    i_s = sql2.get_values_sql(file=file, table='paths', rows=-1, columns='sample_i32', values_only=True)
+    i_s = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=data.C_SAMPLE_I, values_only=True)
 
     i_s0 = np.nonzero(i_s == 0)[0]
     i_s00 = np.nonzero(i_s0[1:] != i_s0[:-1] + 1)[0] + 1
@@ -336,7 +342,6 @@ if __name__ == '__main__':
     #     'combine': main_combine_files,
     #     'separate': main_separate_easy_hard,
     #     'choose_best': main_choose_best,
-    #
     # })
 
     # main_combine_files_hard2()
@@ -346,30 +351,31 @@ if __name__ == '__main__':
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
 
 
-    robot_id = 'SingleSphere'
+    # robot_id = 'SingleSphere02'
     # # i = np.arange(60, 80)
     # # i = np.delete(i, 3)
     # main_combine_files(robot_id=robot_id, i=i)
     #
     # tic()
-    _file0 = f"{robot_id}"
+    # _file0 = f"{robot_id}"
     # _file_bucket = f"gs://tenh_jo/{_file0}"
-    _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
-    #
-    _file_easy = _file + '_easy'
-    _file_hard = _file + '_hard'
-    _file_hard2 = _file + '_hard2'
+    # _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
+    _file = "/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02"
+    # #
+    # _file_easy = _file + '_easy'
+    # _file_hard = _file + '_hard'
+    # _file_hard2 = _file + '_hard2'
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file)}.db", dst=f"{_file}.db")
     #
     # main_separate_easy_hard(file=_file)
     #
     # #
-    print('sort easy')
-    sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    # print('sort easy')
+    # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # print('sort hard')
     # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
-    print('sort hard 2')
-    sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
+    print('sort')
+    sql2.sort_table(file=_file, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
 
     #
     # print('upload easy and hard')

@@ -59,8 +59,8 @@ def sample_worlds(par, n, mode='perlin',
                 robot_2d.plot_img_patch_w_outlines(ax=ax, img=par.oc.img, limits=par.world.limits)
 
             if par.robot.n_dim == 3:
-                robot_3d.robot_path_interactive(q=par.robot.sample_q(100), robot=par.robot,
-                                                kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
+                robot_3d.animate_path(q=par.robot.sample_q(100), robot=par.robot,
+                                      kwargs_world=dict(img=par.oc.img, limits=par.world.limits))
 
     img_list = img2compressed(img=np.array(img_list, dtype=bool), n_dim=par.world.n_dim)
     world_df = data.create_world_df(i_world=np.arange(n), img_cmp=img_list)

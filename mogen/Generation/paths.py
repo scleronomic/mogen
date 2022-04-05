@@ -10,7 +10,7 @@ from wzk.sql2 import df2sql, get_values_sql, vacuum
 from wzk.gcp import gcloud2
 from wzk.subprocess2 import call2
 
-from rokin.Vis.robot_3d import robot_path_interactive
+from rokin.Vis.robot_3d import animate_path
 from mopla.main import chomp_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
@@ -94,8 +94,8 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
 
     if verbose > 2:
         j = np.argmin(df.objective + (df.feasible == -1)*df.objective.max())
-        robot_path_interactive(q=df.q[j], robot=gen.par.robot,
-                               kwargs_world=dict(img=obstacle_img, limits=gen.par.world.limits))
+        animate_path(q=df.q[j], robot=gen.par.robot,
+                     kwargs_world=dict(img=obstacle_img, limits=gen.par.world.limits))
 
     df = df0.append(df)
     if verbose > 0:
