@@ -213,10 +213,11 @@ def rename_old_columns(file):
     #                      objective_f32='objective_f32',
     #                      feasible_b='feasible_b')
 
-    columns_paths = dict(world_i='world_i32',
-                         sample_i='sample_i32',
-                         q_f32='q_f32',
-                         objective_f32='objective_f32',
+    columns_paths = dict(
+        # world_i='world_i32',
+        #                  sample_i='sample_i32',
+        #                  q_f32='q_f32',
+                         objective_f='objective_f32',
                          feasible_i='feasible_b')
 
     columns_worlds = dict(world_i='world_i32',
