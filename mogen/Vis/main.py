@@ -56,13 +56,14 @@ def plot_path(robot_id,
               q=None, img=None,
               file=None, i=None,
               file_out=None,
-              formats=None):
+              formats=None,
+              verbose=1):
 
     par, q, img, file_out = input_wrapper(robot_id=robot_id, q=q, img=img, file=file, i=i, file_out=file_out)
 
     if par.world.n_dim == 2:
         ax, h = robot_2d.plot_path(q=q, img=img, par=par)
-        save_fig(file=file_out, fig=ax.figure, formats=formats)
+        save_fig(file=file_out, fig=ax.figure, formats=formats, verbose=verbose)
         close_all()
 
     if par.world.n_dim == 3:
