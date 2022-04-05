@@ -59,11 +59,9 @@ def plot_path(robot_id,
               formats=None):
 
     par, q, img, file_out = input_wrapper(robot_id=robot_id, q=q, img=img, file=file, i=i, file_out=file_out)
-    print('why')
 
     if par.world.n_dim == 2:
         ax, h = robot_2d.plot_path(q=q, img=img, par=par)
-        print(file_out, formats)
         save_fig(file=file_out, fig=ax.figure, formats=formats)
         close_all()
 
@@ -122,7 +120,7 @@ def plot_paths(file, i_w):
     robot_id = parameter.get_robot_str(file)
     for i in range(20):
         # plot_path_gif(file=file, robot_id=robot_id, i=i)
-        plot_path_2d(file=file, robot_id=robot_id, i=i)
+        plot_path(file=file, robot_id=robot_id, i=i)
 
 
 def plot_all_paths_in_world(file, i_w):

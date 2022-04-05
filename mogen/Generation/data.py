@@ -213,10 +213,9 @@ def rename_old_columns(file):
     #                      objective_f32='objective_f32',
     #                      feasible_b='feasible_b')
 
-    columns_paths = dict(
-        # world_i='world_i32',
-        #                  sample_i='sample_i32',
-        #                  q_f32='q_f32',
+    columns_paths = dict(world_i='world_i32',
+                         sample_i='sample_i32',
+                         q_f32='q_f32',
                          objective_f='objective_f32',
                          feasible_i='feasible_b')
 
@@ -273,7 +272,7 @@ def combine_df_list(df_list):
 
 
 if __name__ == '__main__':
-    # _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
-    _file = '/home_local/tenh_jo/SingleSphere02.db'
+    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+    # _file = '/home_local/tenh_jo/SingleSphere02.db'
 
     rename_old_columns(_file)
