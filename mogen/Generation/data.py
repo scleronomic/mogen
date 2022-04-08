@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 
@@ -6,6 +7,7 @@ from wzk.numpy2 import squeeze
 from wzk import sql2, safe_unify
 from wzk.training import n2train_test, train_test_split  # noqa
 from wzk.dlr import LOCATION
+from wzk.gcp.gcloud2 import gsutil_cp
 
 from mopla.Parameter.parameter import initialize_oc
 
@@ -28,10 +30,20 @@ C_FEASIBLE_I = 'feasible_b'
 path_df_columns = np.array([C_WORLD_I, C_SAMPLE_I, C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I])
 path_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_NUMERIC, sql2.TYPE_INTEGER]
 
+# info
+T_INFO = 'info'
+C_ROBOT_ID = 'robot_id_txt'
+C_N_WORLDS = 'worlds_i'
+C_N_SAMPLES = 'samples_i'
+C_N_SAMPLES_PER_WORLD = 'samples_per_world_i'
+info_df_columns = np.array([C_ROBOT_ID, C_N_WORLDS, C_N_SAMPLES, C_N_SAMPLES_PER_WORLD])
+info_df_dtypes = [sql2.TYPE_TEXT, sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_INTEGER]
+
 world_df_dtypes = {k: v for (k, v) in zip(world_df_columns, world_df_dtypes)}
 path_df_dtypes = {k: v for (k, v) in zip(path_df_columns, path_df_dtypes)}
+info_df_dtypes = {k: v for (k, v) in zip(info_df_columns, info_df_dtypes)}
 
-n_samples_per_world = 1000
+n_samples_per_world = 1000  # TODO get rid of this, its just unnecessary to adhere to this restriction
 
 __file_stub_dlr = '/home_local/tenh_jo/{}.db'
 __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/{}.db'
@@ -46,7 +58,12 @@ img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
 
 
 def get_file(robot_id):
-    return __file_stub.format(*[robot_id]*2)
+    file = __file_stub.format(*[robot_id]*2)
+
+    if not os.path.exists(file):
+        gsutil_cp(src=f'gs://tenh_jo/{robot_id}/{robot_id}.db', dst=file)
+
+    return file
 
 
 def arg_wrapper__i_world(i_worlds, file=None):
@@ -186,7 +203,6 @@ def initialize_df():
 
 def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
     data = {key: value for key, value in zip(world_df_columns, [i_world, img_cmp])}
-    data = sql2.values2bytes_dict(data=data)
     return pd.DataFrame(data)
 
 
@@ -194,7 +210,6 @@ def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
                    q: np.ndarray,
                    objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
     data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
-    data = sql2.values2bytes_dict(data=data)
     return pd.DataFrame(data)
 
 
@@ -227,10 +242,15 @@ def rename_old_columns(file):
     print('tables renamed!')
 
 
+def iw2is_wrapper(iw, iw_all):
+    i = np.nonzero(iw_all == iw)[0]
+    return i
+
+
 def get_samples_for_world(file, par, i=None, i_w=None):
     if i_w is not None:
         i_w, i_w_all = i_w
-        i = np.nonzero(i_w_all == i_w)[0]
+        i = iw2is_wrapper(iw=i_w, iw_all=i_w_all)
 
     i_w, i_s, q, o, f = get_paths(file, i)
     q = q.reshape((len(i), par.n_wp, par.robot.n_dof))
@@ -271,8 +291,39 @@ def combine_df_list(df_list):
     return df
 
 
+def create_info_table(file):
+    robot_id = os.path.splitext(os.path.split(file)[1])[0]
+
+    i_w0 = sql2.get_values_sql(file=file, table=T_WORLDS, rows=-1, columns=[C_WORLD_I])
+    i_w, i_s = sql2.get_values_sql(file=file, table=T_PATHS, rows=-1, columns=[C_WORLD_I, C_SAMPLE_I])
+    n_samples = len(i_s)
+    n_worlds = len(i_w0)
+
+    n_samples_per_world = np.zeros(n_worlds, dtype=int)
+    for iwi in range(n_worlds):
+        n_samples_per_world[iwi] = np.sum(i_w == iwi)
+
+    assert np.allclose(i_w0, np.arange(n_worlds))
+    assert n_samples == np.sum(n_samples_per_world)
+
+    data = {key: value for key, value in zip(info_df_columns,
+                                             [[robot_id], [n_worlds], [n_samples], [n_samples_per_world]])}
+    data = pd.DataFrame(data)
+    sql2.df2sql(df=data, file=file, table=T_INFO, dtype=info_df_dtypes, if_exists='replace')
+    print('Created Info Table')
+
+
+def get_info_table(file):
+    robot_id, n_worlds, n_samples, n_samples_per_world = \
+        sql2.get_values_sql(file=file, table=T_INFO, squeeze_row=True,
+                            columns=[C_ROBOT_ID, C_N_WORLDS, C_N_SAMPLES, C_N_SAMPLES_PER_WORLD])
+
+    return robot_id, n_worlds, n_samples, n_samples_per_world
+
+
 if __name__ == '__main__':
     _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
     # _file = '/home_local/tenh_jo/SingleSphere02.db'
 
-    rename_old_columns(_file)
+    # rename_old_columns(_file)
+    create_info_table(_file)

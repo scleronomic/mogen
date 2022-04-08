@@ -53,24 +53,27 @@ def spheres2joints(x_spheres, robot):
 
 
 class DraggableSphereRobot:
-    def __init__(self, q, ax, robot, style_path, style_arm):
+    def __init__(self, q, ax, robot, **kwargs):
 
         self.q = np.squeeze(q)
         self.ax = ax
         self.robot = robot
+        self.kwargs = kwargs
+
         self.callback = None
+        self.h_path = None
         self.x_spheres = None
 
         self.update_q2spheres()
         self.drag_circles = DraggableCircleList(ax=self.ax, xy=self.x_spheres,
                                                 radius=self.robot.spheres_rad.mean(),
-                                                callback=self.callback, **style_path)
-        self.drag_circles.set_callback(callback=self.update_spheres2q_plot)
-        self.x_spheres_plot_h = plt2.plot_path_arm(x_spheres=self.x_spheres, ax=self.ax, style_path=style_path,
-                                                   style_arm=style_arm)
+                                                callback=self.callback, **self.kwargs)
+        self.drag_circles.set_callback_drag(callback=self.update_spheres2q_plot)
+        self.update_spheres2q_plot()
 
     def update_val2plot(self):
-        plt2.plot_x_spheres_update(h=self.x_spheres_plot_h, x_spheres=self.x_spheres)
+        self.h_path = plt2.plot_path(q=self.q[np.newaxis, :], par=self.robot, ax=self.ax, h=self.h_path,
+                                     **self.kwargs)[1]
         self.drag_circles.set_xy(x=self.x_spheres[..., 0].flatten(), y=self.x_spheres[..., 1].flatten())
 
     def update_q2spheres(self):
@@ -80,7 +83,7 @@ class DraggableSphereRobot:
         self.x_spheres = self.drag_circles.get_xy()
         self.q, self.x_spheres = spheres2joints(x_spheres=self.x_spheres, robot=self.robot)
 
-    def update_spheres2q_plot(self):
+    def update_spheres2q_plot(self, *args):
         self.update_spheres2q()
         self.update_val2plot()
 
@@ -96,11 +99,11 @@ class DraggableSphereRobot:
         self.update_spheres2q_plot()
         return self.q
 
-    def set_callback(self, callback):
-        self.drag_circles.set_callback(callback=callback)
+    def set_callback_drag(self, callback):
+        self.drag_circles.set_callback_drag(callback=callback)
 
-    def add_callback(self, callback):
-        self.drag_circles.add_callback(callback=callback)
+    def add_callback_drag(self, callback):
+        self.drag_circles.add_callback_drag(callback=callback)
 
 
 def test():
@@ -111,12 +114,12 @@ def test():
     fig, ax = new_fig(aspect=1)
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
-    dsr = DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot, style_arm=dict(color='k', lw=3), style_path={})
+    dsr = DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot)
 
     def cb(*args):  # noqa
         print(dsr.get_q())
 
-    dsr.add_callback(cb)
+    dsr.add_callback_drag(cb)
 
 
 if __name__ == '__main__':

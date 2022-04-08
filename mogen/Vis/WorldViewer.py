@@ -7,6 +7,8 @@ from wzk import limits2cell_size
 import rokin.Vis.robot_2d as plt2
 from mopla.World import templates, random_obstacles
 
+from mogen.Generation import data
+
 
 class TextBoxSafe(widgets.TextBox):
     def __init__(self, ax, label, initial='', color='.95', hovercolor='1', label_pad=.01):
@@ -34,13 +36,9 @@ def get_world_sample(shape,
         else:
             raise ValueError
     else:
-        # i_world += 1
-        raise NotImplementedError
-        # obstacle_img_cmp = ld_sql.get_values_sql(file=directory + WORLD_DB, rows=i_world, columns=obstacle_img_CMP,
-        #                                          values_only=True)
-        # obstacle_img = compressed2img(obstacle_img_cmp, shape=shape)
+        obstacle_img = data.get_worlds(file=file, i_w=i_world, img_shape=shape)
 
-    return obstacle_img
+    return np.squeeze(obstacle_img)
 
 
 def initialize_pixel_grid(img, limits, ax, **kwargs):
@@ -94,8 +92,10 @@ def switch_img_values(bool_img, i, j, value=None):
     if value is None:
         mean_obstacle_occurrence = np.mean(bool_img[i, j])
         value = not np.round(mean_obstacle_occurrence)
-
+    bool_img = bool_img.copy()
     bool_img[i, j] = value
+
+    return bool_img
 
 
 def get_selected_rectangle(e_click, e_release):
@@ -103,7 +103,7 @@ def get_selected_rectangle(e_click, e_release):
     Order the location of the click and release event.
     return (x_low, y_low), (x_high, y_high)
 
-    If voxel_size is given, convert the Measurements location to pixel location
+    If voxel_size is given, convert the measurements' location to pixel location
     """
 
     x_poss = [e_click.xdata, e_release.xdata]
@@ -132,44 +132,40 @@ class WorldViewer:
                                                    title=f"world={self.i_world} | sample=?")
         else:
             self.fig, self.ax = ax.get_figure(), ax
-        pass
 
-        self.obstacle_img = np.zeros(self.world.shape, dtype=bool)
-        self.obstacle_pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.obstacle_img, limits=self.world.limits)
+        self.img = np.zeros(self.world.shape, dtype=bool)
+        self.pixel_grid = initialize_pixel_grid(ax=self.ax, img=self.img, limits=self.world.limits)
         self.change_sample(i_world=self.i_world)
 
-        # self.cid_click = self.fig.canvas.mpl_connect('button_press_event', self.on_click_obstacle)
-        # self.cid_click.set_active(False)
-
         self.rectangle_selector = widgets.RectangleSelector(self.ax, onselect=self.on_select_obstacle)
-        self.rectangle_selector.set_active(True)
+        self.rectangle_selector.set_active(False)
 
         self.text_box = TextBoxSafe(plt2.plt.axes([0.85, 0.1, 0.1, 0.05]), 'World', initial='')
         self.text_box.on_submit(self.__submit)
 
     def on_click_obstacle(self, event):
-        i, j = grid_x2i(x=[event.xdata, event.ydata], limits=self.world.limits, shape=self.obstacle_img.shape)
-        switch_img_values(bool_img=self.obstacle_img, i=i, j=j, value=None)
+        i, j = grid_x2i(x=[event.xdata, event.ydata], limits=self.world.limits, shape=self.img.shape)
+        self.img = switch_img_values(bool_img=self.img, i=i, j=j, value=None)
         self.update_obstacle_image()
 
     def on_select_obstacle(self, e_click, e_release):
         (x_ll), (x_ur) = get_selected_rectangle(e_click=e_click, e_release=e_release)
 
-        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), limits=self.world.limits, shape=self.obstacle_img.shape)
+        i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), limits=self.world.limits, shape=self.img.shape)
 
-        switch_img_values(bool_img=self.obstacle_img, value=None,
-                          i=slice(i_ll[0], i_ur[0] + 1), j=slice(i_ll[1], i_ur[1] + 1))
+        self.img = switch_img_values(bool_img=self.img, value=None,
+                                     i=slice(i_ll[0], i_ur[0] + 1), j=slice(i_ll[1], i_ur[1] + 1))
 
         self.update_obstacle_image()
 
     def update_obstacle_image(self):
-        set_pixel_grid(bool_img=self.obstacle_img, pixel_grid=self.obstacle_pixel_grid,
+        set_pixel_grid(bool_img=self.img, pixel_grid=self.pixel_grid,
                        edgecolor=self.edge_color, facecolor=self.face_color)
 
     def change_sample(self, i_world):
         self.i_world = i_world
-        self.obstacle_img = get_world_sample(file=self.file, i_world=self.i_world,
-                                             shape=self.world.shape)
+        self.img = get_world_sample(file=self.file, i_world=self.i_world,
+                                    shape=self.world.shape)
         self.update_obstacle_image()
 
     def toggle_activity(self):
@@ -182,7 +178,7 @@ class WorldViewer:
 
         except ValueError:
             text = [t.strip() for t in text.split(',')]
-            self.obstacle_img = templates.create_template_2d(shape=self.world.shape, world=text)
+            self.img = templates.create_template_2d(shape=self.world.shape, world=text)
             self.update_obstacle_image()
 
 

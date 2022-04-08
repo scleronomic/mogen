@@ -27,8 +27,7 @@ def check_iw_is(i_w, i_s, m):
 
 def plot(file, i):
     # def plot_o_distributions(o):
-    o, f = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i,
-                               columns=[data.C_OBJECTIVE_F, data.C_FEASIBLE_I], values_only=True)
+    o, f = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i, columns=[data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
 
     o = o.reshape(-1, 50)
     f = f.reshape(-1, 50)
@@ -52,45 +51,6 @@ def plot(file, i):
 
     fig, ax = new_fig()
     ax.plot(ju, np.cumsum(jc)/jc.sum(), color='blue')
-
-
-def reset_sample_i32(file):
-    print('Reset indices')
-    table = data.T_PATHS
-    iw_all = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I], values_only=True)
-    iw_all = np.squeeze(iw_all).astype(np.int32)
-    n = len(iw_all)
-    i_s = np.full(n, -1, dtype=np.int32)
-
-    for iw_i in np.unique(iw_all):
-        j = np.nonzero(iw_all == iw_i)[0]
-        i_s[j] = np.arange(len(j))
-
-    sql2.set_values_sql(file=file, table=table, values=(i_s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
-
-
-def reset_sample_i32_0(file):
-    print(f"Reset sample_i32 0: {file}")
-    table = data.T_PATHS
-
-    print('Load indices')
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I],
-                               values_only=True)
-    w = np.squeeze(w).astype(np.int32)
-    s = np.squeeze(s).astype(np.int32)
-    assert np.all(s == 0)
-
-    print('Update indices')
-    w0 = np.nonzero(w == 0)[0]
-    b0 = w0[1:] != w0[:-1] + 1
-    wb0 = w0[1:][b0]
-
-    for wb0_i in wb0:
-        s[wb0_i:] += 1
-
-    print('Set indices')
-    sql2.set_values_sql(file=file, table=table, values=(s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
-    sql2.set_values_sql(file=file, table=table, values=(s[:100].astype(np.int16).tolist(),), columns=data.C_SAMPLE_I)
 
 
 def combine_files(old_files, new_file, clean_s0):
@@ -148,8 +108,7 @@ def separate_easy_hard(file, i):
 
 def delete_not_s0(file):
     table = 'paths'
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I],
-                               values_only=True)
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I])
 
     s_not0 = np.nonzero(s != 0)[0]
 
@@ -374,8 +333,6 @@ if __name__ == '__main__':
     # sql2.sort_table(file=_file_easy, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # print('sort hard')
     # sql2.sort_table(file=_file_hard, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
-    print('sort')
-    sql2.sort_table(file=_file, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
 
     #
     # print('upload easy and hard')

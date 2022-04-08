@@ -1,4 +1,4 @@
-from multiprocessing import Lock
+import os.path
 
 import numpy as np
 import fire
@@ -16,14 +16,26 @@ from mopla.Parameter.parameter import initialize_oc
 from mogen.Generation import data, parameter
 
 
+__directory_numpy_tmp = 'tmp_np'
+
+
+def __file2numpy_directory(file, mkdir=False):
+    directory = os.path.split(file)[0]
+    directory_np = f"{directory}/{__directory_numpy_tmp}"
+    if mkdir:
+        os.makedirs(directory_np, exist_ok=True)
+
+    return directory_np
+
+
 def update_objective(file, par, i=None, i_w=None):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     o = objectives.chomp_cost(q=q, par=par)
-    sql2.set_values_sql(file=file, table='paths', columns=[data.C_OBJECTIVE_F], rows=i, values=(o.tolist(),))
+    sql2.set_values_sql(file=file, table=data.T_PATHS, columns=[data.C_OBJECTIVE_F], rows=i, values=(o.tolist(),))
 
 
-def plot_redo(q, q0, f, j,
+def plot_redo(q, q0, q_pred, f, j,
               par):
     # TODO If f is False check, f0 again, than f0 with more substeps, if all is False, than the label was not
     #   correct to begin with
@@ -32,34 +44,39 @@ def plot_redo(q, q0, f, j,
     if par.robot.id == 'SingleSphere02':
         fig, ax = new_fig(aspect=1, title=f'Feasibility: {f[j]}')
         plot_img_patch_w_outlines(ax=ax, img=par.oc.img, limits=par.world.limits)
-        ax.plot(*q0[j, :, :].T, color='b', marker='o', label='old', markersize=15)
-        ax.plot(*q[j, :, :].T, color='r', marker='o', label='new', markersize=10)
+        ax.plot(*q0[j, :, :].T, color='blue', marker='o', label='old', markersize=15, alpha=0.8)
+        if not np.allclose(q0, q_pred):
+            ax.plot(*q_pred[j, :, :].T, color='orange', marker='o', label='new0', markersize=10, alpha=0.8)
+        ax.plot(*q[j, :, :].T, color='red', marker='o', label='new', markersize=10)
+
         ax.legend()
         remove_duplicate_labels(ax=ax)
 
 
 def recalculate_objective(file, par,
-                          i=None, i_w=None,
-                          lock=None):
+                          i=None, i_w=None):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     o = objectives.o_len.len_q_cost(q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
-    sql2.set_values_sql(file=file, table='paths', values=(o,), columns=[data.C_OBJECTIVE_F], rows=i, lock=lock)
+    sql2.set_values_sql(file=file, table=data.T_PATHS, values=(o,), columns=[data.C_OBJECTIVE_F], rows=i)
 
 
 def refine_chomp(file, par, gd,
-                 q0_fun=None,
+                 q_fun=None,
                  i=None, i_w=None,
                  verbose=0,
-                 lock=None):
+                 mode=None):
     i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
-    if q0_fun is not None:
-        q0 = q0_fun(i=i)
+    if q_fun is not None:
+        q_pred = q_fun(i=i)
 
-    q00 = trajectory.get_path_adjusted(q0, m=50, is_periodic=par.robot.is_periodic)
-    q00 = trajectory.full2inner(q00)
-    q, o = gd_chomp(q0=q00, par=par, gd=gd)
+    else:
+        q_pred = q0
+
+    q_pred = trajectory.get_path_adjusted(q_pred, m=50, is_periodic=par.robot.is_periodic)
+
+    q, o = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
 
     q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
 
@@ -73,10 +90,10 @@ def refine_chomp(file, par, gd,
     def set_values(b, new=True):
         if b.sum() > 0:
             if new:
-                sql2.set_values_sql(file=file, table=data.T_PATHS, lock=lock, rows=i[b], values=(q[b], o[b], f[b]),
+                sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i[b], values=(q[b], o[b], f[b]),
                                     columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
             else:
-                sql2.set_values_sql(file=file, table=data.T_PATHS, lock=lock, rows=i[b], values=(q0[b], o0[b], f0[b]),
+                sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i[b], values=(q0[b], o0[b], f0[b]),
                                     columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
 
     b_fb = np.logical_and(f == +1, o < o0)  # feasible and better
@@ -99,18 +116,38 @@ def refine_chomp(file, par, gd,
               f"o0: {oo0}, o:{oo}")
 
         if verbose > 1:
-            j = np.argmax((o0 - o) / 1)
+
+            # j = np.nonzero(f == -1)[0][0]
+
+            improvement = o0 - o
+            improvement[f == -1] -= np.inf
+            j = np.argmax(improvement)
+
             print(f'Largest Improvement {j}:', o0[j], o[j], f[j])
 
             if verbose > 10:
-                plot_redo(q=q, q0=q0, f=f, j=j, par=par)
+                # for j in np.nonzero(b_fb)[0]:
+                plot_redo(q=q, q0=q0, q_pred=q_pred, f=f, j=j, par=par)
 
-    set_values(b_fb)
-    set_values(b_nfb)
-    set_values(b_rest, new=False)
+    if mode is None:
+        print('no set_values')
 
-    sql2.set_values_sql(file=file, table=data.T_PATHS, lock=lock, rows=i, values=(np.arange(len(i)),),
-                        columns=[data.C_SAMPLE_I])
+    elif mode == 'set_sql':
+        set_values(b_fb)
+        set_values(b_nfb)
+        set_values(b_rest, new=False)
+
+    elif mode == 'save_numpy':
+        directory_np = __file2numpy_directory(file=file, mkdir=False)
+        file2 = f"{directory_np}/s_{min(i)}-{max(i)}"
+        q[b_rest] = q0[b_rest]
+        o[b_rest] = o0[b_rest]
+        f[b_rest] = f0[b_rest]
+        np.savez(file2,
+                 i=i, q=q, o=o, f=f)
+
+    else:
+        raise ValueError
 
 
 def refine_adjust_steps(file, par, i=None, i_w=None):
@@ -128,7 +165,7 @@ def refine_adjust_steps(file, par, i=None, i_w=None):
     print(f"objective improvement {o_improvement}")
 
     sql2.set_values_sql(file=file, table=data.T_PATHS, values=(q,),
-                        columns=[data.C_Q_F32], rows=i, lock=None)
+                        columns=[data.C_Q_F32], rows=i)
 
 
 def main(robot_id):
@@ -146,13 +183,12 @@ def main(robot_id):
         # print('World', i_w)
         with tictoc(text=f'World {i_w}') as _:
             refine_chomp(file=file, par=par, gd=gd,
-                         q0_fun=None, i_w=(i_w, i_w_all), verbose=2)
+                         q_fun=None, i_w=(i_w, i_w_all), verbose=2)
             # adjust_path(file=file, par=par, i=None, i_w=(i_w, i_w_all))
 
 
 def check_worlds_img_cmp():
     robot_id = 'SingleSphere02'
-
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     img_cmp = sql2.get_values_sql(file=file, table=data.T_WORLDS, rows=-1,
@@ -171,31 +207,31 @@ def check_worlds_img_cmp():
     u, c = np.unique(i_w, return_counts=True)
 
 
-def main_refine_chomp(file):
-    lock = Lock()
+def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
+    ray_init(perc=ray_perc)
 
     robot_id = parameter.get_robot_str(file)
 
-    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
-    iw_list = np.unique(i_w_all)
+    iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    iw_list = np.unique(iw_all)
 
     @ray.remote
-    def refine_ray(i):
+    def refine_ray(_iw, i):
         gen = parameter.init_par(robot_id)
         par, gd = gen.par, gen.gd
 
         par.oc.n_substeps_check += 2
         gd.n_steps = 100
 
-        with tictoc(text=f'World {i_w}') as _:
-            refine_chomp(file=file, par=par, gd=gd,
-                         q0_fun=None, i_w=(i, i_w_all), verbose=1, lock=lock)
+        with tictoc(text=f'World {min(i)}') as _:
+            refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun, i=i, verbose=1, mode=mode)
 
         return 1
 
     futures = []
-    for i_w in iw_list:
-        futures.append(refine_ray.remote(i_w))
+    for iw in iw_list:
+        ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
+        futures.append(refine_ray.remote(iw, ii))
 
     res = ray.get(futures)
 
@@ -216,7 +252,31 @@ def main_recalculate_objective(file):
             recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all), )
 
 
+def get_q_pred_wrapper():
+    pass
+
+
+def tmp_numpy2sql(file):
+    directory_np = __file2numpy_directory(file=file, mkdir=False)
+    file_list = os.listdir(directory_np)
+    file_list.sort()
+    count = 0
+    for file_i in file_list:
+        if not file_i.endswith('.npz'):
+            continue
+
+        data_i = np.load(f"{directory_np}/{file_i}", allow_pickle=True)['arr_0'].item()
+        i, q, o, f = data_i['i'], data_i['q'], data_i['o'], data_i['f']
+
+        sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q, o, f),
+                            columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+
+        count += 1
+        print(f"{count}: {min(i)}-{max(i)}")
+
+
 if __name__ == '__main__':
+    pass
     # fire.Fire({
     #     'objective': main_recalculate_objective,
     #     'chomp': main_refine_chomp
@@ -226,7 +286,9 @@ if __name__ == '__main__':
 
     # ray_init(perc=100)
 
-    main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
+    # main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
     # main(robot_id='SingleSphere02')
 
-
+    import numpy as np
+    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+    tmp_numpy2sql(file=_file)
