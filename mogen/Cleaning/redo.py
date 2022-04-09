@@ -215,6 +215,11 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
     iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
     iw_list = np.unique(iw_all)
 
+    # TODO make smarter but otherwise you can have old files in here which mess stuff up
+    directory_np = __file2numpy_directory(file=file, mkdir=True)
+    os.rmdir(directory_np)
+    directory_np = __file2numpy_directory(file=file, mkdir=True)
+
     @ray.remote
     def refine_ray(_iw, i):
         gen = parameter.init_par(robot_id)

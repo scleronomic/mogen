@@ -187,6 +187,7 @@ class InteractiveSampleViewer:
         self.world.change_sample(i_world=self.i_world)
         self.path.change_sample(i_sample=self.i_sample)
 
+        self.plot_predict()
         self.drag_start.set_q(self.path.q[0])
         self.drag_end.set_q(self.path.q[-1])
 
