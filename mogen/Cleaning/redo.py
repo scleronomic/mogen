@@ -270,7 +270,7 @@ def tmp_numpy2sql(file):
         if not file_i.endswith('.npz'):
             continue
 
-        data_i = np.load(f"{directory_np}/{file_i}", allow_pickle=True)['arr_0'].item()
+        data_i = np.load(f"{directory_np}/{file_i}", allow_pickle=True)
         i, q, o, f = data_i['i'], data_i['q'], data_i['o'], data_i['f']
 
         sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q, o, f),
