@@ -267,7 +267,7 @@ def get_paths(file, i):
     i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table=T_PATHS, rows=i,
                                             columns=[C_WORLD_I, C_SAMPLE_I,
                                                      C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I], values_only=True)
-    i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
+    i_w, i_s, o, f = squeeze_all(i_w, i_s, o, f)
     return i_w, i_s, q, o, f
 
 
