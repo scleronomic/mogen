@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from wzk.image import compressed2img, img2compressed
-from wzk.numpy2 import squeeze
+from wzk.numpy2 import squeeze_all
 from wzk import sql2, safe_unify
 from wzk.training import n2train_test, train_test_split  # noqa
 from wzk.dlr import LOCATION
