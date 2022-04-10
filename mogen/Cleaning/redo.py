@@ -4,7 +4,7 @@ import numpy as np
 import fire
 
 from wzk import sql2, trajectory
-from wzk import tictoc
+from wzk import tictoc, safe_rmdir
 from wzk.mpl import new_fig, remove_duplicate_labels
 from wzk.ray2 import ray, ray_init
 
@@ -19,13 +19,16 @@ from mogen.Generation import data, parameter
 __directory_numpy_tmp = 'tmp_np'
 
 
-def __file2numpy_directory(file, mkdir=False):
-    directory = os.path.split(file)[0]
-    directory_np = f"{directory}/{__directory_numpy_tmp}"
-    if mkdir:
-        os.makedirs(directory_np, exist_ok=True)
+def create_numpy_directory(file, replace=True):
+    directory_np = file2numpy_directory(file)
+    if replace:
+        safe_rmdir(directory_np)
+    os.makedirs(directory_np, exist_ok=True)
 
-    return directory_np
+
+def file2numpy_directory(file):
+    directory = os.path.split(file)[0]
+    return f"{directory}/{__directory_numpy_tmp}"
 
 
 def update_objective(file, par, i=None, i_w=None):
@@ -138,7 +141,7 @@ def refine_chomp(file, par, gd,
         set_values(b_rest, new=False)
 
     elif mode == 'save_numpy':
-        directory_np = __file2numpy_directory(file=file, mkdir=False)
+        directory_np = file2numpy_directory(file=file)
         file2 = f"{directory_np}/s_{min(i)}-{max(i)}"
         q[b_rest] = q0[b_rest]
         o[b_rest] = o0[b_rest]
@@ -215,10 +218,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
     iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
     iw_list = np.unique(iw_all)
 
-    # TODO make smarter but otherwise you can have old files in here which mess stuff up
-    directory_np = __file2numpy_directory(file=file, mkdir=True)
-    os.rmdir(directory_np)
-    directory_np = __file2numpy_directory(file=file, mkdir=True)
+    create_numpy_directory(file=file, replace=True)
 
     @ray.remote
     def refine_ray(_iw, i):
@@ -239,7 +239,6 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
         futures.append(refine_ray.remote(iw, ii))
 
     res = ray.get(futures)
-
     print(f"{np.sum(res)} / {np.size(res)}")
 
 
@@ -262,7 +261,7 @@ def get_q_pred_wrapper():
 
 
 def tmp_numpy2sql(file):
-    directory_np = __file2numpy_directory(file=file, mkdir=False)
+    directory_np = file2numpy_directory(file=file)
     file_list = os.listdir(directory_np)
     file_list.sort()
     count = 0
@@ -279,6 +278,8 @@ def tmp_numpy2sql(file):
         count += 1
         print(f"{count}: {min(i)}-{max(i)}")
 
+    safe_rmdir(directory_np)
+
 
 if __name__ == '__main__':
     pass
@@ -291,9 +292,11 @@ if __name__ == '__main__':
 
     # ray_init(perc=100)
 
-    # main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
+    main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
     # main(robot_id='SingleSphere02')
 
-    import numpy as np
-    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
-    tmp_numpy2sql(file=_file)
+    # _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+    # tmp_numpy2sql(file=_file)
+
+
+# TODO write automatic train and learn loop :)

@@ -3,7 +3,7 @@ import os.path
 import numpy as np
 
 from wzk.mpl import new_fig, save_fig, close_all
-from wzk import safe_makedir
+from wzk import safe_mkdir
 from wzk import trajectory, sql2
 
 from rokin.Vis import robot_2d, robot_3d
@@ -13,7 +13,7 @@ from mogen.Generation import data, parameter
 
 def get_fig_file(file, i_w, i_s):
     fig_directory = f"{os.path.dirname(file)}/Vis"
-    safe_makedir(fig_directory)
+    safe_mkdir(fig_directory)
     fig_file = f"{fig_directory}/w{i_w}_s{i_s}"
     return fig_file
 
