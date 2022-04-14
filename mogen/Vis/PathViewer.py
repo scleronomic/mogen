@@ -23,13 +23,13 @@ def get_path_sample(par, file=None, i=0):
 class PathViewer:
 
     def __init__(self, *, i_sample=0, ax=None, file=None,
-                 gd, par, **kwargs):
+                 par, gd, **kwargs):
 
         self.file = file
         self.i_sample = i_sample
 
-        self.gd = gd
         self.par = par
+        self.gd = gd
 
         self.kwargs = kwargs
         self.q = None
@@ -44,17 +44,23 @@ class PathViewer:
         self.h_path = None
         self.change_sample(i_sample=self.i_sample)
 
-    def update_path(self, q_start, q_end):
+    def update_path(self, q_start, q_end, q):
         q_start = q_start
         q_end = q_end
 
-        # linear
-        self.q = path_i.q0_linear_uniform(start=q_start, end=q_end, n_wp=self.par.n_wp, n_random_points=0,
-                                          robot=self.par.robot, order_random=True)
+        if q is None:
+            self.q = path_i.q0_linear_uniform(start=q_start, end=q_end, n_wp=self.par.n_wp, n_random_points=0,
+                                              robot=self.par.robot, order_random=True)
 
-        # random
-        # optimizer
-        # net
+            # random  # TODO add different modes
+            # optimizer
+            # net
+
+        else:
+            self.q = q
+
+            assert np.allclose(q[0], q_start), f"{q[0]}{q_start}"
+            assert np.allclose(q[-1], q_end), f"{q[-1]}{q_end}"
 
         self.plot()
 

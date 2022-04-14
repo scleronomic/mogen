@@ -1,34 +1,15 @@
 import numpy as np
 from wzk.mpl import create_button
 
-from rokin.Vis import robot_2d, style
+from wzk import trajectory
 
-from mogen.Vis import DraggableSphereRobot
+from rokin.Vis import robot_2d
+
+from mogen.Vis import DraggableSphereRobot, style
 from mogen.Vis.WorldViewer import WorldViewer
 from mogen.Vis.PathViewer import PathViewer
 
 from mogen.Generation import parameter, data
-
-
-style_start = {'color': style.blue_start}
-style_middle = {'color': style.gray_middle}
-style_predict = {'color': style.purple_prediction}
-style_optimize = {'color': style.orange_optimized}
-style_end = {'color': style.red_end}
-
-
-# style_dict_start = {'style_path': {'facecolor': style.blue_start,
-#                                    'hatch': '////',
-#                                    'alpha': 0.7,
-#                                    'zorder': 100},
-#                     'style_arm': {'c': 'g',
-#                                   'lw': 4}}#
-# style_dict_end = {'style_path': {'facecolor': style.red_end,
-#                                  'hatch': '\\\\\\\\',
-#                                  'alpha': 0.7,
-#                                  'zorder': 100},
-#                   'style_arm': {'c': 'r',
-#                                 'lw': 4}}
 
 
 class InteractiveSampleViewer:
@@ -59,21 +40,18 @@ class InteractiveSampleViewer:
 
         self.world = WorldViewer(world=self.par.world, i_world=self.i_world, file=self.file, ax=self.ax)
 
-        self.path = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style_middle)
+        self.path = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style.style_middle)
 
         # self.path_o = SpherePath(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style_optimize)
         if self.get_prediction is not None:
-            self.path_p = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style_predict)
+            self.path_p = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style.style_predict)
 
         # self.drag_config = DraggableConfigSpace(q=self.q, limits=self.par.robot.limits, color='k')
-        self.drag_start = DraggableSphereRobot(q=self.path.q[0, :], ax=self.ax, robot=self.par.robot, **style_start)
-        self.drag_end = DraggableSphereRobot(q=self.path.q[-1, :], ax=self.ax, robot=self.par.robot, **style_end)
-
-        def cb_start_end2path(*args):  # noqa
-            self.path.update_path(q_start=self.drag_start.get_q(), q_end=self.drag_end.get_q())
-
-        self.drag_start.add_callback_drag(cb_start_end2path)
-        self.drag_end.add_callback_drag(cb_start_end2path)
+        self.drag_start = DraggableSphereRobot(q=self.path.q[0, :], ax=self.ax, robot=self.par.robot,
+                                               **style.style_start, callback=self.on_drag)
+        self.drag_end = DraggableSphereRobot(q=self.path.q[-1, :], ax=self.ax, robot=self.par.robot,
+                                             **style.style_end,
+                                             callback=self.on_drag)
 
         self.fig.canvas.draw()
 
@@ -178,6 +156,10 @@ class InteractiveSampleViewer:
         # if event.key in ['f4']:
         #     plt2.toggle_visibility(h=self.x_opt_plot_h)
 
+    def on_drag(self, *args):
+        self.path.update_path(q_start=self.drag_start.get_q(), q_end=self.drag_end.get_q(), q=None)
+        self.plot_predict()
+
     def change_sample(self):
 
         i_sample_local = self.i_sample - self.n_samples_per_world_cs[self.i_world]
@@ -204,9 +186,14 @@ class InteractiveSampleViewer:
             return
 
         else:
-            q_start, q_end = self.path.q[[0, -1]]
-            q_pred = self.get_prediction(img=self.world.img, q_start=q_start, q_end=q_end)
-            self.path_p.q = np.reshape(q_pred, (self.par.n_wp, self.par.robot.n_dof))
+            c = trajectory.to_spline(x=self.path.q, n_c=4)
+            self.path_p.q = trajectory.from_spline(c=c, n_wp=self.par.n_wp)
+            # TODO Spline
+
+            # q_start, q_end = self.path.q[[0, -1]]
+            # q_pred = self.get_prediction(img=self.world.img, q_start=q_start, q_end=q_end)
+            # self.path_p.q = np.reshape(q_pred, (self.par.n_wp, self.par.robot.n_dof))
+
             self.path_p.plot()
 
 

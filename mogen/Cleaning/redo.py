@@ -64,6 +64,17 @@ def recalculate_objective(file, par,
     sql2.set_values_sql(file=file, table=data.T_PATHS, values=(o,), columns=[data.C_OBJECTIVE_F], rows=i)
 
 
+def test_spline(file, par, gd, i=None, i_w=None):
+    i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
+
+    c = trajectory.to_spline(x=q0, n_c=4)
+    q1 = trajectory.from_spline(c=c, n_wp=par.n_wp)
+    q, o = gd_chomp(q0=trajectory.full2inner(q1), par=par, gd=gd)
+    f = feasibility_check(q=q, par=par)
+
+    print(f"{f.sum()} / {f.size}")
+
+
 def refine_chomp(file, par, gd,
                  q_fun=None,
                  i=None, i_w=None,
@@ -256,6 +267,20 @@ def main_recalculate_objective(file):
             recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all), )
 
 
+def main_test_splines(file):
+
+    robot_id = parameter.get_robot_str(file)
+    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    iw_list = np.unique(i_w_all)
+
+    gen = parameter.init_par(robot_id)
+    par, gd = gen.par, gen.gd
+
+    for i_w in iw_list:
+        with tictoc(text=f'World {i_w}') as _:
+            test_spline(file=file, par=par, i_w=(i_w, i_w_all), gd=gd)
+
+
 def get_q_pred_wrapper():
     pass
 
@@ -292,10 +317,11 @@ if __name__ == '__main__':
 
     # ray_init(perc=100)
 
-    main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
+    # main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
     # main(robot_id='SingleSphere02')
 
-    # _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
+    main_test_splines(file=_file)
     # tmp_numpy2sql(file=_file)
 
 

@@ -55,40 +55,39 @@ def spheres2joints(x_spheres, robot):
 class DraggableSphereRobot:
     def __init__(self, q, ax, robot, **kwargs):
 
-        self.q = np.squeeze(q)
-        self.ax = ax
         self.robot = robot
+        self.q = np.squeeze(q)
+        self.x = None
+        self.ax = ax
+
         self.kwargs = kwargs
+        self.callback = kwargs.pop('callback', None)
+        self.h = None
 
-        self.callback = None
-        self.h_path = None
-        self.x_spheres = None
-
-        self.update_q2spheres()
-        self.drag_circles = DraggableCircleList(ax=self.ax, xy=self.x_spheres,
+        self.update_q2x()
+        self.drag_circles = DraggableCircleList(ax=self.ax, xy=self.x,
                                                 radius=self.robot.spheres_rad.mean(),
                                                 callback=self.callback, **self.kwargs)
-        self.drag_circles.set_callback_drag(callback=self.update_spheres2q_plot)
-        self.update_spheres2q_plot()
+        self.drag_circles.add_callback_drag(callback=self.update_x2q_plot)
+        self.update_x2q_plot()
 
     def update_val2plot(self):
-        self.h_path = plt2.plot_path(q=self.q[np.newaxis, :], par=self.robot, ax=self.ax, h=self.h_path,
-                                     **self.kwargs)[1]
-        self.drag_circles.set_xy(x=self.x_spheres[..., 0].flatten(), y=self.x_spheres[..., 1].flatten())
+        self.h = plt2.plot_path(q=self.q[np.newaxis, :], par=self.robot, ax=self.ax, h=self.h, **self.kwargs)[1]
+        self.drag_circles.set_xy(x=self.x[..., 0].flatten(), y=self.x[..., 1].flatten())
 
-    def update_q2spheres(self):
-        self.x_spheres = self.robot.get_frames(q=self.q.flatten())[..., :-1, -1]
+    def update_q2x(self):
+        self.x = self.robot.get_frames(q=self.q.flatten())[..., :-1, -1]
 
-    def update_spheres2q(self):
-        self.x_spheres = self.drag_circles.get_xy()
-        self.q, self.x_spheres = spheres2joints(x_spheres=self.x_spheres, robot=self.robot)
+    def update_x2q(self):
+        self.x = self.drag_circles.get_xy()
+        self.q, self.x = spheres2joints(x_spheres=self.x, robot=self.robot)
 
-    def update_spheres2q_plot(self, *args):
-        self.update_spheres2q()
+    def update_x2q_plot(self, *args):
+        self.update_x2q()
         self.update_val2plot()
 
     def update_q2spheres_plot(self):
-        self.update_q2spheres()
+        self.update_q2x()
         self.update_val2plot()
 
     def set_q(self, q):
@@ -96,7 +95,7 @@ class DraggableSphereRobot:
         self.update_q2spheres_plot()
 
     def get_q(self):
-        self.update_spheres2q_plot()
+        self.update_x2q_plot()
         return self.q
 
     def set_callback_drag(self, callback):
