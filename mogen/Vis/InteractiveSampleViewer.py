@@ -186,14 +186,13 @@ class InteractiveSampleViewer:
             return
 
         else:
-            c = trajectory.to_spline(x=self.path.q, n_c=4)
-            self.path_p.q = trajectory.from_spline(c=c, n_wp=self.par.n_wp)
+            # c = trajectory.to_spline(x=self.path.q, n_c=4)
+            # self.path_p.q = trajectory.from_spline(c=c, n_wp=self.par.n_wp)
             # TODO Spline
 
-            # q_start, q_end = self.path.q[[0, -1]]
-            # q_pred = self.get_prediction(img=self.world.img, q_start=q_start, q_end=q_end)
-            # self.path_p.q = np.reshape(q_pred, (self.par.n_wp, self.par.robot.n_dof))
-
+            q_start, q_end = self.path.q[[0, -1]]
+            q_pred = self.get_prediction(img=self.world.img, q_start=q_start, q_end=q_end)
+            self.path_p.q = np.reshape(q_pred, (self.par.n_wp, self.par.robot.n_dof))
             self.path_p.plot()
 
 
