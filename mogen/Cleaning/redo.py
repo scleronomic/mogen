@@ -130,12 +130,10 @@ def refine_chomp(file, par, gd,
               f"o0: {oo0}, o:{oo}")
 
         if verbose > 1:
-
-            # j = np.nonzero(f == -1)[0][0]
-
             improvement = o0 - o
             improvement[f == -1] -= np.inf
             j = np.argmax(improvement)
+            # j = np.nonzero(f == -1)[0][0]
 
             print(f'Largest Improvement {j}:', o0[j], o[j], f[j])
 
@@ -231,8 +229,10 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
     create_numpy_directory(file=file, replace=True)
 
+    q_fun_ray0 = ray.put(q_fun)
+
     @ray.remote
-    def refine_ray(_iw, i):
+    def refine_ray(q_fun_ray, i):
         gen = parameter.init_par(robot_id)
         par, gd = gen.par, gen.gd
 
@@ -240,14 +240,14 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
         gd.n_steps = 100
 
         with tictoc(text=f'World {min(i)}') as _:
-            refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun, i=i, verbose=1, mode=mode)
+            refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, verbose=1, mode=mode)
 
         return 1
 
     futures = []
     for iw in iw_list:
         ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
-        futures.append(refine_ray.remote(iw, ii))
+        futures.append(refine_ray.remote(q_fun_ray0, ii))
 
     res = ray.get(futures)
     print(f"{np.sum(res)} / {np.size(res)}")
@@ -317,11 +317,31 @@ if __name__ == '__main__':
 
     # ray_init(perc=100)
 
-    # main_refine_chomp(file='/home_local/tenh_jo/StaticArm04.db')
     # main(robot_id='SingleSphere02')
 
-    _file = '/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02.db'
-    main_test_splines(file=_file)
+    # _file = '/Users/jote/Documents/DLR/Data/mogen/StaticArm04/StaticArm04.db'
+    _file = data.get_file(robot_id='StaticArm04')
+
+    # main_test_splines(file=_file)
+    main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
+    tmp_numpy2sql(file=_file)
+
+
+    # robot_id = parameter.get_robot_str(file)
+    #
+    # iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    # iw_list = np.unique(iw_all)
+    #
+    # gen = parameter.init_par(robot_id)
+    # par, gd = gen.par, gen.gd
+    #
+    # par.oc.n_substeps_check += 2
+    # gd.n_steps = 100
+    #
+    # for iw in range(20):
+    #     ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
+    #     refine_chomp(file=file, par=par, gd=gd, q_fun=None, i=ii, verbose=13, mode=None)
+
     # tmp_numpy2sql(file=_file)
 
 
