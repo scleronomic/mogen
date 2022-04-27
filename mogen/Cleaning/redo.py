@@ -323,7 +323,7 @@ if __name__ == '__main__':
     _file = data.get_file(robot_id=_robot_id)
 
     # main_test_splines(file=_file)
-    main_refine_chomp(file=_file, ray_perc=80, mode='save_numpy')
+    main_refine_chomp(file=_file, ray_perc=50, mode='save_numpy')
     tmp_numpy2sql(file=_file)
     from wzk.gcp.gcloud2 import gsutil_cp
 
