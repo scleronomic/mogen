@@ -343,10 +343,10 @@ if __name__ == '__main__':
 
     # main_test_splines(file=_file)
     main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
-    tmp_numpy2sql(file=_file)
-    from wzk.gcp.gcloud2 import gsutil_cp
+    # tmp_numpy2sql(file=_file)
+    # from wzk.gcp.gcloud2 import gsutil_cp
 
-    gsutil_cp(src=_file, dst=f'gs://tenh_jo/{_robot_id}/{_robot_id}_vX.db')
+    # gsutil_cp(src=_file, dst=f'gs://tenh_jo/{_robot_id}/{_robot_id}_vX.db')
 
     # iw_all = sql2.get_values_sql(file=_file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
     # iw_list = np.unique(iw_all)
