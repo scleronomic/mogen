@@ -92,7 +92,7 @@ def check_consistency(robot,
 
 if __name__ == '__main__':
 
-    _robot_id = 'StaticArm04'
+    _robot_id = 'Justin19'
     _file = data.get_file(robot_id=_robot_id)
     # _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
     set_dtypes(_file)
