@@ -235,7 +235,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
         par.oc.n_substeps_check += 2
         par.sc.n_substeps_check = par.oc.n_substeps_check
-        gd.n_steps = 30
+        gd.n_steps = 25
 
         with tictoc(text=f'World {min(i)}') as _:
             refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, verbose=1, mode=mode)
