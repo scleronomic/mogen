@@ -40,9 +40,6 @@ def update_objective(file, par, i=None, i_w=None):
 
 def plot_redo(q, q0, q_pred, f, j,
               par):
-    # TODO If f is False check, f0 again, than f0 with more substeps, if all is False, than the label was not
-    #   correct to begin with
-    #
 
     if par.robot.id == 'SingleSphere02':
         fig, ax = new_fig(aspect=1, title=f'Feasibility: {f[j]}')
@@ -237,7 +234,8 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
         par, gd = gen.par, gen.gd
 
         par.oc.n_substeps_check += 2
-        gd.n_steps = 100
+        par.sc.n_substeps_check = par.oc.n_substeps_check
+        gd.n_steps = 50
 
         with tictoc(text=f'World {min(i)}') as _:
             refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, verbose=1, mode=mode)
@@ -320,29 +318,28 @@ if __name__ == '__main__':
     # main(robot_id='SingleSphere02')
 
     # _file = '/Users/jote/Documents/DLR/Data/mogen/StaticArm04/StaticArm04.db'
-    _file = data.get_file(robot_id='StaticArm04')
+
+    _robot_id = 'Justin19'
+    _file = data.get_file(robot_id=_robot_id)
 
     # main_test_splines(file=_file)
     main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
     tmp_numpy2sql(file=_file)
 
-
-    # robot_id = parameter.get_robot_str(file)
-    #
-    # iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    # iw_all = sql2.get_values_sql(file=_file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
     # iw_list = np.unique(iw_all)
     #
-    # gen = parameter.init_par(robot_id)
+    # gen = parameter.init_par(_robot_id)
     # par, gd = gen.par, gen.gd
     #
     # par.oc.n_substeps_check += 2
+    # par.sc.n_substeps_check = par.oc.n_substeps_check
     # gd.n_steps = 100
     #
-    # for iw in range(20):
-    #     ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
-    #     refine_chomp(file=file, par=par, gd=gd, q_fun=None, i=ii, verbose=13, mode=None)
-
-    # tmp_numpy2sql(file=_file)
+    # with tictoc():
+    #     for iw in range(10):
+    #         ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
+    #         refine_chomp(file=_file, par=par, gd=gd, q_fun=None, i=ii, verbose=13, mode=None)
 
 
 # TODO write automatic train and learn loop :)

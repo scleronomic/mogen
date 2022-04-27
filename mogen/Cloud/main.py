@@ -1,11 +1,13 @@
 import time
+
+from wzk.subprocess2 import popen_list
 from wzk.gcp.gcloud2 import *
 from wzk.gcp import startup
 
 
-def gen__create_instances_and_start(mode='genpath', n=10, n0=0,
-                                    disk_size=20,
-                                    sleep=600):
+def create_instances_and_start(mode='genpath', n=10, n0=0,
+                               disk_size=20,
+                               sleep=600):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
@@ -34,7 +36,8 @@ def gen__create_instances_and_start(mode='genpath', n=10, n0=0,
     for a, b in zip(cmd_instances, cmd_attach_disks):
         subprocess.call(a, shell=True)
         subprocess.call(b, shell=True)
-        time.sleep(sleep)
+        if len(cmd_attach_disks) > 1:
+            time.sleep(sleep)
 
 
 # TODO add script to mount disk
@@ -65,8 +68,8 @@ def mogen_upload2bucket(robot_id, n, n0=0):
 
 if __name__ == '__main__':
     fire.Fire({
-        'start_gen': gen__create_instances_and_start,
+        'create_start': create_instances_and_start,
         'create_local': mogen_create_instance_local,
         'upload': mogen_upload2bucket,
-        'connect2': connect2
+        'connect2': connect2,
     })
