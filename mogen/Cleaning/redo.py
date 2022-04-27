@@ -100,12 +100,15 @@ def refine_chomp(file, par, gd,
 
     else:
         i2 = np.array_split(np.arange(n), max(2, n//batch_size))
-        q = np.zeros((n, par.n_wp, par.robot.n_dof))
+        q = np.zeros((n, par.n_wp-2, par.robot.n_dof))
         o = np.zeros(n)
         for ii2 in i2:
             par.q_start = q_pred[ii2, 0, :]
             par.q_end = q_pred[ii2, -1, :]
             q[ii2], o[ii2] = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
+
+        par.q_start = q0[:, 0, :]
+        par.q_end = q0[:, -1, :]
 
     q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
 
@@ -263,7 +266,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
         return 1
 
     futures = []
-    for iw in iw_list:
+    for iw in iw_list[:60*5]:
         ii = data.iw2is_wrapper(iw=iw, iw_all=iw_all)
         futures.append(refine_ray.remote(q_fun_ray0, ii))
 
@@ -339,7 +342,7 @@ if __name__ == '__main__':
     _file = data.get_file(robot_id=_robot_id)
 
     # main_test_splines(file=_file)
-    main_refine_chomp(file=_file, ray_perc=50, mode='save_numpy')
+    main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
     tmp_numpy2sql(file=_file)
     from wzk.gcp.gcloud2 import gsutil_cp
 
