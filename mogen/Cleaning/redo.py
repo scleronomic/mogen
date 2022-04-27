@@ -1,22 +1,28 @@
 import os.path
 
 import numpy as np
-import fire
+# import fire
 
 from wzk import sql2, trajectory
 from wzk import tictoc, safe_rmdir
+from wzk.multiprocessing2 import mp_wrapper
 from wzk.mpl import new_fig, remove_duplicate_labels
 from wzk.ray2 import ray, ray_init
 
 from rokin.Vis.robot_2d import plot_img_patch_w_outlines
 from mopla.Optimizer import feasibility_check, objectives
 from mopla.Optimizer.gradient_descent import gd_chomp
-from mopla.Parameter.parameter import initialize_oc
+# from mopla.Parameter.parameter import initialize_oc
 
 from mogen.Generation import data, parameter
 
 
 __directory_numpy_tmp = 'tmp_np'
+
+batch_size_dict = {'SingleSphere02': 10000,
+                   'StaticArm04': 10000,
+                   'JustinArm07': 200,
+                   'Justin19': 200}
 
 
 def create_numpy_directory(file, replace=True):
@@ -75,9 +81,11 @@ def test_spline(file, par, gd, i=None, i_w=None):
 def refine_chomp(file, par, gd,
                  q_fun=None,
                  i=None, i_w=None,
+                 batch_size=10000,
                  verbose=0,
                  mode=None):
     i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
+    n = len(i)
 
     if q_fun is not None:
         q_pred = q_fun(i=i)
@@ -87,7 +95,17 @@ def refine_chomp(file, par, gd,
 
     q_pred = trajectory.get_path_adjusted(q_pred, m=50, is_periodic=par.robot.is_periodic)
 
-    q, o = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
+    if batch_size > n:
+        q, o = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
+
+    else:
+        i2 = np.array_split(np.arange(n), max(2, n//batch_size))
+        q = np.zeros((n, par.n_wp, par.robot.n_dof))
+        o = np.zeros(n)
+        for ii2 in i2:
+            par.q_start = q_pred[ii2, 0, :]
+            par.q_end = q_pred[ii2, -1, :]
+            q[ii2], o[ii2] = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
 
     q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
 
@@ -208,12 +226,13 @@ def check_worlds_img_cmp():
     # print(img_cmp[1001])
     for i in range(2000):
         try:
-            img = compressed2img(img_cmp=img_cmp[i], shape=img_shape, dtype=bool)
+            _ = compressed2img(img_cmp=img_cmp[i], shape=img_shape, dtype=bool)
         except zlib.error:
             print(i)
 
     i_w = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=data.C_WORLD_I, values_only=True)
     u, c = np.unique(i_w, return_counts=True)
+    assert u == np.arange(len(u))
 
 
 def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
@@ -221,6 +240,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
     robot_id = parameter.get_robot_str(file)
 
+    batch_size = batch_size_dict[robot_id]
     iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
     iw_list = np.unique(iw_all)
 
@@ -238,7 +258,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
         gd.n_steps = 25
 
         with tictoc(text=f'World {min(i)}') as _:
-            refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, verbose=1, mode=mode)
+            refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, batch_size=batch_size, verbose=1, mode=mode)
 
         return 1
 
@@ -251,36 +271,32 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
     print(f"{np.sum(res)} / {np.size(res)}")
 
 
-def main_recalculate_objective(file):
-
+def __setup(file):
     robot_id = parameter.get_robot_str(file)
     i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
-    iw_list = np.unique(i_w_all)
+    # iw_list = np.unique(i_w_all)
 
     gen = parameter.init_par(robot_id)
     par, gd = gen.par, gen.gd
 
-    for i_w in iw_list:
+    return par, gd, i_w_all
+
+
+def main_recalculate_objective(file):
+    par, gd, i_w_all = __setup(file)
+
+    for i_w in np.unique(i_w_all):
         with tictoc(text=f'World {i_w}') as _:
             recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all), )
 
 
 def main_test_splines(file):
 
-    robot_id = parameter.get_robot_str(file)
-    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
-    iw_list = np.unique(i_w_all)
+    par, gd, i_w_all = __setup(file)
 
-    gen = parameter.init_par(robot_id)
-    par, gd = gen.par, gen.gd
-
-    for i_w in iw_list:
+    for i_w in np.unique(i_w_all):
         with tictoc(text=f'World {i_w}') as _:
             test_spline(file=file, par=par, i_w=(i_w, i_w_all), gd=gd)
-
-
-def get_q_pred_wrapper():
-    pass
 
 
 def tmp_numpy2sql(file):
