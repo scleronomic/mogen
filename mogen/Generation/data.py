@@ -45,19 +45,36 @@ info_df_dtypes = {k: v for (k, v) in zip(info_df_columns, info_df_dtypes)}
 
 n_samples_per_world = 1000  # TODO get rid of this, its just unnecessary to adhere to this restriction
 
-__file_stub_dlr = '/home_local/tenh_jo/{}.db'
-__file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/{}.db'
-__file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
-
-__file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
-__file_stub = __file_stub_dict[LOCATION]
 
 img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
             img2compressed(img=np.zeros((64, 64), dtype=bool), n_dim=2),
             img2compressed(img=np.zeros((64, 64, 64), dtype=bool), n_dim=3)]
 
 
+def get_file_ik(robot_id, copy=True):
+    __file_stub_ik_dlr = '/home_local/tenh_jo/ik_{}.db'
+    __file_stub_ik_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/ik_{}.db'
+    __file_stub_ik_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/ik_{}.db'
+
+    __file_stub_ik_dict = dict(dlr=__file_stub_ik_dlr, mac=__file_stub_ik_mac, gcp=__file_stub_ik_gcp)
+    file_stub_ik = __file_stub_ik_dict[LOCATION]
+
+    file = file_stub_ik.format(*[robot_id]*2)
+
+    if copy and not os.path.exists(file):
+        gsutil_cp(src=f'gs://tenh_jo/{robot_id}/ik_{robot_id}.db', dst=file)
+
+    return file
+
+
 def get_file(robot_id):
+    __file_stub_dlr = '/home_local/tenh_jo/{}.db'
+    __file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/{}.db'
+    __file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/{}.db'
+
+    __file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
+    __file_stub = __file_stub_dict[LOCATION]
+
     file = __file_stub.format(*[robot_id]*2)
 
     if not os.path.exists(file):
@@ -206,10 +223,9 @@ def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
     return pd.DataFrame(data)
 
 
-def create_path_df(i_world: np.ndarray, i_sample: np.ndarray,
-                   q: np.ndarray,
-                   objective: np.ndarray, feasible: np.ndarray) -> pd.DataFrame:
+def create_path_df(i_world, i_sample, q, objective, feasible) -> pd.DataFrame:
     data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
+    print(data)
     return pd.DataFrame(data)
 
 

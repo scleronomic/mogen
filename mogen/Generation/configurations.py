@@ -1,7 +1,6 @@
 import numpy as np
 
 from wzk import tictoc
-from wzk.dlr import LOCATION
 from wzk.ray2 import ray, ray_init
 from wzk.image import compressed2img
 from wzk.sql2 import df2sql, get_values_sql, vacuum
@@ -11,14 +10,7 @@ from mopla.main import ik_mp
 from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import feasibility_check, choose_optimum
 
-from mogen.Generation import load, parameter
-
-__file_stub_dlr = '/home_local/tenh_jo/ik_{}.db'
-__file_stub_mac = '/Users/jote/Documents/DLR/Data/mogen/ik_{}.db'
-__file_stub_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/ik_{}.db'
-
-file_stub_dict = dict(dlr=__file_stub_dlr, mac=__file_stub_mac, gcp=__file_stub_gcp)
-file_stub = file_stub_dict[LOCATION]
+from mogen.Generation import data, parameter
 
 
 def sample_f(robot, f_idx, n=None, mode='q'):
@@ -84,15 +76,15 @@ def generate_ik(gen, img_cmp, i_world, n_samples):
 
         print((status == 1).sum())
         if np.any(status == 1):
-            df = load.create_path_df(i_world=np.array([i_world]), i_sample=np.array([i]), q=q_opt,
+            df = data.create_path_df(i_world=np.array([i_world]), i_sample=np.array([i]), q=[q_opt.ravel()],
                                      objective=np.array(([cost.min()])), feasible=np.ones(1, dtype=bool))
             df_list.append(df)
 
-    return load.combine_df_list(df_list)
+    return data.combine_df_list(df_list)
 
 
 def main(robot_id, iw_list, n_samples_per_world=1000, ra='append'):
-    file = file_stub.format(robot_id)
+    file = data.get_file_ik(robot_id=robot_id, copy=False)
 
     @ray.remote
     def generate_ray(_i_w: int):
@@ -100,19 +92,20 @@ def main(robot_id, iw_list, n_samples_per_world=1000, ra='append'):
         adapt_par(par=gen.par)
         _i_w = int(_i_w)
         if _i_w == -1:
-            img_cmp = load.img_cmp0[gen.par.robot.n_dim-1]
+            img_cmp = data.img_cmp0[gen.par.robot.n_dim-1]
         else:
             img_cmp = get_values_sql(file=file, rows=_i_w, table='worlds', columns='img_cmp', values_only=True)
 
         return generate_ik(gen=gen, i_world=_i_w, img_cmp=img_cmp, n_samples=n_samples_per_world)
 
     with tictoc(text=f"Generating samples for world {iw_list[0]}-{iw_list[-1]} with {n_samples_per_world} samples") as _:
+        # generate_ray(-1)
         futures = []
         for i_w in iw_list:
             futures.append(generate_ray.remote(i_w))
 
         df_list = ray.get(futures)
-        df = load.combine_df_list(df_list)
+        df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
         df2sql(df=df, file=file, table='paths', if_exists=ra)
@@ -129,7 +122,7 @@ def main_loop_sc(robot_id):
 
 
 if __name__ == '__main__':
-    ray_init(perc=100)
+    ray_init(perc=50)
 
     _robot_id = 'Justin19'
 
