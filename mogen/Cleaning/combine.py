@@ -5,7 +5,7 @@ import numpy as np
 import fire
 
 from wzk import sql2
-from wzk import find_largest_consecutives, squeeze
+from wzk import find_largest_consecutives, squeeze_all
 from wzk.gcp import gcloud2
 from wzk.mpl import new_fig
 
@@ -171,7 +171,7 @@ def main_choose_best(file):
     i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=table, rows=-1,
                                          columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
                                          values_only=True)
-    i_w, i_s, o, f = squeeze(i_w, i_s, o, f)
+    i_w, i_s, o, f = squeeze_all(i_w, i_s, o, f)
 
     m, _ = find_largest_consecutives(i_s)
     m = 11  # TODO
