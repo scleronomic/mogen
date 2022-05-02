@@ -60,7 +60,7 @@ def mogen_create_instance_local(i):
 
 
 def mogen_upload2bucket(robot_id, n, n0=0, prefix='', disk_name=''):
-    prefix = f'_{prefix}' if prefix else ''
+    prefix = f'{prefix}_' if prefix else ''
     disk = f"tenh-{disk_name}-disk"
     file = f'/home/{GCP_USER}/sdb/{prefix}{robot_id}.db'
     bucket = f'gs://tenh_jo/{robot_id}/{prefix}{robot_id}'
