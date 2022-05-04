@@ -6,7 +6,7 @@ import numpy as np
 from wzk import sql2, trajectory
 from wzk import tictoc, safe_rmdir
 from wzk.multiprocessing2 import mp_wrapper
-from wzk.mpl import new_fig, remove_duplicate_labels
+from wzk.mpl import new_fig, remove_duplicate_labels, save_fig, close_all
 from wzk.ray2 import ray, ray_init
 
 from rokin.Vis.robot_2d import plot_img_patch_w_outlines
@@ -15,6 +15,7 @@ from mopla.Optimizer.gradient_descent import gd_chomp
 # from mopla.Parameter.parameter import initialize_oc
 
 from mogen.Generation import data, parameter
+from mogen.Vis.main import animate_path, input_wrapper
 
 
 __directory_numpy_tmp = 'tmp_np'
@@ -44,19 +45,45 @@ def update_objective(file, par, i=None, i_w=None):
     sql2.set_values_sql(file=file, table=data.T_PATHS, columns=[data.C_OBJECTIVE_F], rows=i, values=(o.tolist(),))
 
 
-def plot_redo(q, q0, q_pred, f, j,
+def plot_redo(q, q0, q_pred, f, i,
               par):
 
     if par.robot.id == 'SingleSphere02':
-        fig, ax = new_fig(aspect=1, title=f'Feasibility: {f[j]}')
+        fig, ax = new_fig(aspect=1, title=f'Feasibility: {f}')
         plot_img_patch_w_outlines(ax=ax, img=par.oc.img, limits=par.world.limits)
-        ax.plot(*q0[j, :, :].T, color='blue', marker='o', label='old', markersize=15, alpha=0.8)
+        ax.plot(*q0.T, color='blue', marker='o', label='old', markersize=15, alpha=0.8)
         if not np.allclose(q0, q_pred):
-            ax.plot(*q_pred[j, :, :].T, color='orange', marker='o', label='new0', markersize=10, alpha=0.8)
-        ax.plot(*q[j, :, :].T, color='red', marker='o', label='new', markersize=10)
+            ax.plot(*q_pred.T, color='orange', marker='o', label='new0', markersize=10, alpha=0.8)
+        ax.plot(*q.T, color='red', marker='o', label='new', markersize=10)
 
         ax.legend()
         remove_duplicate_labels(ax=ax)
+
+    else:
+        file = data.get_file(robot_id=par.robot.id)
+        _, _, img, file_out = input_wrapper(robot_id=par.robot.id, q=q, img=par.oc.img, file=file, i=i)  # TODO j not correct
+
+        file_out = os.path.split(file_out)
+        file_out1 = f"{file_out[0]}/redo/{file_out[1]}"
+        file_out0 = f"{file_out[0]}/redo/{file_out[1]}_0"
+
+        # animate_path(robot_id=par.robot.id, q=q0[j, :, :], img=par.oc.img, file_out=file_out0)
+        # animate_path(robot_id=par.robot.id, q=q[j, :, :], img=par.oc.img, file_out=file_out1)
+
+        # Configuration path
+        colors = ['tab:blue', 'tab:orange', 'tab:red', 'tab:pink']
+
+        q00 = trajectory.get_substeps(x=q0[[0, -1]], n=par.n_wp-1)
+        qd = q - q00  # q[0, :]
+        qd0 = q0 - q00  # q0[0, :]
+        fig, ax = new_fig()
+        for i in range(par.robot.n_dof):
+            ax.plot(qd0[:, i], color=colors[i], ls='-', marker='o', markersize=3)
+            ax.plot(qd[:, i], color=colors[i], ls='--', marker='s', markersize=3)
+        save_fig(fig=fig, file=file_out1, formats='pdf')
+
+
+        close_all()
 
 
 def recalculate_objective(file, par,
@@ -157,7 +184,7 @@ def refine_chomp(file, par, gd,
 
             if verbose > 10:
                 # for j in np.nonzero(b_fb)[0]:
-                plot_redo(q=q, q0=q0, q_pred=q_pred, f=f, j=j, par=par)
+                plot_redo(q=q[j], q0=q0[j], q_pred=q_pred[j], f=f[j], i=i[j], par=par)
 
     if mode is None:
         print('no set_values')
@@ -258,7 +285,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
         par.oc.n_substeps_check += 2
         par.sc.n_substeps_check = par.oc.n_substeps_check
-        gd.n_steps = 25
+        gd.n_steps = 50
 
         with tictoc(text=f'World {min(i)}') as _:
             refine_chomp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, batch_size=batch_size, verbose=1, mode=mode)
