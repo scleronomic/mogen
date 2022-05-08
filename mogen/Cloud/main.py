@@ -63,7 +63,7 @@ def mogen_upload2bucket(robot_id, n, n0=0, prefix='', disk_name=''):
     prefix = f'{prefix}_' if prefix else ''
     disk = f"tenh-{disk_name}-disk"
     file = f'/home/{GCP_USER}/sdb/{prefix}{robot_id}.db'
-    bucket = f'gs://tenh_jo/{robot_id}/{prefix}{robot_id}'
+    bucket = f'gs://tenh_jo/{prefix}{robot_id}'
     upload2bucket(disk=disk, file=file, bucket=bucket, n=n, n0=n0)
 
 

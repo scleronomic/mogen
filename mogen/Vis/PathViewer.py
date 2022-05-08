@@ -41,7 +41,7 @@ class PathViewer:
         else:
             self.fig, self.ax = ax.get_figure(), ax
 
-        self.h_path = None
+        self.h = None
         self.change_sample(i_sample=self.i_sample)
 
     def update_path(self, q_start, q_end, q):
@@ -71,7 +71,13 @@ class PathViewer:
 
     def plot(self):
         self.x = get_frames_x(q=self.q, robot=self.par.robot)
-        self.h_path = robot_2d.plot_path(q=self.q, par=self.par, ax=self.ax, h=self.h_path, **self.kwargs)[1]
+        self.h = robot_2d.plot_path(q=self.q, par=self.par, ax=self.ax, h=self.h, **self.kwargs)[1]
+
+    def toggle_visibility(self, value):
+        for hh in self.h[0]:
+            hh.set_visible(value)
+        for hh in self.h[1]:
+            hh.set_visible(value)
 
 
 def test():

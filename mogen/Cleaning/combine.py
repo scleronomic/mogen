@@ -80,7 +80,8 @@ def combine_files(old_files, new_file, clean_s0):
         print(f"Total number of rows: {n}")
 
     if old_files[0].startswith('gs://'):
-        gcloud2.gsutil_cp(src=new_file, dst=f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}")
+        dst = f"{os.path.split(old_files[0])[0]}/{os.path.split(new_file[1])[0]}"
+        gcloud2.gsutil_cp(src=new_file, dst=dst)
 
 
 def separate_easy_hard(file, i):
@@ -253,7 +254,8 @@ def main_separate_easy_hard(file: str):
     reset_sample_i32(file=file_easy)
 
 
-def main_combine_files(robot_id, i):
+def main_combine_files(robot_id, i, prefix=''):
+    prefix = f'{prefix}_' if prefix else ''
     if isinstance(i, str):
         i = eval(i, {'__builtins__': None}, {})
 
@@ -262,8 +264,9 @@ def main_combine_files(robot_id, i):
 
     print(i)
 
-    old_files = [f"gs://tenh_jo/{robot_id}/{robot_id}_{ii}.db" for ii in i]
-    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{robot_id}/{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
+    old_files = [f"gs://tenh_jo/{prefix}{robot_id}/{prefix}{robot_id}_{ii}.db" for ii in i]
+    new_file = f"{prefix}{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
+    new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{new_file}"
     combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
 
 
@@ -297,11 +300,11 @@ def delete_half():
 
 
 if __name__ == '__main__':
-    # fire.Fire({
-    #     'combine': main_combine_files,
-    #     'separate': main_separate_easy_hard,
-    #     'choose_best': main_choose_best,
-    # })
+    fire.Fire({
+        'combine': main_combine_files,
+        'separate': main_separate_easy_hard,
+        'choose_best': main_choose_best,
+    })
 
     # main_combine_files_hard2()
     # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
@@ -319,7 +322,7 @@ if __name__ == '__main__':
     # _file0 = f"{robot_id}"
     # _file_bucket = f"gs://tenh_jo/{_file0}"
     # _file = f"/home/johannes_tenhumberg_gmail_com/sdb/{_file0}"
-    _file = "/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02"
+    # _file = "/Users/jote/Documents/DLR/Data/mogen/SingleSphere02/SingleSphere02"
     # #
     # _file_easy = _file + '_easy'
     # _file_hard = _file + '_hard'

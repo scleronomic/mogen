@@ -68,6 +68,9 @@ class DraggableSphereRobot:
         self.drag_circles = DraggableCircleList(ax=self.ax, xy=self.x,
                                                 radius=self.robot.spheres_rad.mean(),
                                                 callback=self.callback, **self.kwargs)
+        if 'StaticArm' in robot.id:
+            self.drag_circles.dp_list[0].vary_xy = (False, False)
+
         self.drag_circles.add_callback_drag(callback=self.update_x2q_plot)
         self.update_x2q_plot()
 
@@ -104,6 +107,15 @@ class DraggableSphereRobot:
     def add_callback_drag(self, callback):
         self.drag_circles.add_callback_drag(callback=callback)
 
+    def toggle_visibility(self, value=None):
+        v = self.drag_circles.toggle_visibility(value=value)
+        for hh in self.h[0]:
+            hh.set_visible(v)
+        for hh in self.h[1]:
+            hh.set_visible(v)
+
+        # self.set_visible(not self.get_visible())
+
 
 def test():
     from wzk.mpl import new_fig
@@ -116,7 +128,8 @@ def test():
     dsr = DraggableSphereRobot(q=robot.sample_q(), ax=ax, robot=robot)
 
     def cb(*args):  # noqa
-        print(dsr.get_q())
+        pass
+        # print(dsr.get_q())
 
     dsr.add_callback_drag(cb)
 

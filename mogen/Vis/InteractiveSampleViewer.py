@@ -52,6 +52,9 @@ class InteractiveSampleViewer:
         self.drag_end = DraggableSphereRobot(q=self.path.q[-1, :], ax=self.ax, robot=self.par.robot,
                                              **style.style_end,
                                              callback=self.on_drag)
+        if self.par.n_wp == 1:
+            self.drag_end.toggle_visibility(value=False)
+            self.path.toggle_visibility(value=False)
 
         self.fig.canvas.draw()
 
@@ -197,7 +200,8 @@ class InteractiveSampleViewer:
 
 
 if __name__ == '__main__':
-    robot_id = 'SingleSphere02'
+    robot_id = 'StaticArm04'
     _par = parameter.init_par(robot_id=robot_id).par
+    _par.n_wp = 1
     _file = data.get_file(robot_id=robot_id)
-    isv = InteractiveSampleViewer(par=_par, file=_file)
+    isv = InteractiveSampleViewer(par=_par, file=None)
