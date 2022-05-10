@@ -300,11 +300,11 @@ def delete_half():
 
 
 if __name__ == '__main__':
-    fire.Fire({
-        'combine': main_combine_files,
-        'separate': main_separate_easy_hard,
-        'choose_best': main_choose_best,
-    })
+    # fire.Fire({
+    #     'combine': main_combine_files,
+    #     'separate': main_separate_easy_hard,
+    #     'choose_best': main_choose_best,
+    # })
 
     # main_combine_files_hard2()
     # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
@@ -354,8 +354,9 @@ if __name__ == '__main__':
     #                 dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
 
     # sql2.vacuum(file=_file)
-    # sql2.alter_table(_file_easy, table='paths', columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
-    #                  dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_TEXT, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
+    _file = '/Users/jote/Documents/DLR/Data/mogen/ik_Justin19/ik_Justin19.db'
+    sql2.alter_table(_file, table='paths', columns=['world_i32', 'sample_i32', 'q_f32', 'objective_f32', 'feasible_b'],
+                     dtypes=[sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER])
     # sql2.squeeze_table(file=_file, table='paths')
 
     #

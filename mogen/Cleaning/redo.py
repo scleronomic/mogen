@@ -105,6 +105,38 @@ def test_spline(file, par, gd, i=None, i_w=None):
     print(f"{f.sum()} / {f.size}")
 
 
+def print_improvements(o0, o1, f0, f1,
+                       b_fb,
+                       verbose):
+    ff0 = np.round((f0 == 1).mean(), 3)
+    ff1 = np.round((f1 == 1).mean(), 3)
+
+    oo = np.round(o1[f1 == 1].mean(), 4)
+    oo0 = np.round(o0.astype(float)[f1 == 1].mean(), 4)
+
+    n_fb = b_fb.sum()
+    n_nf = (~np.logical_or(f0 == +1, f1 == +1)).sum()
+    print(f"# samples: {len(f0)}, # improvements {n_fb}  # infeasible {n_nf} | "
+          f"f0: {ff0}, 'f': {ff1} | "
+          f"o0: {oo0}, o:{oo}")
+
+    if verbose > 1:
+        improvement = o0 - o1
+        improvement[f1 == -1] -= np.inf
+        j = np.argmax(improvement)
+
+        print(f'Largest Improvement {j}:', o0[j], o1[j], f1[j])
+
+
+def get_b_improvements(o0, o1, f0, f1):
+    b_fb = np.logical_and(f1 == +1, o1 < o0)  # feasible and better
+    b_nfb = np.logical_and(np.logical_and(f0 == -1, f1 == -1), o1 < o0)  # not feasible and better
+    b_rest = ~np.logical_or(b_fb, b_nfb)  # rest
+    assert b_fb.sum() + b_nfb.sum() + b_rest.sum() == len(b_fb)
+
+    return b_fb, b_nfb, b_rest
+
+
 def refine_chomp(file, par, gd,
                  q_fun=None,
                  i=None, i_w=None,
@@ -123,85 +155,48 @@ def refine_chomp(file, par, gd,
     q_pred = trajectory.get_path_adjusted(q_pred, m=50, is_periodic=par.robot.is_periodic)
 
     if batch_size > n:
-        q, o = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
+        q1, o1 = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
 
     else:
         i2 = np.array_split(np.arange(n), max(2, n//batch_size))
-        q = np.zeros((n, par.n_wp-2, par.robot.n_dof))
-        o = np.zeros(n)
+        q1 = np.zeros((n, par.n_wp-2, par.robot.n_dof))
+        o1 = np.zeros(n)
         for ii2 in i2:
             par.q_start = q_pred[ii2, 0, :]
             par.q_end = q_pred[ii2, -1, :]
-            q[ii2], o[ii2] = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
+            q1[ii2], o1[ii2] = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
 
         par.q_start = q0[:, 0, :]
         par.q_end = q0[:, -1, :]
 
-    q = trajectory.inner2full(inner=q, start=par.q_start, end=par.q_end)
+    q1 = trajectory.inner2full(inner=q1, start=par.q_start, end=par.q_end)
 
-    f = feasibility_check(q=q, par=par)
     f0 = feasibility_check(q=q0, par=par)
+    f1 = feasibility_check(q=q1, par=par)
 
-    # TODO use the correct metric, if i want to do the same thing for IK
     o0 = objectives.o_len.len_q_cost(q0, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
-    o = objectives.o_len.len_q_cost(q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
+    o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
 
-    def set_values(b, new=True):
-        if b.sum() > 0:
-            if new:
-                sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i[b], values=(q[b], o[b], f[b]),
-                                    columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
-            else:
-                sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i[b], values=(q0[b], o0[b], f0[b]),
-                                    columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+    b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
+    print_improvements(o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
 
-    b_fb = np.logical_and(f == +1, o < o0)  # feasible and better
-    b_nfb = np.logical_and(np.logical_and(f0 == -1, f == -1), o < o0)  # not feasible and better
-    b_rest = ~np.logical_or(b_fb, b_nfb)  # rest
-    assert b_fb.sum() + b_nfb.sum() + b_rest.sum() == len(i)
-
-    if verbose > 0:
-        ff0 = np.round((f0 == 1).mean(), 3)
-        ff = np.round((f == 1).mean(), 3)
-
-        oo = np.round(o[f == 1].mean(), 4)
-        oo0 = np.round(o0.astype(float)[f == 1].mean(), 4)
-
-        n = len(i)
-        n_fb = b_fb.sum()
-        n_nf = (~np.logical_or(f0 == +1, f == +1)).sum()
-        print(f"# samples: {n}, # improvements {n_fb}  # infeasible {n_nf} | "
-              f"f0: {ff0}, 'f': {ff} | "
-              f"o0: {oo0}, o:{oo}")
-
-        if verbose > 1:
-            improvement = o0 - o
-            improvement[f == -1] -= np.inf
-            j = np.argmax(improvement)
-            # j = np.nonzero(f == -1)[0][0]
-
-            print(f'Largest Improvement {j}:', o0[j], o[j], f[j])
-
-            if verbose > 10:
-                # for j in np.nonzero(b_fb)[0]:
-                plot_redo(q=q[j], q0=q0[j], q_pred=q_pred[j], f=f[j], i=i[j], par=par)
+    q1[b_rest] = q0[b_rest]
+    o1[b_rest] = o0[b_rest]
+    f1[b_rest] = f0[b_rest]
 
     if mode is None:
         print('no set_values')
 
     elif mode == 'set_sql':
-        set_values(b_fb)
-        set_values(b_nfb)
-        set_values(b_rest, new=False)
+        sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q1, o1, f1),
+                            columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
 
     elif mode == 'save_numpy':
         directory_np = file2numpy_directory(file=file)
         file2 = f"{directory_np}/s_{min(i)}-{max(i)}"
-        q[b_rest] = q0[b_rest]
-        o[b_rest] = o0[b_rest]
-        f[b_rest] = f0[b_rest]
+
         np.savez(file2,
-                 i=i, q=q, o=o, f=f)
+                 i=i, q=q1, o=o1, f=f1)
 
     else:
         raise ValueError

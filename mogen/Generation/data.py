@@ -53,7 +53,7 @@ img_cmp0 = [img2compressed(img=np.zeros((64,), dtype=bool), n_dim=1),
 
 def get_file_ik(robot_id, copy=True):
     __file_stub_ik_dlr = '/home_local/tenh_jo/ik_{}.db'
-    __file_stub_ik_mac = '/Users/jote/Documents/DLR/Data/mogen/{}/ik_{}.db'
+    __file_stub_ik_mac = '/Users/jote/Documents/DLR/Data/mogen/ik_{}/ik_{}.db'
     __file_stub_ik_gcp = '/home/johannes_tenhumberg_gmail_com/sdb/ik_{}.db'
 
     __file_stub_ik_dict = dict(dlr=__file_stub_ik_dlr, mac=__file_stub_ik_mac, gcp=__file_stub_ik_gcp)
