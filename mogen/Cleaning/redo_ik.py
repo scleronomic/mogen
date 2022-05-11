@@ -21,7 +21,7 @@ def refine_omp(file, par, gd,
     n = len(i)
 
     if q_fun is not None:
-        q_pred = q_fun(i=i)
+        q_pred = np.squeeze(q_fun(i=i))
 
     else:
         q_pred = q0
@@ -88,7 +88,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
         return 1
 
     futures = []
-    for ii in np.array_split(np.arange(n), n // 200):
+    for ii in np.array_split(np.arange(n), n // 500):
         futures.append(refine_ray.remote(q_fun_ray0, ii))
 
     res = ray.get(futures)
@@ -122,3 +122,5 @@ if __name__ == '__main__':
     _robot_id = 'Justin19'
     main_refine_chomp(robot_id=_robot_id, q_fun=None, ray_perc=100, mode='save_numpy')
     redo.tmp_numpy2sql(file=data.get_file_ik(robot_id=_robot_id))
+
+
