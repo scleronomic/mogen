@@ -100,6 +100,9 @@ def adapt_par(par, gd):
     par.qc.q = justin_primitives(justin='getready')
     par.xc.f_idx = 13
 
+    par.check.x_close = True
+    par.check.self_collision = True
+
     gd.n_steps = 20
     gd.stepsize = 1/50
     gd.clipping = 0.3
