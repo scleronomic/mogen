@@ -2,7 +2,7 @@ import numpy as np
 
 from wzk.strings import find_one_of_n
 
-from rokin.Robots import *
+from rokin.Robots.Justin19.justin19_primitives import justin_primitives
 from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02
 
 
@@ -50,3 +50,27 @@ def init_par(robot_id: str):
     gen.gd.hesse_inv = gen.staircase.P_inv_dict[par.n_wp]
 
     return gen
+
+
+def adapt_ik_par(par):
+    if par.robot.id == 'Justin19':
+
+        par.check.x_close = True
+        par.check.obstacle_collision = False
+        par.check.self_collision = True
+        par.check.center_of_mass = False
+        par.check.limits = True
+
+        par.plan.x_close = False
+        par.plan.obstacle_collision = False
+        par.plan.self_collision = True
+        par.plan.center_of_mass = True
+
+        par.xc.f_idx = 13
+
+        par.qc.q = justin_primitives(justin='getready')
+
+        par.weighting.joint_motion = np.array([200, 100, 100,
+                                               20, 20, 10, 10, 1, 1, 1,
+                                               20, 20, 10, 10, 1, 1, 1,
+                                               5, 5], dtype=float)

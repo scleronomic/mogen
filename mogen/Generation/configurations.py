@@ -4,7 +4,6 @@ from wzk import tictoc
 from wzk.ray2 import ray, ray_init
 from wzk.image import compressed2img
 from wzk.sql2 import df2sql, get_values_sql, vacuum
-from rokin.Robots.Justin19.justin19_primitives import justin_primitives
 
 from mopla.main import ik_mp
 from mopla.Parameter.parameter import initialize_oc
@@ -34,28 +33,6 @@ def redo():
     #     q2 = nullspace.nullspace_projection2(robot=par.robot, q=q2, u=-j,
     #                                          f0=par.xc.frame, f_idx=par.xc.f_idx, mode='f')
     # status = feasibility_check(q=q2[:, np.newaxis, :], par=par, verbose=0)
-
-#     robot_path_interactive(q=q[status == 1], robot=par.robot,
-#                            kwargs_frames=dict(f_fix=par.xc.frame, f_idx_robot=par.xc.f_idx))
-
-
-def adapt_par(par):
-    par.xc.f_idx = 13
-    par.check.obstacle_collision = False
-    par.check.self_collision = True
-    par.check.x_close = True
-    par.check.center_of_mass = False
-
-    par.plan.obstacle_collision = False
-    par.plan.self_collision = True
-    par.plan.x_close = False
-    par.plan.center_of_mass = True
-
-    par.qc.q = justin_primitives(justin='getready')
-    par.weighting.joint_motion = np.array([200, 100, 100,
-                                           20, 20, 10, 10, 1, 1, 1,
-                                           20, 20, 10, 10, 1, 1, 1,
-                                           5, 5], dtype=float)
 
 
 def generate_ik(gen, img_cmp, i_world, n_samples):

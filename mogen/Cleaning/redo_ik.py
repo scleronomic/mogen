@@ -13,6 +13,16 @@ from mogen.Cleaning import redo
 from rokin.Robots.Justin19.justin19_primitives import justin_primitives
 
 
+def recalculate_objective(file, par, i, mode):
+    i, q, img = data.get_samples_for_world(file=file, par=par, i=i)
+    q = q[..., 0, :]
+    o = objectives.o_len.len_close2q_cost(q=q, q_close=par.qc.q, is_periodic=par.robot.is_periodic,
+                                          joint_weighting=par.weighting.joint_motion)
+
+    sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(o,),
+                        columns=[data.C_OBJECTIVE_F])
+
+
 def refine_omp(file, par, gd,
                q_fun=None, i=None,
                verbose=0, mode=None):
@@ -50,6 +60,15 @@ def refine_omp(file, par, gd,
     o1[b_rest] = o0[b_rest]
     f1[b_rest] = f0[b_rest]
 
+    par.check.obstacle_collision = False
+    par.check.self_collision = False
+    par.check.center_of_mass = False
+    par.check.x_close = False
+    par.check.limits = True
+    f = feasibility_check(q=q1[:, np.newaxis], par=par,)
+    print('limits', (f == -3).mean())
+
+
     if mode is None:
         print('no set_values')
 
@@ -79,8 +98,8 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
     def refine_ray(q_fun_ray, i):
         gen = parameter.init_par(robot_id)
         par, gd = gen.par, gen.gd
-
-        adapt_par(par=par, gd=gd)
+        parameter.adapt_ik_par(par=par)
+        adapt_gd(gd=gd)
 
         with tictoc(text=f'World {min(i)}') as _:
             refine_omp(file=file, par=par, gd=gd, q_fun=q_fun_ray, i=i, verbose=1, mode=mode)
@@ -95,14 +114,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
     print(f"{np.sum(res)} / {np.size(res)}")
 
 
-def adapt_par(par, gd):
-    par.n_wp = 1
-    par.qc.q = justin_primitives(justin='getready')
-    par.xc.f_idx = 13
-
-    par.check.x_close = True
-    par.check.self_collision = True
-
+def adapt_gd(gd):
     gd.n_steps = 20
     gd.stepsize = 1/50
     gd.clipping = 0.3

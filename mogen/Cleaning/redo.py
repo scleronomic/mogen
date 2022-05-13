@@ -129,7 +129,8 @@ def print_improvements(o0, o1, f0, f1,
 
 
 def get_b_improvements(o0, o1, f0, f1):
-    b_fb = np.logical_and(f1 == +1, o1 < o0)  # feasible and better
+    b_fb = np.logical_or(np.logical_and(f1 == +1, o1 < o0),   # feasible and better
+                         np.logical_and(f1 == +1, f0 == -1))  # feasible instead of unfeasible
     b_nfb = np.logical_and(np.logical_and(f0 == -1, f1 == -1), o1 < o0)  # not feasible and better
     b_rest = ~np.logical_or(b_fb, b_nfb)  # rest
     assert b_fb.sum() + b_nfb.sum() + b_rest.sum() == len(b_fb)
