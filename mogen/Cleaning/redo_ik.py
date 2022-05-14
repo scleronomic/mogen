@@ -39,11 +39,13 @@ def refine_omp(file, par, gd,
     f1 = np.zeros(n, dtype=bool)
     q1 = q_pred.copy()
 
+    par.check.limits = True
+
     for j in range(n):
         par.xc.frame = frames0[j]
         q1[j] = ik_w_projection(q=q1[j:j + 1, np.newaxis, :], par=par, gd=gd)
-        f1[j] = feasibility_check(q=q1[j:j + 1, np.newaxis, :], par=par)
-        f0[j] = feasibility_check(q=q0[j:j + 1, np.newaxis, :], par=par)
+        f1[j] = feasibility_check(q=q1[j:j + 1, np.newaxis, :], par=par) > 0
+        f0[j] = feasibility_check(q=q0[j:j + 1, np.newaxis, :], par=par) > 0
 
     o0 = objectives.o_len.len_close2q_cost(q=q0, q_close=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
     o1 = objectives.o_len.len_close2q_cost(q=q1, q_close=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
@@ -62,7 +64,6 @@ def refine_omp(file, par, gd,
     # par.check.self_collision = False
     # par.check.center_of_mass = False
     # par.check.x_close = False
-    # par.check.limits = True
     # f = feasibility_check(q=q1[:, np.newaxis], par=par,)
     # print('limits', (f == -3).mean())
 

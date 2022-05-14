@@ -54,17 +54,18 @@ def init_par(robot_id: str):
 
 def adapt_ik_par(par):
     if par.robot.id == 'Justin19':
+        par.n_wp = 1
 
         par.check.x_close = True
         par.check.obstacle_collision = False
         par.check.self_collision = True
-        par.check.center_of_mass = False
+        par.check.center_of_mass = True
         par.check.limits = True
 
         par.plan.x_close = False
         par.plan.obstacle_collision = False
         par.plan.self_collision = True
-        par.plan.center_of_mass = True
+        par.plan.center_of_mass = False
 
         par.xc.f_idx = 13
 
