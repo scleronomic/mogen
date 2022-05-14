@@ -6,7 +6,6 @@ from wzk.image import compressed2img
 from wzk.sql2 import df2sql, get_values_sql, vacuum
 
 from mopla.main import ik_mp
-from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import feasibility_check, choose_optimum
 
 from mogen.Generation import data, parameter
@@ -37,9 +36,9 @@ def redo():
 
 def generate_ik(gen, img_cmp, i_world, n_samples):
     np.random.seed(None)
-    obstacle_img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
-    initialize_oc(par=gen.par, obstacle_img=obstacle_img)
+    img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
     par = gen.par
+    par.update_oc(img=img)
 
     f = sample_f(robot=par.robot, f_idx=par.xc.f_idx, n=n_samples, mode='q')
     df_list = []
@@ -66,7 +65,7 @@ def main(robot_id, iw_list, n_samples_per_world=1000, ra='append'):
     @ray.remote
     def generate_ray(_i_w: int):
         gen = parameter.init_par(robot_id=robot_id)
-        adapt_par(par=gen.par)
+        parameter.adapt_ik_par(par=gen.par)
         _i_w = int(_i_w)
         if _i_w == -1:
             img_cmp = data.img_cmp0[gen.par.robot.n_dim-1]

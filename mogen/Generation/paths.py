@@ -12,7 +12,6 @@ from wzk.subprocess2 import call2
 
 from rokin.Vis.robot_3d import animate_path
 from mopla.main import chomp_mp
-from mopla.Parameter.parameter import initialize_oc
 from mopla.Optimizer import InitialGuess, feasibility_check, gradient_descent
 
 from mogen.Generation import data, parameter, starts_ends
@@ -66,7 +65,7 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
     np.random.seed(None)
 
     obstacle_img = compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
-    initialize_oc(par=gen.par, obstacle_img=obstacle_img)
+    gen.par.update_oc(img=obstacle_img)
     try:
         q_start, q_end = starts_ends.sample_q_start_end(robot=gen.par.robot,
                                                         feasibility_check=lambda qq: feasibility_check(qq, par=gen.par),

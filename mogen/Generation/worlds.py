@@ -44,7 +44,7 @@ def sample_worlds(par, n, mode='perlin',
         else:
             raise ValueError
 
-        parameter.initialize_oc(par=par, obstacle_img=img)
+        par.update_oc(img=img)
 
         try:
             sample_q(par.robot, shape=10, feasibility_check=lambda q: feasibility_check(q=q, par=par))

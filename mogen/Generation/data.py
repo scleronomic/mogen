@@ -9,9 +9,6 @@ from wzk.training import n2train_test, train_test_split  # noqa
 from wzk.dlr import LOCATION
 from wzk.gcp.gcloud2 import gsutil_cp
 
-from mopla.Parameter.parameter import initialize_oc
-
-
 meta_df_columns = np.array(['par', 'gd'])
 
 # worlds
@@ -275,7 +272,7 @@ def get_samples_for_world(file, par, i=None, i_w=None):
 
     q_start, q_end = q[..., 0, :], q[..., -1, :]
     par.q_start, par.q_end = q_start, q_end
-    initialize_oc(par=par, obstacle_img=img)
+    par.update_oc(par=par, img=img)
     return i, q, img
 
 

@@ -10,8 +10,6 @@ from mopla.main import ik_w_projection
 from mogen.Generation import data, parameter
 from mogen.Cleaning import redo
 
-from rokin.Robots.Justin19.justin19_primitives import justin_primitives
-
 
 def recalculate_objective(file, par, i, mode):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i)

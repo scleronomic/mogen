@@ -3,7 +3,7 @@ import numpy as np
 from mogen.Vis.InteractiveSampleViewer import InteractiveSampleViewer
 
 from mopla.Optimizer.objectives import o_oc, ik_grad
-from mopla.Parameter.parameter import Parameter, initialize_oc
+from mopla.Parameter.parameter import Parameter
 
 from mopla.Optimizer.nullspace import dx2dq_pseudo, nullspace_projection2
 
@@ -23,7 +23,7 @@ class ISV(InteractiveSampleViewer):
         f0 = self.par.robot.get_frames(q)[self.par.xc.f_idx]
         x, dx_dq = self.par.robot.get_spheres_jac(q)
 
-        initialize_oc(par=self.par, obstacle_img=self.world.img)
+        self.par.update_oc(img=self.world.img)
 
         self.par.xc.frame = f0
 

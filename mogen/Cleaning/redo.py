@@ -5,14 +5,12 @@ import numpy as np
 
 from wzk import sql2, trajectory
 from wzk import tictoc, safe_rmdir
-from wzk.multiprocessing2 import mp_wrapper
 from wzk.mpl import new_fig, remove_duplicate_labels, save_fig, close_all
 from wzk.ray2 import ray, ray_init
 
 from rokin.Vis.robot_2d import plot_img_patch_w_outlines
 from mopla.Optimizer import feasibility_check, objectives
 from mopla.Optimizer.gradient_descent import gd_chomp
-# from mopla.Parameter.parameter import initialize_oc
 
 from mogen.Generation import data, parameter
 from mogen.Vis.main import animate_path, input_wrapper
