@@ -58,14 +58,13 @@ def refine_omp(file, par, gd,
     o1[b_rest] = o0[b_rest]
     f1[b_rest] = f0[b_rest]
 
-    par.check.obstacle_collision = False
-    par.check.self_collision = False
-    par.check.center_of_mass = False
-    par.check.x_close = False
-    par.check.limits = True
-    f = feasibility_check(q=q1[:, np.newaxis], par=par,)
-    print('limits', (f == -3).mean())
-
+    # par.check.obstacle_collision = False
+    # par.check.self_collision = False
+    # par.check.center_of_mass = False
+    # par.check.x_close = False
+    # par.check.limits = True
+    # f = feasibility_check(q=q1[:, np.newaxis], par=par,)
+    # print('limits', (f == -3).mean())
 
     if mode is None:
         print('no set_values')

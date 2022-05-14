@@ -272,7 +272,7 @@ def get_samples_for_world(file, par, i=None, i_w=None):
 
     q_start, q_end = q[..., 0, :], q[..., -1, :]
     par.q_start, par.q_end = q_start, q_end
-    par.update_oc(par=par, img=img)
+    par.update_oc(img=img)
     return i, q, img
 
 
