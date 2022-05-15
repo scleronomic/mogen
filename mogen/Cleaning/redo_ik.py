@@ -35,6 +35,8 @@ def refine_omp(file, par, gd,
         q_pred = q0
 
     frames0 = par.robot.get_frames(q0)[..., par.xc.f_idx, :, :]
+    print(frames0.sum())
+
     f0 = np.zeros(n, dtype=bool)
     f1 = np.zeros(n, dtype=bool)
     q1 = q_pred.copy()
@@ -44,6 +46,7 @@ def refine_omp(file, par, gd,
     for j in range(n):
         par.xc.frame = frames0[j]
         q1[j] = ik_w_projection(q=q1[j:j + 1, np.newaxis, :], par=par, gd=gd)
+
         f1[j] = feasibility_check(q=q1[j:j + 1, np.newaxis, :], par=par) > 0
         f0[j] = feasibility_check(q=q0[j:j + 1, np.newaxis, :], par=par) > 0
 
@@ -114,8 +117,8 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 
 def adapt_gd(gd):
     gd.n_steps = 20
-    gd.stepsize = 1/50
-    gd.clipping = 0.3
+    gd.stepsize = 1/100
+    gd.clipping = 0.2
 
 
 def main(robot_id):
