@@ -36,6 +36,7 @@ def refine_omp(file, par, gd,
 
     frames0 = par.robot.get_frames(q0)[..., par.xc.f_idx, :, :]
     print(frames0.sum())
+    print(frames0[0])
 
     f0 = np.zeros(n, dtype=bool)
     f1 = np.zeros(n, dtype=bool)
