@@ -300,7 +300,7 @@ def get_samples(file, i, img_shape):
 def combine_df_list(df_list):
     df = df_list[0]
     for df_i in df_list[1:]:
-        df = df.append(df_i)
+        df = df.concat(df_i)
     return df
 
 

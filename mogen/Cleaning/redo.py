@@ -109,18 +109,20 @@ def print_improvements(o0, o1, f0, f1,
     ff0 = np.round((f0 == 1).mean(), 3)
     ff1 = np.round((f1 == 1).mean(), 3)
 
-    oo1 = np.round(o1[f1 == 1].mean(), 4)
-    oo0 = np.round(o0.astype(float)[f1 == 1].mean(), 4)
+    o2 = o0.copy()
+    o2[b_fb] = o1[b_fb]
+    oo1 = np.round(o2.mean(), 4)
+    oo0 = np.round(o0.astype(float).mean(), 4)
 
     n_fb = b_fb.sum()
-    n_nf = (~np.logical_or(f0 == -1, f1 == -1)).sum()
+    n_nf = (~np.logical_or(f0 == +1, f1 == +1)).sum()
     print(f"# samples: {len(f0)}, # improvements {n_fb}  # infeasible {n_nf} | "
           f"f0: {ff0}, f1: {ff1} | "
           f"o0: {oo0}, o1: {oo1}")
 
     if verbose > 1:
         improvement = o0 - o1
-        improvement[f1 == -1] -= np.inf
+        improvement[~b_fb] -= np.inf
         j = np.argmax(improvement)
 
         print(f'Largest Improvement {j}:', o0[j], o1[j], f1[j])

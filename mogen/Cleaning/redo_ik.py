@@ -32,10 +32,9 @@ def refine_omp(file, par, gd,
         q_pred = np.squeeze(q_fun(i=i))
 
     else:
-        q_pred = q0
+        q_pred = q0.copy()
 
     frames0 = par.robot.get_frames(q0)[..., par.xc.f_idx, :, :]
-
     f0 = np.zeros(n, dtype=bool)
     f1 = np.zeros(n, dtype=bool)
     q1 = q_pred.copy()
@@ -115,7 +114,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 
 
 def adapt_gd(gd):
-    gd.n_steps = 20
+    gd.n_steps = 5
     gd.stepsize = 1/100
     gd.clipping = 0.2
 
