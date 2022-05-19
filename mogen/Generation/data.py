@@ -11,6 +11,10 @@ from wzk.gcp.gcloud2 import gsutil_cp
 
 meta_df_columns = np.array(['par', 'gd'])
 
+
+
+
+
 # worlds
 T_WORLDS = 'worlds'
 C_WORLD_I = 'world_i32'
@@ -24,8 +28,11 @@ C_SAMPLE_I = 'sample_i32'
 C_Q_F32 = 'q_f32'
 C_OBJECTIVE_F = 'objective_f32'
 C_FEASIBLE_I = 'feasible_b'
-path_df_columns = np.array([C_WORLD_I, C_SAMPLE_I, C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I])
-path_df_dtypes = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_NUMERIC, sql2.TYPE_INTEGER]
+Cs_PATHS = np.array([C_WORLD_I, C_SAMPLE_I, C_Q_F32, C_OBJECTIVE_F, C_FEASIBLE_I])
+Ds_PATHS = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_NUMERIC, sql2.TYPE_INTEGER]
+
+
+
 
 # info
 T_INFO = 'info'
@@ -37,7 +44,7 @@ info_df_columns = np.array([C_ROBOT_ID, C_N_WORLDS, C_N_SAMPLES, C_N_SAMPLES_PER
 info_df_dtypes = [sql2.TYPE_TEXT, sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_INTEGER]
 
 world_df_dtypes = {k: v for (k, v) in zip(world_df_columns, world_df_dtypes)}
-path_df_dtypes = {k: v for (k, v) in zip(path_df_columns, path_df_dtypes)}
+Ds_PATHS = {k: v for (k, v) in zip(Cs_PATHS, Ds_PATHS)}
 info_df_dtypes = {k: v for (k, v) in zip(info_df_columns, info_df_dtypes)}
 
 n_samples_per_world = 1000  # TODO get rid of this, its just unnecessary to adhere to this restriction
@@ -221,7 +228,7 @@ def create_world_df(i_world: np.ndarray, img_cmp: np.ndarray):
 
 
 def create_path_df(i_world, i_sample, q, objective, feasible) -> pd.DataFrame:
-    data = {key: value for key, value in zip(path_df_columns, [i_world, i_sample, q, objective, feasible])}
+    data = {key: value for key, value in zip(Cs_PATHS, [i_world, i_sample, q, objective, feasible])}
     print(data)
     return pd.DataFrame(data)
 

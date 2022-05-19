@@ -101,6 +101,7 @@ def main():
     # file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
     # file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds.db"
     file = "/Users/jote/Documents/DLR/Data/mogen/ik_Justin19/ik_Justin19.db"
+    file = "/home_local/tenh_jo/mogen/ik_Justin19.db"
     # copy(file, file2)
 
     # print(get_robot_max_reach(robot))

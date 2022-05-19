@@ -17,21 +17,21 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         q = robot.sample_q(shape=n)
         f = robot.get_frames(q)
         f = f[..., f_idx, :, :]
+
+    elif mode == 'cube':
+        pass
+        # TODO sample cubes
+        # get the 4 possible frames
+        #
+        f = 1
+
     else:
         raise ValueError
 
     return f
 
 
-def redo():
-    pass
-    # print((status == 1).sum())
-    # q2 = q.copy()
-    # for j in range(10):
-    #     j = objectives.ik_grad(par=par, q=q2, q_close=q_close, jac_only=True)
-    #     q2 = nullspace.nullspace_projection2(robot=par.robot, q=q2, u=-j,
-    #                                          f0=par.xc.frame, f_idx=par.xc.f_idx, mode='f')
-    # status = feasibility_check(q=q2[:, np.newaxis, :], par=par, verbose=0)
+
 
 
 def generate_ik(gen, img_cmp, i_world, n_samples):
@@ -84,7 +84,7 @@ def main(robot_id, iw_list, n_samples_per_world=1000, ra='append'):
         df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
-        df2sql(df=df, file=file, table='paths', if_exists=ra)
+        df2sql(df=df, file=file, table='paths', dtype=data.Ds_PATHS, if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df
