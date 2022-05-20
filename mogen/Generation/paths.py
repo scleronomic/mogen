@@ -126,7 +126,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
         df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
-        df2sql(df=df, file=file, table='paths', dtype=data.Ds_PATHS, if_exists=ra)
+        df2sql(df=df, file=file, table='paths', dtype=data.T_PATHS.types_sql(), if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df

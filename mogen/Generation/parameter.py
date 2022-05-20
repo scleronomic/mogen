@@ -52,7 +52,7 @@ def init_par(robot_id: str):
     return gen
 
 
-def adapt_ik_par(par):
+def adapt_ik_par(par, mode):
     if par.robot.id == 'Justin19':
         par.n_wp = 1
 
@@ -75,3 +75,7 @@ def adapt_ik_par(par):
                                                20, 20, 10, 10, 1, 1, 1,
                                                20, 20, 10, 10, 1, 1, 1,
                                                5, 5], dtype=float)
+
+        if 'automatica' in mode:
+            par.qc.q = justin_primitives(justin='getready_right_high170')
+
