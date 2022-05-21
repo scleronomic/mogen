@@ -40,7 +40,7 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         cubes.x = x
         cubes.a = a
         f = automatica2022.xa_to_f(cubes)
-
+        f = f @ automatica2022.F_CUBE_HAND
     else:
         raise ValueError
 
@@ -100,7 +100,7 @@ def main(robot_id, iw_list, sample_mode, n_samples_per_world=1000, ra='append'):
         df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
-        df2sql(df=df, file=file, table=data.T_IKS.table, dtype=data.T_IKS.types_sql(), if_exists=ra)
+        df2sql(df=df, file=file, table=data.T_IKS.table, dtype=data.T_IKS.types_dict_sql(), if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df
@@ -117,12 +117,12 @@ def main_loop_automatica_sc(robot_id):
     for i in range(10000):
         worlds = [-1] * 600
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=40, ra='append',
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append',
                  sample_mode='automatica_cube4')
 
 
 if __name__ == '__main__':
-    ray_init(perc=50)
+    ray_init(perc=100)
     _robot_id = 'Justin19'
 
     with tictoc() as _:

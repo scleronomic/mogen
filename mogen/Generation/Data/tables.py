@@ -14,6 +14,9 @@ class COL:
         self.type_np = type_np
         self.shape = shape
 
+    def __call__(self):
+        return self.name
+
     def __repr__(self):
         return f"SQL Column ({self.name} | {self.type_sql} | {self.type_np} | {self.shape})"
 
@@ -36,6 +39,9 @@ class SQLTABLE:
 
     def types_sql(self):
         return [c.type_sql for c in self.cols]
+
+    def types_dict_sql(self):
+        return {c.name: c.type_sql for c in self.cols}
 
     def types_np(self):
         return [c.type_np for c in self.cols]
@@ -73,8 +79,10 @@ class SQL_IKS(SQLTABLE):
     C_SAMPLE_I = C_SAMPLE_I
     C_Q_F = C_Q_F
     C_FRAME_F = COL(name='frame_f', type_sql=sql2.TYPE_BLOB, type_np=np.float32, shape=(4, 4))
+    # C_FRAME_F = COL(name='frame_f32', type_sql=sql2.TYPE_BLOB, type_np=np.float32, shape=(4, 4))
     C_OBJECTIVE_F = C_OBJECTIVE_F
     C_FEASIBLE_I = C_FEASIBLE_I
+
     cols = [C_WORLD_I, C_SAMPLE_I, C_Q_F, C_FRAME_F, C_OBJECTIVE_F, C_FEASIBLE_I]
 
 
@@ -84,6 +92,7 @@ class SQL_INFO(SQLTABLE):
     C_N_WORLDS = COL(name='worlds_i', type_sql=sql2.TYPE_INTEGER, type_np=str, shape=None)
     C_N_SAMPLES = COL(name='samples_i', type_sql=sql2.TYPE_INTEGER, type_np=str, shape=None)
     C_N_SAMPLES_PER_WORLD = COL(name='samples_per_world_i', type_sql=sql2.TYPE_INTEGER, type_np=str, shape=None)
+
     cols = [C_ROBOT_ID, C_N_WORLDS, C_N_SAMPLES, C_N_SAMPLES_PER_WORLD]
 
 

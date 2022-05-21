@@ -52,7 +52,7 @@ def init_par(robot_id: str):
     return gen
 
 
-def adapt_ik_par(par, mode):
+def adapt_ik_par(par, mode=None):
     if par.robot.id == 'Justin19':
         par.n_wp = 1
 

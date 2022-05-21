@@ -107,7 +107,7 @@ def main():
     # print(get_robot_max_reach(robot))
     df = sample_worlds(par=par, n=1, mode='perlin', kwargs_perlin=dict(threshold=+10, mode='old'), verbose=0)
 
-    df2sql(df=df, file=file, table='worlds', dtype=data.world_df_dtypes, if_exists='replace')
+    df2sql(df=df, file=file, table=data.T_WORLDS, dtype=data.T_WORLDS.types_dict_sql(), if_exists='replace')
     # TODO add meta table where all the robot parameters are listed
 
 
