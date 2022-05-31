@@ -7,7 +7,7 @@ from wzk.image import compressed2img
 from wzk.sql2 import df2sql, get_values_sql, vacuum
 from wzk.spatial import frame2trans_rotvec
 
-from mopla.main import ik_mp
+from mopla.main import ik_mp, set_free_joints2close
 from mopla.Optimizer import feasibility_check, choose_optimum
 from mopla.World import automatica2022
 
@@ -29,12 +29,12 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         cubes = automatica2022.Cubes(n=n*4)
         x = np.random.uniform(low=scene.table[0, 0], high=scene.table[0, 1], size=n)
         y = np.random.uniform(low=scene.table[1, 0], high=scene.table[1, 1], size=n)
-        z = np.random.uniform(low=scene.table[2, 1]+0.4, high=scene.table[2, 1]+0.54, size=n)
+        z = np.random.uniform(low=scene.table[2, 1]+0.04, high=scene.table[2, 1]+0.54, size=n)
         x = np.vstack(([x, y, z])).T
         x = np.repeat(x, repeats=4, axis=0)
 
         a = np.random.uniform(0, 2*np.pi, size=n)
-        a = np.repeat(a, repeats=4, axis=0) + np.repeat([0, np.pi/4, np.pi/2, 3*np.pi/2], repeats=n)
+        a = np.repeat(a, repeats=4, axis=0) + np.tile([0, np.pi/2, np.pi, 3*np.pi/2], reps=n)
         a = angle2minuspi_pluspi(a)
 
         cubes.x = x
@@ -56,10 +56,15 @@ def generate_ik(gen, img_cmp, i_world, n_samples, sample_mode):
     f = sample_f(robot=par.robot, f_idx=par.xc.f_idx, n=n_samples, mode=sample_mode)
     df_list = []
     for i in range(n_samples):
+        m = 1000
         par.xc.frame = f[i]
-        q = ik_mp(par=par, q_close=par.qc.q, n=1000, n_processes=1, mode=None)
+        q = ik_mp(par=par, q_close=par.qc.q, n=m, n_processes=1, mode=None)
+
+        q = np.tile(q, reps=(2, 1))  # TODO do this everywhere, can be done more efficient with feasibility check
+        set_free_joints2close(q[:m], par=par, q_close=par.qc.q)
 
         status = feasibility_check(q=q[:, np.newaxis, :], par=par, verbose=0)
+
         q_opt, _, mce, cost = choose_optimum.get_feasible_optimum(q=q[:, np.newaxis, :], status=status,
                                                                   par=par, q_close=par.qc.q, mode='min')
 
@@ -115,14 +120,14 @@ def main_loop_sc(robot_id):
 
 def main_loop_automatica_sc(robot_id):
     for i in range(10000):
-        worlds = [-1] * 600
+        worlds = [-1] * 20
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append',
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=40, ra='append',
                  sample_mode='automatica_cube4')
 
 
 if __name__ == '__main__':
-    ray_init(perc=100)
+    ray_init(perc=50)
     _robot_id = 'Justin19'
 
     with tictoc() as _:

@@ -67,7 +67,7 @@ def adapt_ik_par(par, mode=None):
         par.plan.self_collision = True
         par.plan.center_of_mass = False
 
-        par.xc.f_idx = 13
+        par.xc.f_idx = [13]
 
         par.qc.q = justin_primitives(justin='getready')
 
