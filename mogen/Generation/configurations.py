@@ -122,12 +122,12 @@ def main_loop_automatica_sc(robot_id):
     for i in range(10000):
         worlds = [-1] * 20
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=40, ra='append',
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append',
                  sample_mode='automatica_cube4')
 
 
 if __name__ == '__main__':
-    ray_init(perc=50)
+    ray_init(perc=100)
     _robot_id = 'Justin19'
 
     with tictoc() as _:
