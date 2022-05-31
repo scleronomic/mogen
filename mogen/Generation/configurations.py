@@ -58,7 +58,7 @@ def generate_ik(gen, img_cmp, i_world, n_samples, sample_mode):
     for i in range(n_samples):
         m = 1000
         par.xc.frame = f[i]
-        q = ik_mp(par=par, q_close=par.qc.q, n=m, n_processes=1, mode=None)
+        q = ik_mp(par=par, q_close=par.qc.q, n_samples=m, n_iter=10, n_processes=1, mode=None)
 
         q = np.tile(q, reps=(2, 1))  # TODO do this everywhere, can be done more efficient with feasibility check
         set_free_joints2close(q[:m], par=par, q_close=par.qc.q)
