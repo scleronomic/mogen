@@ -10,7 +10,7 @@ from wzk.gcp import gcloud2
 from wzk.mpl import new_fig
 
 from mogen.Generation import data
-
+from mogen.Cleaning import clean
 
 def check_iw_is(i_w, i_s, m):
     print('m', m)
@@ -27,7 +27,8 @@ def check_iw_is(i_w, i_s, m):
 
 def plot(file, i):
     # def plot_o_distributions(o):
-    o, f = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i, columns=[data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+    o, f = sql2.get_values_sql(file=file, table=data.T_PATHS.table, rows=i,
+                               columns=[data.T_PATHS.C_OBJECTIVE_F, data.T_PATHS.C_FEASIBLE_I])
 
     o = o.reshape(-1, 50)
     f = f.reshape(-1, 50)
@@ -53,8 +54,7 @@ def plot(file, i):
     ax.plot(ju, np.cumsum(jc)/jc.sum(), color='blue')
 
 
-def combine_files(old_files, new_file, clean_s0):
-    table = 'paths'
+def combine_files(old_files, new_file, clean_s0, table):
     new_file_dir = os.path.split(new_file)[0]
     
     for i, f in enumerate(old_files):
@@ -86,8 +86,8 @@ def combine_files(old_files, new_file, clean_s0):
 
 def separate_easy_hard(file, i):
 
-    i_s, q = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=i,
-                                 columns=[data.C_SAMPLE_I, data.C_Q_F32], values_only=True)
+    i_s, q = sql2.get_values_sql(file=file, table=data.T_PATHS.names(), rows=i,
+                                 columns=[data.T_PATHS.C_SAMPLE_I, data.T_PATHS.C_Q_F32])
     q0 = q[:, 0]
     xu = q0 + i_s * np.random.random()
     n, i_hard = find_largest_consecutives(x=xu)
@@ -108,8 +108,9 @@ def separate_easy_hard(file, i):
 
 
 def delete_not_s0(file):
-    table = 'paths'
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I])
+    table = data.T_PATHS.table
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1,
+                               columns=[data.T_PATHS.C_WORLD_I, data.T_PATHS.C_SAMPLE_I])
 
     s_not0 = np.nonzero(s != 0)[0]
 
@@ -194,7 +195,7 @@ def main_choose_best(file):
     j_delete = np.delete(np.arange(n_old), j)
     sql2.delete_rows(file=file2, table=table, rows=j_delete)
 
-    reset_sample_i32(file2)
+    clean.reset_sample_i32(file2)
     print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
 
 
@@ -205,7 +206,7 @@ def main_separate_easy_hard(file: str):
     file_easy = f"{file}_easy.db"
     file_hard = f"{file}_hard.db"
     file = f"{file}.db"
-    table = 'paths'
+    table = data.T_PATHS.table
 
     print(f"Separate {file} into easy and hard")
     print('Copy initial file -> file_easy')
@@ -215,7 +216,7 @@ def main_separate_easy_hard(file: str):
     print(f"Total: {n}")
 
     print(f"Load all world indices")
-    iw_all = sql2.get_values_sql(file=file_easy, table=data.T_PATHS, rows=-1, columns=[data.C_WORLD_I],
+    iw_all = sql2.get_values_sql(file=file_easy, table=data.T_PATHS, rows=-1, columns=[data.T_PATHS.C_WORLD_I],
                                  values_only=True)
 
     iw_all = iw_all.astype(np.int32)
@@ -240,7 +241,8 @@ def main_separate_easy_hard(file: str):
     assert np.allclose(b_easy, ~b_hard)
 
     print('Set new indices')
-    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),), columns=data.C_SAMPLE_I)
+    sql2.set_values_sql(file=file_easy, table=table, values=(i_s.astype(np.int32).tolist(),),
+                        columns=data.T_PATHS.C_SAMPLE_I)
     print('Copy file_easy -> file_hard')
     copy(file_easy, file_hard)
 
@@ -251,10 +253,10 @@ def main_separate_easy_hard(file: str):
     n_easy = sql2.get_n_rows(file=file_easy, table=table)
     n_hard = sql2.get_n_rows(file=file_hard, table=table)
     print(f"total: {n} | easy: {n_easy} | hard: {n_hard}")
-    reset_sample_i32(file=file_easy)
+    clean.reset_sample_i32(file=file_easy)
 
 
-def main_combine_files(robot_id, i, prefix=''):
+def main_combine_files(robot_id, i, table=data.T_PATHS.table, prefix=''):
     prefix = f'{prefix}_' if prefix else ''
     if isinstance(i, str):
         i = eval(i, {'__builtins__': None}, {})
@@ -267,7 +269,7 @@ def main_combine_files(robot_id, i, prefix=''):
     old_files = [f"gs://tenh_jo/{prefix}{robot_id}/{prefix}{robot_id}_{ii}.db" for ii in i]
     new_file = f"{prefix}{robot_id}_combined_{i[0]}-{i[-1]+1}.db"
     new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/{new_file}"
-    combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
+    combine_files(old_files=old_files, new_file=new_file, clean_s0=False, table=table)
 
 
 def main_combine_files_hard2():
@@ -276,12 +278,14 @@ def main_combine_files_hard2():
                  "gs://tenh_jo/Justin19_combined_40-60_hard2.db",
                  "gs://tenh_jo/Justin19_combined_60-80_hard2.db"]
     new_file = f"/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2.db"
-    combine_files(old_files=old_files, new_file=new_file, clean_s0=False)
+    tabel = 'paths'
+    combine_files(old_files=old_files, new_file=new_file, clean_s0=False, table=tabel)
 
 
 def split_df(file):
     file = '/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-40.db'
-    i_s = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=data.C_SAMPLE_I, values_only=True)
+    i_s = sql2.get_values_sql(file=file, table=data.T_PATHS.table, rows=-1,
+                              columns=data.T_PATHS.C_SAMPLE_I, values_only=True)
 
     i_s0 = np.nonzero(i_s == 0)[0]
     i_s00 = np.nonzero(i_s0[1:] != i_s0[:-1] + 1)[0] + 1

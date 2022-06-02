@@ -7,13 +7,13 @@ from mogen.Generation import data, parameter
 def sort(file):
     print(f'Sort: {file}')
 
-    sql2.sort_table(file=file, table=data.T_PATHS,
-                    order_by=[data.C_WORLD_I, data.C_SAMPLE_I, 'ROWID'])
+    sql2.sort_table(file=file, table=data.T_PATHS.table,
+                    order_by=[data.T_PATHS.C_WORLD_I, data.T_PATHS.C_SAMPLE_I, 'ROWID'])
 
 
 def reset_sample_i32(file):
     print(f'Reset indices: {file}')
-    iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=[data.C_WORLD_I])
+    iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS.table, rows=-1, columns=[data.T_PATHS.C_WORLD_I])
     iw_all = np.squeeze(iw_all)
     n = len(iw_all)
     i_s = np.full(n, -1, dtype=int)
@@ -22,15 +22,16 @@ def reset_sample_i32(file):
         j = np.nonzero(iw_all == iw_i)[0]
         i_s[j] = np.arange(len(j))
 
-    sql2.set_values_sql(file=file, table=data.T_PATHS, values=(i_s,), columns=data.C_SAMPLE_I)
+    sql2.set_values_sql(file=file, table=data.T_PATHS.table, values=(i_s,), columns=data.T_PATHS.C_SAMPLE_I)
 
 
 def reset_sample_i32_0(file):
     print(f"Reset sample_i32 0: {file}")
-    table = data.T_PATHS
+    table = data.T_PATHS.table
 
     print('Load indices')
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1, columns=[data.C_WORLD_I, data.C_SAMPLE_I])
+    w, s = sql2.get_values_sql(file=file, table=table, rows=-1,
+                               columns=[data.T_PATHS.C_WORLD_I, data.T_PATHS.C_SAMPLE_I])
     w = np.squeeze(w).astype(np.int32)
     s = np.squeeze(s).astype(np.int32)
     assert np.all(s == 0)
@@ -44,11 +45,11 @@ def reset_sample_i32_0(file):
         s[wb0_i:] += 1
 
     print('Set indices')
-    sql2.set_values_sql(file=file, table=table, values=(s,), columns=data.C_SAMPLE_I)
+    sql2.set_values_sql(file=file, table=table, values=(s,), columns=data.T_PATHS.C_SAMPLE_I)
 
 
 def remove_infeasible(file):
-    f = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=[data.C_FEASIBLE_I])
+    f = sql2.get_values_sql(file=file, table=data.T_PATHS.table, rows=-1, columns=[data.T_PATHS.C_FEASIBLE_I])
     feasible = f == +1
     print(f"feasible {feasible.sum()}/{feasible.size} ~ {np.round(feasible.mean(), 3)}")
     if not np.all(feasible):
@@ -68,15 +69,16 @@ def update_cast_joint_errors(q, limits, eps=1e-6):
 def set_dtypes(file):
     print(f'set dtypes {file}')
     # paths
-    columns_paths_old = sql2.get_columns(file=file, table=data.T_PATHS)
-    columns_paths_new = [data.C_WORLD_I, data.C_SAMPLE_I, data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I]
+    columns_paths_old = sql2.get_columns(file=file, table=data.T_PATHS.table)
+    columns_paths_new = [data.T_PATHS.C_WORLD_I, data.T_PATHS.C_SAMPLE_I,
+                         data.T_PATHS.C_Q_F32, data.T_PATHS.C_OBJECTIVE_F, data.T_PATHS.C_FEASIBLE_I]
     dtypes_paths_new = [sql2.TYPE_INTEGER, sql2.TYPE_INTEGER, sql2.TYPE_BLOB, sql2.TYPE_REAL, sql2.TYPE_INTEGER]
     assert np.all(columns_paths_old.name.values == columns_paths_new), f"{columns_paths_old.name.values} \n {columns_paths_new}"
     sql2.alter_table(file, table='paths', columns=columns_paths_new, dtypes=dtypes_paths_new)
 
     # worlds
-    columns_worlds_old = sql2.get_columns(file=file, table=data.T_WORLDS)
-    columns_worlds_new = [data.C_WORLD_I, data.C_IMG_CMP]
+    columns_worlds_old = sql2.get_columns(file=file, table=data.T_WORLDS.table)
+    columns_worlds_new = [data.T_WORLDS.C_WORLD_I, data.T_WORLDS.C_IMG_CMP]
     dtypes_worlds_new = [sql2.TYPE_INTEGER, sql2.TYPE_BLOB]
     assert np.all(columns_worlds_old.name.values == columns_worlds_new)
     sql2.alter_table(file, table='worlds', columns=columns_worlds_new, dtypes=dtypes_worlds_new)
