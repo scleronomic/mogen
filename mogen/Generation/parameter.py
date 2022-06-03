@@ -62,10 +62,10 @@ def adapt_ik_par(par, mode=None):
         par.check.center_of_mass = True
         par.check.limits = True
 
-        par.plan.length = False
+        par.plan.length = True
         par.plan.x_close = False
         par.plan.obstacle_collision = False
-        par.plan.self_collision = False
+        par.plan.self_collision = True
         par.plan.center_of_mass = False
 
         par.xc.f_idx = [13]
