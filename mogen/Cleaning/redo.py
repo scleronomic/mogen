@@ -40,7 +40,7 @@ def update_objective(file, par, i=None, i_w=None):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     o = objectives.chomp_cost(q=q, par=par)
-    sql2.set_values_sql(file=file, table=data.T_PATHS, columns=[data.C_OBJECTIVE_F], rows=i, values=(o.tolist(),))
+    sql2.set_values_sql(file=file, table=data.T_PATHS, columns=[data.C_OBJECTIVE_F()], rows=i, values=(o.tolist(),))
 
 
 def plot_redo(q, q0, q_pred, f, i,
@@ -89,7 +89,7 @@ def recalculate_objective(file, par,
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     o = objectives.o_len.len_q_cost(q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
-    sql2.set_values_sql(file=file, table=data.T_PATHS, values=(o,), columns=[data.C_OBJECTIVE_F], rows=i)
+    sql2.set_values_sql(file=file, table=data.T_PATHS, values=(o,), columns=[data.C_OBJECTIVE_F()], rows=i)
 
 
 def test_spline(file, par, gd, i=None, i_w=None):
@@ -189,8 +189,8 @@ def refine_chomp(file, par, gd,
         print('no set_values')
 
     elif mode == 'set_sql':
-        sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q1, o1, f1),
-                            columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+        sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(q1, o1, f1),
+                            columns=[data.C_Q_F(), data.C_OBJECTIVE_F(), data.C_FEASIBLE_I()])
 
     elif mode == 'save_numpy':
         directory_np = file2numpy_directory(file=file)
@@ -217,8 +217,8 @@ def refine_adjust_steps(file, par, i=None, i_w=None):
     print(f"updated {f.sum()}/{f.size} samples")
     print(f"objective improvement {o_improvement}")
 
-    sql2.set_values_sql(file=file, table=data.T_PATHS, values=(q,),
-                        columns=[data.C_Q_F32], rows=i)
+    sql2.set_values_sql(file=file, table=data.T_PATHS(), values=(q,),
+                        columns=[data.C_Q_F()], rows=i)
 
 
 def main(robot_id):
@@ -231,7 +231,7 @@ def main(robot_id):
     par.oc.n_substeps_check += 2
     gd.n_steps = 100
 
-    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS(), columns=data.C_WORLD_I(), rows=-1, values_only=True)
     for i_w in np.arange(0, 10000):
         # print('World', i_w)
         with tictoc(text=f'World {i_w}') as _:
@@ -245,7 +245,7 @@ def check_worlds_img_cmp():
     file = f"/Users/jote/Documents/DLR/Data/mogen/{robot_id}/{robot_id}.db"
 
     img_cmp = sql2.get_values_sql(file=file, table=data.T_WORLDS, rows=-1,
-                                  columns=data.C_IMG_CMP, values_only=True)
+                                  columns=data.C_IMG_CMP(), values_only=True)
     img_shape = (64, 64)
 
     from wzk.image import compressed2img, zlib
@@ -256,7 +256,7 @@ def check_worlds_img_cmp():
         except zlib.error:
             print(i)
 
-    i_w = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=data.C_WORLD_I, values_only=True)
+    i_w = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=-1, columns=data.C_WORLD_I(), values_only=True)
     u, c = np.unique(i_w, return_counts=True)
     assert u == np.arange(len(u))
 
@@ -267,7 +267,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
     robot_id = parameter.get_robot_str(file)
 
     batch_size = batch_size_dict[robot_id]
-    iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I(), rows=-1, values_only=True)
     iw_list = np.unique(iw_all)
 
     create_numpy_directory(file=file, replace=True)
@@ -299,7 +299,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
 def __setup(file):
     robot_id = parameter.get_robot_str(file)
-    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    i_w_all = sql2.get_values_sql(file=file, table=data.T_PATHS, columns=data.C_WORLD_I(), rows=-1, values_only=True)
     # iw_list = np.unique(i_w_all)
 
     gen = parameter.init_par(robot_id)
@@ -337,8 +337,8 @@ def tmp_numpy2sql(file):
         data_i = np.load(f"{directory_np}/{file_i}", allow_pickle=True)
         i, q, o, f = data_i['i'], data_i['q'], data_i['o'], data_i['f']
 
-        sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q, o, f),
-                            columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+        sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(q, o, f),
+                            columns=[data.C_Q_F(), data.C_OBJECTIVE_F(), data.C_FEASIBLE_I()])
 
         count += 1
         print(f"{count}: {min(i)}-{max(i)}")
@@ -370,7 +370,7 @@ if __name__ == '__main__':
     from wzk.gcp.gcloud2 import gsutil_cp
     gsutil_cp(src=_file, dst=f'gs://tenh_jo/{_robot_id}/{_robot_id}_vX.db')
 
-    # iw_all = sql2.get_values_sql(file=_file, table=data.T_PATHS, columns=data.C_WORLD_I, rows=-1, values_only=True)
+    # iw_all = sql2.get_values_sql(file=_file, table=data.T_PATHS, columns=data.C_WORLD_I(), rows=-1, values_only=True)
     # iw_list = np.unique(iw_all)
     #
     # gen = parameter.init_par(_robot_id)

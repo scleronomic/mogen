@@ -258,14 +258,14 @@ def get_samples_for_world(file, par, i=None, i_w=None):
 
 
 def get_paths(file, i):
-    i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table=T_PATHS.table, rows=i,
-                                            columns=[T_PATHS.cols.names()])
+    i_w, i_s, q, o, f = sql2.get_values_sql(file=file, table=T_PATHS(), rows=i,
+                                            columns=[c.name for c in T_PATHS.cols])
     i_w, i_s, o, f = squeeze_all(i_w, i_s, o, f)
     return i_w, i_s, q, o, f
 
 
 def get_worlds(file, i_w, img_shape):
-    img_cmp = sql2.get_values_sql(file=file, table=T_WORLDS.table, rows=i_w, columns=T_WORLDS.C_IMG_CMP)
+    img_cmp = sql2.get_values_sql(file=file, table=T_WORLDS(), rows=i_w, columns=T_WORLDS.C_IMG_CMP())
     img = compressed2img(img_cmp=img_cmp, shape=img_shape, dtype=bool)
     return img
 
@@ -286,8 +286,8 @@ def combine_df_list(df_list):
 def create_info_table(file):
     robot_id = os.path.splitext(os.path.split(file)[1])[0]
 
-    i_w0 = sql2.get_values_sql(file=file, table=T_WORLDS, rows=-1, columns=[T_WORLDS.C_WORLD_I])
-    i_w, i_s = sql2.get_values_sql(file=file, table=T_PATHS, rows=-1, columns=[T_PATHS.C_WORLD_I, T_PATHS.C_SAMPLE_I])
+    i_w0 = sql2.get_values_sql(file=file, table=T_WORLDS, rows=-1, columns=[T_WORLDS.C_WORLD_I()])
+    i_w, i_s = sql2.get_values_sql(file=file, table=T_PATHS, rows=-1, columns=[T_PATHS.C_WORLD_I(), T_PATHS.C_SAMPLE_I()])
     n_samples = len(i_s)
     n_worlds = len(i_w0)
 

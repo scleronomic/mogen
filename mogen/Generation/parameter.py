@@ -2,7 +2,7 @@ import numpy as np
 
 from wzk.strings import find_one_of_n
 
-from rokin.Robots.Justin19.justin19_primitives import justin_primitives
+from rokin.Robots.Justin19.justin19_primitives import justin19_primitives
 from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02
 
 
@@ -62,20 +62,21 @@ def adapt_ik_par(par, mode=None):
         par.check.center_of_mass = True
         par.check.limits = True
 
+        par.plan.length = False
         par.plan.x_close = False
         par.plan.obstacle_collision = False
-        par.plan.self_collision = True
+        par.plan.self_collision = False
         par.plan.center_of_mass = False
 
         par.xc.f_idx = [13]
 
-        par.qc.q = justin_primitives(justin='getready')
+        par.qc.q = justin19_primitives(justin='getready')
 
         par.weighting.joint_motion = np.array([200, 100, 100,
                                                20, 20, 10, 10, 1, 1, 1,
                                                20, 20, 10, 10, 1, 1, 1,
                                                5, 5], dtype=float)
 
-        if 'automatica' in mode:
-            par.qc.q = justin_primitives(justin='getready_right_high170')
+        if mode == 'automatica':
+            par.qc.q = justin19_primitives(justin='getready_right_high170')
 

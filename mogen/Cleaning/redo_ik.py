@@ -5,7 +5,7 @@ from wzk import sql2, tictoc
 from wzk.ray2 import ray, ray_init
 
 from mopla.Optimizer import feasibility_check, objectives
-from mopla.main import ik_w_projection
+from mopla.main import ik_w_projection, ik
 
 from mogen.Generation import data, parameter
 from mogen.Cleaning import redo
@@ -17,8 +17,8 @@ def recalculate_objective(file, par, i, mode):
     o = objectives.o_len.len_close2q_cost(q=q, q_close=par.qc.q, is_periodic=par.robot.is_periodic,
                                           joint_weighting=par.weighting.joint_motion)
 
-    sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(o,),
-                        columns=[data.C_OBJECTIVE_F])
+    sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(o,),
+                        columns=[data.T_PATHS.C_OBJECTIVE_F()])
 
 
 def refine_omp(file, par, gd,
@@ -72,8 +72,8 @@ def refine_omp(file, par, gd,
         print('no set_values')
 
     elif mode == 'set_sql':
-        sql2.set_values_sql(file=file, table=data.T_PATHS, rows=i, values=(q1, o1, f1),
-                            columns=[data.C_Q_F32, data.C_OBJECTIVE_F, data.C_FEASIBLE_I])
+        sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(q1, o1, f1),
+                            columns=[data.C_Q_F(), data.C_OBJECTIVE_F(), data.C_FEASIBLE_I()])
 
     elif mode == 'save_numpy':
         directory_np = redo.file2numpy_directory(file=file)
@@ -116,7 +116,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 def adapt_gd(gd):
     gd.n_steps = 5
     gd.stepsize = 1/100
-    gd.clipping = 0.2
+    gd.clipping = np.deg2rad(1)
 
 
 def main(robot_id):

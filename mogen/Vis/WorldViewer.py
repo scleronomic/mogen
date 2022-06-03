@@ -54,7 +54,7 @@ def initialize_pixel_grid(img, limits, ax, **kwargs):
     return pixel_grid
 
 
-def set_pixel_grid(bool_img, pixel_grid, **kwargs):
+def set_pixel_grid(bimg, pixel_grid, **kwargs):
     val_none_dict = {'color': 'None',
                      'edgecolor': 'None',
                      'facecolor': 'None',
@@ -71,31 +71,31 @@ def set_pixel_grid(bool_img, pixel_grid, **kwargs):
             v_other = val_none_dict[k]
 
         def ravel(val):
-            if np.size(val) == np.size(bool_img):
+            if np.size(val) == np.size(bimg):
                 val = np.ravel(val)
             return val
 
         v = ravel(v)
         v_other = ravel(v_other)
 
-        return np.where(np.ravel(bool_img), v, v_other).tolist()
+        return np.where(np.ravel(bimg), v, v_other).tolist()
 
     for kw in kwargs:
         set_fun = getattr(pixel_grid, f"set_{kw}")
         set_fun(value_wrapper(kw))
 
 
-def switch_img_values(bool_img, i, j, value=None):
+def switch_img_values(bimg, i, j, value=None):
     i = [i] if isinstance(i, int) else i
     j = [j] if isinstance(j, int) else j
 
     if value is None:
-        mean_obstacle_occurrence = np.mean(bool_img[i, j])
+        mean_obstacle_occurrence = np.mean(bimg[i, j])
         value = not np.round(mean_obstacle_occurrence)
-    bool_img = bool_img.copy()
-    bool_img[i, j] = value
+    bimg = bimg.copy()
+    bimg[i, j] = value
 
-    return bool_img
+    return bimg
 
 
 def get_selected_rectangle(e_click, e_release):
@@ -145,7 +145,7 @@ class WorldViewer:
 
     def on_click_obstacle(self, event):
         i, j = grid_x2i(x=[event.xdata, event.ydata], limits=self.world.limits, shape=self.img.shape)
-        self.img = switch_img_values(bool_img=self.img, i=i, j=j, value=None)
+        self.img = switch_img_values(bimg=self.img, i=i, j=j, value=None)
         self.update_obstacle_image()
 
     def on_select_obstacle(self, e_click, e_release):
@@ -153,13 +153,13 @@ class WorldViewer:
 
         i_ll, i_ur = grid_x2i(x=np.array([x_ll, x_ur]), limits=self.world.limits, shape=self.img.shape)
 
-        self.img = switch_img_values(bool_img=self.img, value=None,
+        self.img = switch_img_values(bimg=self.img, value=None,
                                      i=slice(i_ll[0], i_ur[0] + 1), j=slice(i_ll[1], i_ur[1] + 1))
 
         self.update_obstacle_image()
 
     def update_obstacle_image(self):
-        set_pixel_grid(bool_img=self.img, pixel_grid=self.pixel_grid,
+        set_pixel_grid(bimg=self.img, pixel_grid=self.pixel_grid,
                        edgecolor=self.edge_color, facecolor=self.face_color)
 
     def change_sample(self, i_world):
@@ -188,8 +188,8 @@ def test():
     par = Parameter(robot='SingleSphere02', obstacle_img=None)
 
     wv = WorldViewer(world=par.world, ax=None)
-    # set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linestyle=('-', '--'))
-    # set_pixel_grid(bool_img=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linewidth=(1, 2))
+    # set_pixel_grid(bimg=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linestyle=('-', '--'))
+    # set_pixel_grid(bimg=wv.obstacle_img, pixel_grid=wv.obstacle_pixel_grid, linewidth=(1, 2))
     # wv.obstacle_pixel_grid.set_hatch('x')
     return wv
 

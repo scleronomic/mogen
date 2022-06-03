@@ -94,7 +94,7 @@ def animate_path(robot_id,
         #                                 kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
         #
         # p = robot_3d.plotter_wrapper({})
-        # robot_3d.plot_bool_vol(p=p, img=img, limits=par.world.limits, mode='voxel', opacity=0.5)
+        # robot_3d.plot_bimg(p=p, img=img, limits=par.world.limits, mode='voxel', opacity=0.5)
         # p.show()
 
 #

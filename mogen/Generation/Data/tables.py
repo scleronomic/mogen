@@ -25,6 +25,9 @@ class SQLTABLE:
     __slots__ = ('table',
                  'cols')
 
+    def __call__(self):
+        return self.table
+
     def __getitem__(self, item):
         self.cols.__getitem__(item)
 

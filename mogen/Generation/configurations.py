@@ -105,7 +105,7 @@ def main(robot_id, iw_list, sample_mode, n_samples_per_world=1000, ra='append'):
         df = data.combine_df_list(df_list)
 
     with tictoc(text=f"Saving {len(df)} new samples", verbose=(1, 2)) as _:
-        df2sql(df=df, file=file, table=data.T_IKS.table, dtype=data.T_IKS.types_dict_sql(), if_exists=ra)
+        df2sql(df=df, file=file, table=data.T_IKS(), dtype=data.T_IKS.types_dict_sql(), if_exists=ra)
         if ra == 'replace':
             vacuum(file=file)
     return df

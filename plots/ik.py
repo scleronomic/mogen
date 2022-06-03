@@ -5,7 +5,7 @@ from wzk import sql2
 from wzk.spatial.transform import frame2trans_rotvec
 from wzk.spatial.difference import frame_difference
 
-from rokin.Robots.Justin19.justin19_primitives import justin_primitives
+from rokin.Robots.Justin19.justin19_primitives import justin19_primitives
 from mopla.Optimizer.feasibility_check import feasibility_check
 from mopla.Optimizer.length import len_close2q_cost
 from mopla.main import ik_w_projection
@@ -20,7 +20,7 @@ par, gd = gen.par, gen.gd
 f_idx = 13
 
 n = 100000
-q = sql2.get_values_sql(file=file, table=data.T_PATHS, rows=np.arange(n), columns=[data.C_Q_F32])
+q = sql2.get_values_sql(file=file, table=data.T_PATHS(), rows=np.arange(n), columns=[data.C_Q_F()])
 f = par.robot.get_frames(q)[:, f_idx, :, :]
 
 
