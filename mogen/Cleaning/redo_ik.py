@@ -88,7 +88,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
     ray_init(perc=ray_perc)
 
     file = data.get_file_ik(robot_id=robot_id)
-    n = sql2.get_n_rows(file=file, table=data.T_PATHS)
+    n = sql2.get_n_rows(file=file, table=data.T_PATHS())
 
     redo.create_numpy_directory(file=file, replace=True)
     q_fun_ray0 = ray.put(q_fun)
