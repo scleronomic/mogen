@@ -73,7 +73,7 @@ def refine_omp(file, par, gd,
 
     elif mode == 'set_sql':
         sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(q1, o1, f1),
-                            columns=[data.C_Q_F(), data.C_OBJECTIVE_F(), data.C_FEASIBLE_I()])
+                            columns=[data.T_PATHS.C_Q_F(), data.T_PATHS.C_OBJECTIVE_F(), data.T_PATHS.C_FEASIBLE_I()])
 
     elif mode == 'save_numpy':
         directory_np = redo.file2numpy_directory(file=file)
@@ -116,7 +116,7 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 def adapt_gd(gd):
     gd.n_steps = 10
     gd.stepsize = 1/100
-    gd.clipping = np.deg2rad(50)
+    gd.clipping = np.deg2rad(45)
 
 
 def main(robot_id):
