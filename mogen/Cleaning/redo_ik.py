@@ -21,6 +21,10 @@ def recalculate_objective(file, par, i, mode):
                         columns=[data.T_PATHS.C_OBJECTIVE_F()])
 
 
+def apply_free_joints_heuristic():
+    pass
+
+
 def refine_omp(file, par, gd,
                q_fun=None, i=None,
                verbose=0, mode=None):
