@@ -57,7 +57,7 @@ def refine_omp(file, par, gd,
 
     b_fb, b_nfb, b_rest = redo.get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
 
-    redo.print_improvements(o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
+    redo.print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
     if verbose > 10:
         pass  # TODO plot
 
@@ -118,9 +118,9 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 
 
 def adapt_gd(gd):
-    gd.n_steps = 5
+    gd.n_steps = 10
     gd.stepsize = 1/100
-    gd.clipping = np.deg2rad(1)
+    gd.clipping = np.deg2rad(10)
 
 
 def main(robot_id):

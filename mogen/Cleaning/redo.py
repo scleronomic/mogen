@@ -103,7 +103,7 @@ def test_spline(file, par, gd, i=None, i_w=None):
     print(f"{f.sum()} / {f.size}")
 
 
-def print_improvements(o0, o1, f0, f1,
+def print_improvements(q0, q1, o0, o1, f0, f1,
                        b_fb,
                        verbose):
     ff0 = np.round((f0 == 1).mean(), 3)
@@ -114,18 +114,22 @@ def print_improvements(o0, o1, f0, f1,
     oo1 = np.round(o2.mean(), 4)
     oo0 = np.round(o0.astype(float).mean(), 4)
 
+    dq_mean = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).mean())
+    dq_max = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).max())
+
     n_fb = b_fb.sum()
     n_nf = (~np.logical_or(f0 == +1, f1 == +1)).sum()
     print(f"# samples: {len(f0)}, # improvements {n_fb}  # infeasible {n_nf} | "
           f"f0: {ff0}, f1: {ff1} | "
-          f"o0: {oo0}, o1: {oo1}")
+          f"o0: {oo0}, o1: {oo1} | "
+          f"dq: {np.round(dq_mean)} - {np.round(dq_max)}")
 
     if verbose > 1:
         improvement = o0 - o1
         improvement[~b_fb] -= np.inf
         j = np.argmax(improvement)
 
-        print(f'Largest Improvement {j}:', o0[j], o1[j], f1[j])
+        print(f'Largest Improvement {j}:', np.round(o0[j], 3), np.round(o1[j], 3), f1[j])
 
 
 def get_b_improvements(o0, o1, f0, f1):

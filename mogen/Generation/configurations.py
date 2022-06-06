@@ -25,8 +25,7 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         assert n % 4 == 0
         n = n // 4
 
-        scene = automatica2022.setup_table_scene(shape=(256, 256, 256))
-        cubes = automatica2022.Cubes(n=n*4)
+        scene = automatica2022.TableScene(shape=(256, 256, 256), n_cubes=n*4)
         x = np.random.uniform(low=scene.table[0, 0], high=scene.table[0, 1], size=n)
         y = np.random.uniform(low=scene.table[1, 0], high=scene.table[1, 1], size=n)
         z = np.random.uniform(low=scene.table[2, 1]+0.04, high=scene.table[2, 1]+0.54, size=n)
@@ -37,9 +36,9 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         a = np.repeat(a, repeats=4, axis=0) + np.tile([0, np.pi/2, np.pi, 3*np.pi/2], reps=n)
         a = angle2minuspi_pluspi(a)
 
-        cubes.x = x
-        cubes.a = a
-        f = automatica2022.xa_to_f(cubes)
+        scene.cubes.x = x
+        scene.cubes.a = a
+        f = automatica2022.xa_to_f(scene.cubes)
         f = f @ automatica2022.F_CUBE_HAND
     else:
         raise ValueError
@@ -85,7 +84,7 @@ def main(robot_id, iw_list, sample_mode, n_samples_per_world=1000, ra='append'):
     @ray.remote
     def generate_ray(_i_w: int):
         gen = parameter.init_par(robot_id=robot_id)
-        parameter.adapt_ik_par(par=gen.par, mode='main_loop_automatica_sc')
+        parameter.adapt_ik_par(par=gen.par, mode='automatica')
 
         _i_w = int(_i_w)
         if _i_w == -1:
