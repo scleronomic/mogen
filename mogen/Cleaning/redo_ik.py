@@ -118,9 +118,9 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 
 
 def adapt_gd(gd):
-    gd.n_steps = 10
+    gd.n_steps = 5
     gd.stepsize = 1/100
-    gd.clipping = np.deg2rad(45)
+    gd.clipping = np.deg2rad(1)
 
 
 def main(robot_id):
