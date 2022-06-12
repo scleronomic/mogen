@@ -56,15 +56,15 @@ def adapt_ik_par(par, mode=None):
     if par.robot.id == 'Justin19':
         par.n_wp = 1
 
-        par.check.x_close = True
-        par.check.obstacle_collision = False
+        par.check.xclose = True
+        par.check.obstacle_collision = True
         par.check.self_collision = True
         par.check.center_of_mass = True
         par.check.limits = True
 
         par.plan.length = True
-        par.plan.x_close = True
-        par.plan.obstacle_collision = False
+        par.plan.xclose = True
+        par.plan.obstacle_collision = True
         par.plan.self_collision = True
         par.plan.center_of_mass = True
 
@@ -81,7 +81,12 @@ def adapt_ik_par(par, mode=None):
                                                20, 20, 10, 10, 1, 1, 1,
                                                20, 20, 10, 10, 1, 1, 1,
                                                5, 5], dtype=float)
-
+        par.weighting.joint_motion *= par.robot.n_dof / par.weighting.joint_motion.sum()
         if mode == 'automatica':
             par.qc.q = justin19_primitives(justin='getready_right_high170')
 
+
+def adapt_ik_gd(gd):
+    gd.n_steps = 10
+    gd.stepsize = 1/100
+    gd.clipping = np.deg2rad(10)

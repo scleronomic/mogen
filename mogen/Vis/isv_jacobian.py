@@ -29,7 +29,7 @@ class ISV(InteractiveSampleViewer):
 
         # A
         for i in range(100):
-            j = ik_grad(par=self.par, q=q, q_close=self.drag_start.get_q()) / 100
+            j = ik_grad(par=self.par, q=q, qclose=self.drag_start.get_q()) / 100
             q = nullspace_projection2(robot=self.par.robot, q=q, u=-j, f0=f0, mode='x', f_idx=self.par.xc.f_idx, clip=0.1)
 
         # B
@@ -56,7 +56,7 @@ class ISV(InteractiveSampleViewer):
 
 _par = Parameter(robot='StaticArm04')
 _par.n_wp = 1
-_par.plan.x_close = False
+_par.plan.xclose = False
 _par.xc.f_idx = _par.robot.n_frames - 1
 _par.weighting.collision = 10
 _par.weighting.length = 1

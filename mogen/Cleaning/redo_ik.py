@@ -14,7 +14,7 @@ from mogen.Cleaning import redo
 def recalculate_objective(file, par, i, mode):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i)
     q = q[..., 0, :]
-    o = objectives.o_len.len_close2q_cost(q=q, q_close=par.qc.q, is_periodic=par.robot.is_periodic,
+    o = objectives.o_len.len_close2q_cost(q=q, qclose=par.qc.q, is_periodic=par.robot.is_periodic,
                                           joint_weighting=par.weighting.joint_motion)
 
     sql2.set_values_sql(file=file, table=data.T_PATHS(), rows=i, values=(o,),
@@ -52,8 +52,8 @@ def refine_omp(file, par, gd,
         f1[j] = feasibility_check(q=q1[j:j + 1, np.newaxis, :], par=par) > 0
         f0[j] = feasibility_check(q=q0[j:j + 1, np.newaxis, :], par=par) > 0
 
-    o0 = objectives.o_len.len_close2q_cost(q=q0, q_close=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
-    o1 = objectives.o_len.len_close2q_cost(q=q1, q_close=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
+    o0 = objectives.o_len.len_close2q_cost(q=q0, qclose=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
+    o1 = objectives.o_len.len_close2q_cost(q=q1, qclose=par.qc.q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
 
     b_fb, b_nfb, b_rest = redo.get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
 
@@ -68,7 +68,7 @@ def refine_omp(file, par, gd,
     # par.check.obstacle_collision = False
     # par.check.self_collision = False
     # par.check.center_of_mass = False
-    # par.check.x_close = False
+    # par.check.xclose = False
     # f = feasibility_check(q=q1[:, np.newaxis], par=par,)
     # print('limits', (f == -3).mean())
 
@@ -115,12 +115,6 @@ def main_refine_chomp(robot_id, q_fun=None, ray_perc=100, mode=None):
 
     res = ray.get(futures)
     print(f"{np.sum(res)} / {np.size(res)}")
-
-
-def adapt_gd(gd):
-    gd.n_steps = 10
-    gd.stepsize = 1/100
-    gd.clipping = np.deg2rad(10)
 
 
 def main(robot_id):

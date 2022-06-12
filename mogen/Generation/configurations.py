@@ -21,25 +21,21 @@ def sample_f(robot, f_idx, n=None, mode='q'):
         f = robot.get_frames(q)
         f = f[..., f_idx, :, :]
 
-    elif mode == 'automatica_cube4':
+    elif mode == 'automatica_cube4':  # TODO write general with limits in xyz, alphabetagamma and use automatica as a special case
         assert n % 4 == 0
         n = n // 4
 
-        scene = automatica2022.TableScene(shape=(256, 256, 256), n_cubes=n*4)
-        x = np.random.uniform(low=scene.table[0, 0], high=scene.table[0, 1], size=n)
-        y = np.random.uniform(low=scene.table[1, 0], high=scene.table[1, 1], size=n)
-        z = np.random.uniform(low=scene.table[2, 1]+0.04, high=scene.table[2, 1]+0.54, size=n)
-        x = np.vstack(([x, y, z])).T
+        scene = automatica2022.CubeScene(shape=(128, 128, 128), n_cubes=n * 4)
+        x, a = automatica2022.sample_cube_frames(limits=scene.cubes.limits, n=n)
         x = np.repeat(x, repeats=4, axis=0)
-
-        a = np.random.uniform(0, 2*np.pi, size=n)
         a = np.repeat(a, repeats=4, axis=0) + np.tile([0, np.pi/2, np.pi, 3*np.pi/2], reps=n)
         a = angle2minuspi_pluspi(a)
 
         scene.cubes.x = x
         scene.cubes.a = a
         f = automatica2022.xa_to_f(scene.cubes)
-        f = f @ automatica2022.F_CUBE_HAND
+        f = f @ automatica2022.F_CUBE_HANDRIGHT
+
     else:
         raise ValueError
 
@@ -57,15 +53,15 @@ def generate_ik(gen, img_cmp, i_world, n_samples, sample_mode):
     for i in range(n_samples):
         m = 1000
         par.xc.frame = f[i]
-        q = ik_mp(par=par, q_close=par.qc.q, n_samples=m, n_iter=10, n_processes=1, mode=None)
+        q = ik_mp(par=par, qclose=par.qc.q, n_samples=m, n_iter=10, n_processes=1, mode=None)
 
         q = np.tile(q, reps=(2, 1))  # TODO do this everywhere, can be done more efficient with feasibility check
-        set_free_joints2close(q[:m], par=par, q_close=par.qc.q)
+        set_free_joints2close(q[:m], par=par, qclose=par.qc.q)
 
         status = feasibility_check(q=q[:, np.newaxis, :], par=par, verbose=0)
 
         q_opt, _, mce, cost = choose_optimum.get_feasible_optimum(q=q[:, np.newaxis, :], status=status,
-                                                                  par=par, q_close=par.qc.q, mode='min')
+                                                                  par=par, qclose=par.qc.q, mode='min')
 
         print((status == 1).sum())
         if np.any(status == 1):
@@ -125,9 +121,16 @@ def main_loop_automatica_sc(robot_id):
                  sample_mode='automatica_cube4')
 
 
-if __name__ == '__main__':
-    ray_init(perc=100)
-    _robot_id = 'Justin19'
+def test_sample_f():
+    from rokin.Robots import Justin19
+    robot = Justin19
+    sample_f(robot=robot, f_idx=13, n=100, mode='automatica_cube4')
 
-    with tictoc() as _:
-        main_loop_automatica_sc(robot_id=_robot_id)
+
+if __name__ == '__main__':
+    test_sample_f()
+    # ray_init(perc=100)
+    # _robot_id = 'Justin19'
+    #
+    # with tictoc() as _:
+    #     main_loop_automatica_sc(robot_id=_robot_id)
