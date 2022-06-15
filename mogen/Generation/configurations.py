@@ -137,7 +137,7 @@ def main_loop_table_lut(robot_id):
 
     for i, w in enumerate(worlds):
         main(robot_id=robot_id, iw_list=w, n_samples_per_world=1000, ra='append',
-             sample_mode='automatica_lut', par_mode=('shelf', 'right'))
+             sample_mode='automatica_lut', par_mode=('shelf', 'left'))
 
 
 def test_sample_f():
