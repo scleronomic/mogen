@@ -30,7 +30,7 @@ def sample_f(robot, f_idx, n=None, mode='q', i_world=None):
         f = scene.xa_cube2f_tcp(xa)
 
     elif mode == 'automatica_lut':
-        _lut = lut.IKTableFull(_lut=None)
+        _lut = lut.IKShelfFull(_lut=None)
         x = _lut.sample_bin_centers()
         x = x.reshape((-1,) + x.shape[4:])
         x = x[i_world].reshape(-1, x.shape[-1])
@@ -128,7 +128,7 @@ def main_loop_automatica_sc(robot_id):
 
 
 def main_loop_table_lut(robot_id):
-    _lut = lut.IKTableFull(_lut=None)
+    _lut = lut.IKShelfFull(_lut=None)
     print(_lut.n)
     n_xyz = np.prod(_lut.n[:4])
     worlds = np.arange(n_xyz)
@@ -137,13 +137,13 @@ def main_loop_table_lut(robot_id):
 
     for i, w in enumerate(worlds):
         main(robot_id=robot_id, iw_list=w, n_samples_per_world=1000, ra='append',
-             sample_mode='automatica_lut', par_mode=('table', 'left'))
+             sample_mode='automatica_lut', par_mode=('shelf', 'right'))
 
 
 def test_sample_f():
     from rokin.Robots import Justin19
     robot = Justin19
-    f = sample_f(robot=robot, f_idx=13, n=100, mode='automatica_table_right', i_world=0)
+    f = sample_f(robot=robot, f_idx=13, n=100, mode='automatica_lut', i_world=0)
     print(f.shape)
 
 
