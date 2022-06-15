@@ -29,20 +29,20 @@ def sample_f(robot, f_idx, n=None, mode='q', i_world=None):
         xa = np.concatenate((x, a), axis=-1)
         f = scene.xa_cube2f_tcp(xa)
 
-    elif mode == 'automatica_table_right':
+    elif mode == 'automatica_lut':
         _lut = lut.IKShelfFull(_lut=None)
         x = _lut.sample_bin_centers()
         x = x.reshape((-1,) + x.shape[4:])
         x = x[i_world].reshape(-1, x.shape[-1])
         # x = x[np.random.choice(np.arange(len(x)), size=3, replace=False)]
         f = spatial.trans_rotvec2frame(trans=x[:, :3], rotvec=x[:, 3:])
+
     else:
         raise ValueError
 
     return f
 
 
-# TODO
 def generate_ik(gen, img_cmp, i_world, n_samples, sample_mode):
     np.random.seed(None)
     img = image.compressed2img(img_cmp=img_cmp, shape=gen.par.world.shape, dtype=bool)
@@ -74,13 +74,13 @@ def generate_ik(gen, img_cmp, i_world, n_samples, sample_mode):
     return data.combine_df_list(df_list)
 
 
-def main(robot_id, iw_list, sample_mode, n_samples_per_world=1000, ra='append'):
+def main(robot_id, iw_list, sample_mode, par_mode, n_samples_per_world=1000, ra='append'):
     file = data.get_file_ik(robot_id=robot_id, copy=False)
 
     @ray.remote
     def generate_ray(_i_w: int):
         gen = parameter.init_par(robot_id=robot_id)
-        parameter.adapt_ik_par_justin19(par=gen.par, mode='automatica')
+        parameter.adapt_ik_par_justin19(par=gen.par, mode=par_mode)
 
         _i_w = int(_i_w)
         # if _i_w == -1:
@@ -115,7 +115,8 @@ def main_loop_sc(robot_id):
     for i in range(10000):
         worlds = [-1] * 600
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append', sample_mode='q')
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append',
+                 sample_mode='q', par_mode=None)
 
 
 def main_loop_automatica_sc(robot_id):
@@ -123,7 +124,7 @@ def main_loop_automatica_sc(robot_id):
         worlds = [-1] * 20
         with tictoc(f"loop {i}") as _:
             main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=200, ra='append',
-                 sample_mode='automatica_cube4')
+                 sample_mode='automatica_cube4', par_mode='table')
 
 
 def main_loop_table_lut(robot_id):
@@ -136,7 +137,7 @@ def main_loop_table_lut(robot_id):
 
     for i, w in enumerate(worlds):
         main(robot_id=robot_id, iw_list=w, n_samples_per_world=1000, ra='append',
-             sample_mode='automatica_table_right')
+             sample_mode='automatica_lut', par_mode=('table', 'left'))
 
 
 def test_sample_f():
