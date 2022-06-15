@@ -30,8 +30,8 @@ def sample_f(robot, f_idx, n=None, mode='q', i_world=None):
         f = scene.xa_cube2f_tcp(xa)
 
     elif mode == 'automatica_table_right':
-        tablelut = lut.IKTableFull(_lut=None)
-        x = tablelut.sample_bin_centers()
+        _lut = lut.IKShelfFull(_lut=None)
+        x = _lut.sample_bin_centers()
         x = x.reshape((-1,) + x.shape[4:])
         x = x[i_world].reshape(-1, x.shape[-1])
         # x = x[np.random.choice(np.arange(len(x)), size=3, replace=False)]
@@ -127,9 +127,9 @@ def main_loop_automatica_sc(robot_id):
 
 
 def main_loop_table_lut(robot_id):
-    tablelut = lut.IKTableFull(_lut=None)
-    print(tablelut.n)
-    n_xyz = np.prod(tablelut.n[:4])
+    _lut = lut.IKShelfFull(_lut=None)
+    print(_lut.n)
+    n_xyz = np.prod(_lut.n[:4])
     worlds = np.arange(n_xyz)
     worlds = np.array_split(worlds, 168)
     print(n_xyz, len(worlds), len(worlds[0]))
