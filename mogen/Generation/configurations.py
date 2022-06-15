@@ -34,7 +34,7 @@ def sample_f(robot, f_idx, n=None, mode='q', i_world=None):
         x = tablelut.sample_bin_centers()
         x = x.reshape((-1,) + x.shape[4:])
         x = x[i_world].reshape(-1, x.shape[-1])
-        x = x[np.random.choice(np.arange(len(x)), size=3, replace=False)]
+        # x = x[np.random.choice(np.arange(len(x)), size=3, replace=False)]
         f = spatial.trans_rotvec2frame(trans=x[:, :3], rotvec=x[:, 3:])
     else:
         raise ValueError
