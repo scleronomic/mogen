@@ -3,7 +3,7 @@ import numpy as np
 from wzk.strings import find_one_of_n
 
 from rokin.Robots.Justin19.justin19_primitives import justin19_primitives
-from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02
+from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02, adapt_ik_par_justin19
 
 
 class Generation:
@@ -50,43 +50,3 @@ def init_par(robot_id: str):
     gen.gd.hesse_inv = gen.staircase.P_inv_dict[par.n_wp]
 
     return gen
-
-
-def adapt_ik_par(par, mode=None):
-    if par.robot.id == 'Justin19':
-        par.n_wp = 1
-
-        par.check.xclose = True
-        par.check.obstacle_collision = True
-        par.check.self_collision = True
-        par.check.center_of_mass = True
-        par.check.limits = True
-
-        par.plan.length = True
-        par.plan.xclose = True
-        par.plan.obstacle_collision = True
-        par.plan.self_collision = True
-        par.plan.center_of_mass = True
-
-        par.weighting.collision = 10
-        par.weighting.length = 1
-        par.weighting.center_of_mass = 2
-        par.weighting.xclose = 1
-
-        par.xc.f_idx = [13]
-
-        par.qc.q = justin19_primitives(justin='getready')
-
-        par.weighting.joint_motion = np.array([200, 100, 100,
-                                               20, 20, 10, 10, 1, 1, 1,
-                                               20, 20, 10, 10, 1, 1, 1,
-                                               5, 5], dtype=float)
-        par.weighting.joint_motion *= par.robot.n_dof / par.weighting.joint_motion.sum()
-        if mode == 'automatica':
-            par.qc.q = justin19_primitives(justin='getready_right_high170')
-
-
-def adapt_ik_gd(gd):
-    gd.n_steps = 10
-    gd.stepsize = 1/100
-    gd.clipping = np.deg2rad(10)
