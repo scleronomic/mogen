@@ -6,7 +6,6 @@ from rokin.Robots.Justin19.justin19_primitives import justin19_primitives
 from mopla.Parameter import get_par_justin19, get_par_justinarm07, get_par_staticarm, get_par_singlesphere02, adapt_ik_par_justin19
 
 
-
 class Generation:
     __slots__ = ('par',
                  'gd',
