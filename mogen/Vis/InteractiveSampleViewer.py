@@ -5,10 +5,10 @@ from wzk import trajectory
 
 from rokin.Vis import robot_2d
 
-from mogen.Vis import DraggableSphereRobot, style
-from mogen.Vis.WorldViewer import WorldViewer
-from mogen.Vis.PathViewer import PathViewer
+from mopla.Optimizer.gradient_descent import gd_chomp
+from mopla.Optimizer import feasibility_check, length
 
+from mogen.Vis import WorldViewer, PathViewer, DraggableSphereRobot, style
 from mogen.Generation import parameter, data
 
 
@@ -42,7 +42,7 @@ class InteractiveSampleViewer:
 
         self.path = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style.style_middle)
 
-        # self.path_o = SpherePath(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style_optimize)
+        self.path_o = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style.style_optimize)
         if self.get_prediction is not None:
             self.path_p = PathViewer(i_sample=self.i_sample, file=self.file, ax=self.ax, gd=gd, par=par, **style.style_predict)
 
@@ -180,7 +180,30 @@ class InteractiveSampleViewer:
         pass
 
     def plot_optimize(self):
-        pass
+        self.plot_predict()
+        q_start, q_end = trajectory.full2start_end(self.path_p.q, mode='20')
+
+        self.par.q_start, self.par.q_end = q_start, q_end
+        self.par.update_oc(img=self.world.img)
+
+        q0 = self.path_p.q[..., 1:-1, :]
+        q0 = np.reshape(q0, (1, self.par.n_wp-2, self.par.robot.n_dof))
+        print(q0.shape)
+
+        q_o, _ = gd_chomp(q0=q0, par=self.par, gd=self.gd)
+        q_o = trajectory.inner2full(inner=q_o, start=q_start, end=q_end)
+        q_o = trajectory.get_path_adjusted(q_o)
+        self.path_o.q = np.reshape(q_o, (self.par.n_wp, self.par.robot.n_dof))
+        self.path_o.plot()
+
+        print('feasibility: path_o', feasibility_check(q=self.path_o.q[np.newaxis, :, :], par=self.par))
+        len_cost = length.len_q_cost(q=self.path.q, is_periodic=None, joint_weighting=1)
+        len_cost_o = length.len_q_cost(q=self.path_o.q, is_periodic=None, joint_weighting=1)
+        len_cost_car = length.len_q_cost_cartesian(q=self.path.q, is_periodic=None).astype(float),
+        len_cost_car_o = length.len_q_cost_cartesian(q=self.path_o.q, is_periodic=None)
+
+        print(f"len: label {np.round(len_cost, 3)  } | {np.round(len_cost_car, 3)}")
+        print(f"len: optim {np.round(len_cost_o, 3)} | {np.round(len_cost_car_o, 3)}")
 
     def plot_predict(self):
 
@@ -189,11 +212,10 @@ class InteractiveSampleViewer:
             return
 
         else:
-            # c = trajectory.to_spline(x=self.path.q, n_c=4)
-            # self.path_p.q = trajectory.from_spline(c=c, n_wp=self.par.n_wp)
-            # TODO Spline
+            q_start, q_end = self.path.q[[0, -1]].copy()
 
-            q_start, q_end = self.path.q[[0, -1]]
+            # self.path_p.q = trajectory.fromto_spline(x=self.path_p.q, n_c=4, start_end0=True)
+
             q_pred = self.get_prediction(img=self.world.img, q_start=q_start, q_end=q_end)
             self.path_p.q = np.reshape(q_pred, (self.par.n_wp, self.par.robot.n_dof))
             self.path_p.plot()

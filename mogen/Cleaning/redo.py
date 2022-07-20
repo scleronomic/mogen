@@ -111,7 +111,7 @@ def print_improvements(q0, q1, o0, o1, f0, f1,
 
     o2 = o0.copy()
     o2[b_fb] = o1[b_fb]
-    oo1 = np.round(o2.mean(), 4)
+    oo1 = np.round(o2.astype(float).mean(), 4)
     oo0 = np.round(o0.astype(float).mean(), 4)
 
     dq_mean = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).mean())
@@ -122,7 +122,7 @@ def print_improvements(q0, q1, o0, o1, f0, f1,
     print(f"# samples: {len(f0)}, # improvements {n_fb}  # infeasible {n_nf} | "
           f"f0: {ff0}, f1: {ff1} | "
           f"o0: {oo0}, o1: {oo1} | "
-          f"dq: {np.round(dq_mean)} - {np.round(dq_max)}")
+          f"dq: mean: {np.round(dq_mean)} , max: {np.round(dq_max)}")
 
     if verbose > 1:
         improvement = o0 - o1
@@ -183,7 +183,7 @@ def refine_chomp(file, par, gd,
     o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
 
     b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
-    print_improvements(o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
+    print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
 
     q1[b_rest] = q0[b_rest]
     o1[b_rest] = o0[b_rest]

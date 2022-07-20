@@ -1,6 +1,6 @@
 import numpy as np
 
-from rokin.Vis import robot_2d, robot_3d
+from rokin.Vis import robot_2d
 from rokin.forward import get_frames_x
 
 import mopla.Optimizer.InitialGuess.path as path_i
@@ -67,6 +67,12 @@ class PathViewer:
     def change_sample(self, i_sample):
         self.i_sample = i_sample
         self.q = get_path_sample(par=self.par, file=self.file, i=self.i_sample)
+
+        # from wzk import trajectory
+        # beerel = trajectory.x2beerel(x=self.q)
+        # beerel = trajectory.fromto_spline(x=beerel, n_c=4, start_end0=True)
+        # self.q = trajectory.beerel2x(beerel=beerel, se=self.q[..., [0, -1], :])
+
         self.plot()
 
     def plot(self):
@@ -84,6 +90,7 @@ def test():
     from mopla.Parameter.parameter import Parameter
     par = Parameter(robot='StaticArm04')
     pv = PathViewer(par=par, exp=None, gd=None, ax=None)
+    return pv
 
 
 if __name__ == '__main__':

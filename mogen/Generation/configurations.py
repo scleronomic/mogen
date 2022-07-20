@@ -30,13 +30,12 @@ def sample_f(robot, f_idx, n=None, mode='q', i_world=None):
         f = scene.xa_cube2f_tcp(xa)
 
     elif mode == 'automatica_lut':
-        _lut = lut.IKShelfFull(_lut=None)
+        # _lut = lut.IKShelfFull()
+        _lut = lut.IK_LUT_CubesTable()
         x = _lut.sample_bin_centers()
-        x = x.reshape((-1,) + x.shape[4:])
+        x = x.reshape((-1,) + x.shape[2:])  # 4:
         x = x[i_world].reshape(-1, x.shape[-1])
-        # x = x[np.random.choice(np.arange(len(x)), size=3, replace=False)]
-        f = spatial.trans_rotvec2frame(trans=x[:, :3], rotvec=x[:, 3:])
-
+        f = _lut.x2X(x)
     else:
         raise ValueError
 
@@ -127,17 +126,17 @@ def main_loop_automatica_sc(robot_id):
                  sample_mode='automatica_cube4', par_mode='table')
 
 
-def main_loop_table_lut(robot_id):
-    _lut = lut.IKShelfFull(_lut=None)
+def main_loop_lut(robot_id):
+    _lut = lut.IK_LUT_CubesTable()
     print(_lut.n)
-    n_xyz = np.prod(_lut.n[:4])
+    n_xyz = np.prod(_lut.n[:2])
     worlds = np.arange(n_xyz)
-    worlds = np.array_split(worlds, 168)
+    worlds = np.array_split(worlds, 30)  # 168
     print(n_xyz, len(worlds), len(worlds[0]))
 
     for i, w in enumerate(worlds):
         main(robot_id=robot_id, iw_list=w, n_samples_per_world=1000, ra='append',
-             sample_mode='automatica_lut', par_mode=('shelf', 'left'))
+             sample_mode='automatica_lut', par_mode=('table', 'left'))
 
 
 def test_sample_f():
@@ -150,7 +149,7 @@ def test_sample_f():
 if __name__ == '__main__':
     ray_init(perc=100)
     _robot_id = 'Justin19'
-    main_loop_table_lut(robot_id=_robot_id)
+    main_loop_lut(robot_id=_robot_id)
 
     # with tictoc() as _:
     #     main_loop_automatica_sc(robot_id=_robot_id)

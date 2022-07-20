@@ -290,8 +290,8 @@ def combine_df_list(df_list):
 def create_info_table(file):
     robot_id = os.path.splitext(os.path.split(file)[1])[0]
 
-    i_w0 = sql2.get_values_sql(file=file, table=T_WORLDS, rows=-1, columns=[T_WORLDS.C_WORLD_I()])
-    i_w, i_s = sql2.get_values_sql(file=file, table=T_PATHS, rows=-1, columns=[T_PATHS.C_WORLD_I(), T_PATHS.C_SAMPLE_I()])
+    i_w0 = sql2.get_values_sql(file=file, table=T_WORLDS(), rows=-1, columns=[T_WORLDS.C_WORLD_I()])
+    i_w, i_s = sql2.get_values_sql(file=file, table=T_PATHS(), rows=-1, columns=[T_PATHS.C_WORLD_I(), T_PATHS.C_SAMPLE_I()])
     n_samples = len(i_s)
     n_worlds = len(i_w0)
 
@@ -305,14 +305,14 @@ def create_info_table(file):
     data = {key: value for key, value in zip(T_INFO.cols.names(),
                                              [[robot_id], [n_worlds], [n_samples], [n_samples_per_world]])}
     data = pd.DataFrame(data)
-    sql2.df2sql(df=data, file=file, table=T_INFO, dtype=T_INFO.types_sql(), if_exists='replace')
+    sql2.df2sql(df=data, file=file, table=T_INFO(), dtype=T_INFO.types_sql(), if_exists='replace')
     print('Created Info Table')
 
 
 def get_info_table(file):
     robot_id, n_worlds, n_samples, n_samples_per_world = \
-        sql2.get_values_sql(file=file, table=T_INFO, squeeze_row=True,
-                            columns=[T_INFO.C_ROBOT_ID, T_INFO.C_N_WORLDS, T_INFO.C_N_SAMPLES, T_INFO.C_N_SAMPLES_PER_WORLD])
+        sql2.get_values_sql(file=file, table=T_INFO(), squeeze_row=True,
+                            columns=[T_INFO.C_ROBOT_ID(), T_INFO.C_N_WORLDS(), T_INFO.C_N_SAMPLES(), T_INFO.C_N_SAMPLES_PER_WORLD()])
 
     return robot_id, n_worlds, n_samples, n_samples_per_world
 
