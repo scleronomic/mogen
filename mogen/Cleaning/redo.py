@@ -43,7 +43,7 @@ def update_objective(file, par, i=None, i_w=None):
     sql2.set_values_sql(file=file, table=data.T_PATHS(), columns=[data.T_PATHS.C_OBJECTIVE_F()], rows=i, values=(o.tolist(),))
 
 
-def plot_redo(q, q0, q_pred, f, i,
+def plot_redo(q1, q0, q_pred, f, i,
               par):
 
     if par.robot.id == 'SingleSphere02':
@@ -52,7 +52,7 @@ def plot_redo(q, q0, q_pred, f, i,
         ax.plot(*q0.T, color='blue', marker='o', label='old', markersize=15, alpha=0.8)
         if not np.allclose(q0, q_pred):
             ax.plot(*q_pred.T, color='orange', marker='o', label='new0', markersize=10, alpha=0.8)
-        ax.plot(*q.T, color='red', marker='o', label='new', markersize=10)
+        ax.plot(*q1.T, color='red', marker='o', label='new', markersize=10)
 
         ax.legend()
         remove_duplicate_labels(ax=ax)
@@ -79,7 +79,6 @@ def plot_redo(q, q0, q_pred, f, i,
             ax.plot(qd0[:, i], color=colors[i], ls='-', marker='o', markersize=3)
             ax.plot(qd[:, i], color=colors[i], ls='--', marker='s', markersize=3)
         save_fig(fig=fig, file=file_out1, formats='pdf')
-
 
         close_all()
 
@@ -113,9 +112,12 @@ def print_improvements(q0, q1, o0, o1, f0, f1,
     o2[b_fb] = o1[b_fb]
     oo1 = np.round(o2.astype(float).mean(), 4)
     oo0 = np.round(o0.astype(float).mean(), 4)
-
-    dq_mean = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).mean())
-    dq_max = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).max())
+    if b_fb.sum() > 0:
+        dq_mean = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).mean())
+        dq_max = np.rad2deg(np.abs(q0[b_fb] - q1[b_fb]).max())
+    else:
+        dq_mean = 0
+        dq_max = 0
 
     n_fb = b_fb.sum()
     n_nf = (~np.logical_or(f0 == +1, f1 == +1)).sum()
@@ -130,6 +132,8 @@ def print_improvements(q0, q1, o0, o1, f0, f1,
         j = np.argmax(improvement)
 
         print(f'Largest Improvement {j}:', np.round(o0[j], 3), np.round(o1[j], 3), f1[j])
+
+        return j
 
 
 def get_b_improvements(o0, o1, f0, f1):
@@ -183,7 +187,8 @@ def refine_chomp(file, par, gd,
     o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
 
     b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
-    print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
+    # j = print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
+    # plot_redo(q1=q1[j], q0=q0[j], q_pred=q_pred[j], f=f1[j], i=j, par=par)
 
     q1[b_rest] = q0[b_rest]
     o1[b_rest] = o0[b_rest]
