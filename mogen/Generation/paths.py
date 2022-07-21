@@ -148,13 +148,13 @@ def main_loop_sc(robot_id):
     for i in range(10000):
         worlds = [-1]
         with tictoc(f"loop {i}") as _:
-            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=1000, ra='append',)
+            main(robot_id=robot_id, iw_list=worlds, n_samples_per_world=1000, ra='append')
 
 
 if __name__ == '__main__':
-
     ray_init(perc=100)
-    _robot_id = 'SingleSphere02'
+    # _robot_id = 'SingleSphere02'
+    _robot_id = 'JustinArm07'
 
     with tictoc('total time') as _:
         main_loop(_robot_id)

@@ -18,7 +18,8 @@ from mogen.Vis.main import animate_path, input_wrapper
 
 __directory_numpy_tmp = 'tmp_np'
 
-batch_size_dict = {'SingleSphere02': 10000,
+
+BATCH_SIZE_DICT = {'SingleSphere02': 10000,
                    'StaticArm04': 10000,
                    'JustinArm07': 200,
                    'Justin19': 200}
@@ -59,7 +60,7 @@ def plot_redo(q1, q0, q_pred, f, i,
 
     else:
         file = data.get_file(robot_id=par.robot.id)
-        _, _, img, file_out = input_wrapper(robot_id=par.robot.id, q=q, img=par.oc.img, file=file, i=i)  # TODO j not correct
+        _, _, img, file_out = input_wrapper(robot_id=par.robot.id, q=q1, img=par.oc.img, file=file, i=i)  # TODO j not correct
 
         file_out = os.path.split(file_out)
         file_out1 = f"{file_out[0]}/redo/{file_out[1]}"
@@ -72,7 +73,7 @@ def plot_redo(q1, q0, q_pred, f, i,
         colors = ['tab:blue', 'tab:orange', 'tab:red', 'tab:pink']
 
         q00 = trajectory.get_substeps(x=q0[[0, -1]], n=par.n_wp-1)
-        qd = q - q00  # q[0, :]
+        qd = q1 - q00  # q[0, :]
         qd0 = q0 - q00  # q0[0, :]
         fig, ax = new_fig()
         for i in range(par.robot.n_dof):
@@ -89,6 +90,22 @@ def recalculate_objective(file, par,
 
     o = objectives.o_len.len_q_cost(q, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
     sql2.set_values_sql(file=file, table=data.T_PATHS(), values=(o,), columns=[data.T_PATHS.C_OBJECTIVE_F()], rows=i)
+
+
+def evaluate(file, par, q_fun,
+             i=None, i_w=None):
+    i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
+
+    q_pred = q_fun(i=i)
+
+    o_oc = objectives.o_oc.oc_cost2(q=q_pred, par=par)
+    o_len = objectives.o_len.len_q_cost_cartesian(q=q_pred, is_periodic=par.robot.is_periodic)
+
+    # dq = np.linalg.norm(trajectory.x2beerel(q_pred) - trajectory.x2beerel(q0))
+    c0 = trajectory.to_spline(trajectory.x2beerel(q0), start_end0=True)
+    c_pred = trajectory.to_spline(trajectory.x2beerel(q_pred), start_end0=True)
+    dc = np.mean((c0 - c_pred)**2, axis=(-2, -1))
+    return o_oc, o_len, dc
 
 
 def test_spline(file, par, gd, i=None, i_w=None):
@@ -187,8 +204,8 @@ def refine_chomp(file, par, gd,
     o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
 
     b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
-    # j = print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
-    # plot_redo(q1=q1[j], q0=q0[j], q_pred=q_pred[j], f=f1[j], i=j, par=par)
+    j = print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
+    plot_redo(q1=q1[j], q0=q0[j], q_pred=q_pred[j], f=f1[j], i=j, par=par)
 
     q1[b_rest] = q0[b_rest]
     o1[b_rest] = o0[b_rest]
@@ -275,7 +292,7 @@ def main_refine_chomp(file, q_fun=None, ray_perc=100, mode=None):
 
     robot_id = parameter.get_robot_str(file)
 
-    batch_size = batch_size_dict[robot_id]
+    batch_size = BATCH_SIZE_DICT[robot_id]
     iw_all = sql2.get_values_sql(file=file, table=data.T_PATHS(), columns=data.T_PATHS.C_WORLD_I(), rows=-1, values_only=True)
     iw_list = np.unique(iw_all)
 

@@ -94,21 +94,20 @@ def main():
     from shutil import copy
     from mopla.Parameter import get_par_staticarm, get_par_justin19, get_par_singlesphere02, get_par_justinarm07
     # par = get_par_staticarm(n_dof=4, lengths=0.25, widths=0.1)[0]   # threshold=0.5
-    par = get_par_justin19()[0]  # threshold=0.40
-    # par = get_par_justinarm07()[0]   # threshold=0.35
+    # par = get_par_justin19()[0]  # threshold=0.40
+    par = get_par_justinarm07()[0]   # res=2, threshold=0.28
     # par = get_par_singlesphere02()[0]  # threshold=0.40
 
     # file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
-    # file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds.db"
-    file = "/Users/jote/Documents/DLR/Data/mogen/ik_Justin19/ik_Justin19.db"
-    file = "/home_local/tenh_jo/ik_Justin19.db"
-    file = '/Users/jote/Documents/DLR/Data/mogen/ik2_Justin19/ik_Justin19.db'
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds.db"
+    # file = "/Users/jote/Documents/DLR/Data/mogen/ik_Justin19/ik_Justin19.db"
+    # file = "/home_local/tenh_jo/ik_Justin19.db"
+    # file = '/Users/jote/Documents/DLR/Data/mogen/ik2_Justin19/ik_Justin19.db'
 
     # copy(file, file2)
 
     # print(get_robot_max_reach(robot))
-    df = sample_worlds(par=par, n=1, mode='perlin', kwargs_perlin=dict(threshold=+10, mode='old'), verbose=0)
-
+    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(res=2, threshold=0.28, mode='old'), verbose=1)
     df2sql(df=df, file=file, table=data.T_WORLDS(), dtype=data.T_WORLDS.types_dict_sql(), if_exists='replace')
     # TODO add meta table where all the robot parameters are listed
 
