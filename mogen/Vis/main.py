@@ -44,7 +44,7 @@ def plot_path_2d(robot_id, file, i):
     par = parameter.init_par(robot_id=robot_id).par
     i_w, i_s, q, img = data.get_samples(file=file, i=i, img_shape=par.world.shape)
     q = q.reshape(-1, par.robot.n_dof)
-    q2 = trajectory.get_path_adjusted(q, m=100, is_periodic=par.robot.is_periodic)
+    q2 = trajectory.get_path_adjusted(q, is_periodic=par.robot.is_periodic)
 
     ax, h = robot_2d.plot_path(q=q2, img=img, par=par)
     fig_file = get_fig_file(file=file, i_w=i_w, i_s=i_s)
@@ -81,7 +81,7 @@ def animate_path(robot_id,
         robot_2d.animate_path(q=q, img=img, par=par, gif=file_out)
 
     elif par.world.n_dim == 3:
-        robot_3d.animate_path(p=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
+        robot_3d.animate_path(pl=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
                               q=q, robot=par.robot, gif=file_out,
                               kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
 
@@ -146,8 +146,10 @@ def plot_all_paths_in_world(file, i_w):
 
 
 if __name__ == '__main__':
-    _robot_id = 'SingleSphere02'
+    # _robot_id = 'SingleSphere02'
+    _robot_id = 'JustinArm07'
     _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
 
-    plot_paths(file=_file, i_w=range(100))
+    # plot_paths(file=_file, i_w=range(100))
+    animate_path(robot_id=_robot_id, file=_file, i=1)
     # plot_all_paths_in_world(file=file, i_w=range(10, 100))

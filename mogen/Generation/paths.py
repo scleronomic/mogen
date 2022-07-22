@@ -44,7 +44,7 @@ def __chomp0(q0, q_start, q_end,
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
 
-    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
+    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q.tolist(), objective=o, feasible=f)
 
 
 def __chomp_staircase(q_start, q_end,
@@ -58,7 +58,7 @@ def __chomp_staircase(q_start, q_end,
     f = feasibility_check(q=q, par=gen.par) == 1
     i_world = np.ones(n, dtype=int) * i_world
     i_sample = np.ones(n, dtype=int) * i_sample
-    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q, objective=o, feasible=f)
+    return data.create_path_df(i_world=i_world, i_sample=i_sample, q=q.tolist(), objective=o, feasible=f)
 
 
 def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
@@ -72,7 +72,7 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
                                                         acceptance_rate=gen.bee_rate)
     except RuntimeError:
         df = data.create_path_df(i_world=np.ones(1)*i_world, i_sample=np.ones(1)*i_sample,
-                                 q=np.zeros((1, gen.par.n_wp, gen.par.robot.n_dof)),
+                                 q=np.zeros((1, gen.par.n_wp, gen.par.robot.n_dof)).tolist(),
                                  objective=np.ones(1)*-1, feasible=np.zeros(1, dtype=bool))
         return df
 
@@ -134,7 +134,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
 
 def main_loop(robot_id):
     copy_init_world(robot_id)
-    worlds = np.arange(10000)
+    worlds = np.arange(100)
 
     for i in range(100000):
         print(i)
