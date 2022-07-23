@@ -70,15 +70,17 @@ def plot_redo(q1, q0, q_pred, f, i,
         # animate_path(robot_id=par.robot.id, q=q[j, :, :], img=par.oc.img, file_out=file_out1)
 
         # Configuration path
-        colors = ['tab:blue', 'tab:orange', 'tab:red', 'tab:pink']
+        colors = ['tab:blue', 'tab:orange', 'tab:red', 'tab:pink'] * 10
 
         q00 = trajectory.get_substeps(x=q0[[0, -1]], n=par.n_wp-1)
         qd = q1 - q00  # q[0, :]
         qd0 = q0 - q00  # q0[0, :]
         fig, ax = new_fig()
         for i in range(par.robot.n_dof):
-            ax.plot(qd0[:, i], color=colors[i], ls='-', marker='o', markersize=3)
-            ax.plot(qd[:, i], color=colors[i], ls='--', marker='s', markersize=3)
+            ax.plot(qd0[:, i], color=colors[i], ls='-', marker='o', markersize=3, label='label')
+            ax.plot(qd[:, i], color=colors[i], ls='--', marker='s', markersize=3, label='new')
+        ax.legend()
+        remove_duplicate_labels(ax=ax)
         save_fig(fig=fig, file=file_out1, formats='pdf')
 
         close_all()
@@ -167,8 +169,10 @@ def refine_chomp(file, par, gd,
                  q_fun=None,
                  i=None, i_w=None,
                  batch_size=10000,
+                 mode=None,
+                 perc_dq=0,
                  verbose=0,
-                 mode=None):
+                 ):
     i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
     n = len(i)
 
@@ -178,22 +182,25 @@ def refine_chomp(file, par, gd,
     else:
         q_pred = q0
 
+    # only redo stuff which is different to current label
     q_pred = trajectory.get_path_adjusted(q_pred, is_periodic=par.robot.is_periodic)
+    dq = np.linalg.norm(trajectory.x2beerel(q_pred) - trajectory.x2beerel(q0), axis=(-1, -2))
+    threshold = np.percentile(dq, perc_dq)
+    b_dq = dq >= threshold
 
-    if batch_size > n:
-        q1, o1 = gd_chomp(q0=trajectory.full2inner(q_pred), par=par, gd=gd)
+    q1 = trajectory.full2inner(q_pred)
+    if batch_size > sum(b_dq):
+        par.q_start, par.q_end = q_pred[b_dq, 0, :], q_pred[b_dq, -1, :]
+        q1[b_dq], _ = gd_chomp(q0=q1[b_dq], par=par, gd=gd)
 
     else:
-        i2 = np.array_split(np.arange(n), max(2, n//batch_size))
-        q1 = np.zeros((n, par.n_wp-2, par.robot.n_dof))
-        o1 = np.zeros(n)
+        i2 = np.array_split(np.nonzero(b_dq)[0], max(2, n//batch_size))
         for ii2 in i2:
-            par.q_start = q_pred[ii2, 0, :]
-            par.q_end = q_pred[ii2, -1, :]
-            q1[ii2], o1[ii2] = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
+            par.q_start, par.q_end = q_pred[ii2, 0, :], q_pred[ii2, -1, :]
+            q1[ii2], _ = gd_chomp(q0=trajectory.full2inner(q_pred[ii2]), par=par, gd=gd)
 
-        par.q_start = q0[:, 0, :]
-        par.q_end = q0[:, -1, :]
+    par.q_start = q0[:, 0, :]
+    par.q_end = q0[:, -1, :]
 
     q1 = trajectory.inner2full(inner=q1, start=par.q_start, end=par.q_end)
 
@@ -202,6 +209,8 @@ def refine_chomp(file, par, gd,
 
     o0 = objectives.o_len.len_q_cost(q0, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
     o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
+    # o0 = objectives.o_len.len_q_cost_cartesian(q0, is_periodic=par.robot.is_periodic)
+    # o1 = objectives.o_len.len_q_cost_cartesian(q1, is_periodic=par.robot.is_periodic)
 
     b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
     j = print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)

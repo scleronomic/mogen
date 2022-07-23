@@ -259,10 +259,9 @@ def main_separate_easy_hard(file: str):
 def main_combine_files(robot_id, i, table=data.T_PATHS(), prefix=''):
     prefix = f'{prefix}_' if prefix else ''
     if isinstance(i, str):
-        i = eval(i, {'__builtins__': None}, {})
+        i = eval(i)
 
-    if len(i) == 2 and i[1] > i[0]:
-        i = list(range(i[0], i[1]))
+    i = list(i)
 
     print(i)
 
