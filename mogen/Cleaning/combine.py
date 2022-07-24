@@ -12,6 +12,7 @@ from wzk.mpl import new_fig
 from mogen.Generation import data
 from mogen.Cleaning import clean
 
+
 def check_iw_is(i_w, i_s, m):
     print('m', m)
     i_w = i_w.copy()
@@ -71,11 +72,13 @@ def combine_files(old_files, new_file, clean_s0, table):
             os.rename(f, new_file)
 
         else:
-            print(f'concatenate')
-            sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
-            print(f'remove')
-            os.remove(f)
-
+            if os.path.exists(f):
+                print(f"Concatenate {f}")
+                sql2.concatenate_tables(file=new_file, table=table, file2=f, table2=table)
+                print(f"Remove {f}")
+                os.remove(f)
+            else:
+                print(f"File {f} does not exist -> skip")
         n = sql2.get_n_rows(file=new_file, table=table)
         print(f"Total number of rows: {n}")
 
