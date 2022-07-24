@@ -81,8 +81,10 @@ def animate_path(robot_id,
         robot_2d.animate_path(q=q, img=img, par=par, gif=file_out)
 
     elif par.world.n_dim == 3:
-        robot_3d.animate_path(pl=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
-                              q=q, robot=par.robot, gif=file_out,
+        # robot_3d.animate_path(pl=dict(off_screen=False, gif=file_out, window_size=(1024, 1024)),
+        #                       q=q, robot=par.robot, gif=file_out,
+        #                       kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
+        robot_3d.animate_path(q=q, robot=par.robot,
                               kwargs_world=dict(limits=par.world.limits, img=img, mode='mesh'))
 
         # p = robot_3d.pv.Plotter()
@@ -148,8 +150,11 @@ def plot_all_paths_in_world(file, i_w):
 if __name__ == '__main__':
     # _robot_id = 'SingleSphere02'
     _robot_id = 'JustinArm07'
+    _robot_id = 'Justin19'
     _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
 
     # plot_paths(file=_file, i_w=range(100))
-    animate_path(robot_id=_robot_id, file=_file, i=1)
+    for i in range(2, 100):
+        animate_path(robot_id=_robot_id, file=_file, i=i)
+    # animate_path(robot_id=_robot_id, file=_file, i=1)
     # plot_all_paths_in_world(file=file, i_w=range(10, 100))

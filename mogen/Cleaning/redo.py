@@ -94,6 +94,13 @@ def recalculate_objective(file, par,
     sql2.set_values_sql(file=file, table=data.T_PATHS(), values=(o,), columns=[data.T_PATHS.C_OBJECTIVE_F()], rows=i)
 
 
+def recalculate_feasibility(file, par, i=None, i_w=None):
+    i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
+
+    f = feasibility_check(q=q, par=par)
+    sql2.set_values_sql(file=file, table=data.T_PATHS(), values=(f,), columns=[data.T_PATHS.C_FEASIBLE_I()], rows=i)
+
+
 def evaluate(file, par, q_fun,
              i=None, i_w=None):
     i, q0, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
@@ -348,7 +355,15 @@ def main_recalculate_objective(file):
 
     for i_w in np.unique(i_w_all):
         with tictoc(text=f'World {i_w}') as _:
-            recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all), )
+            recalculate_objective(file=file, par=par, i_w=(i_w, i_w_all))
+
+
+def main_recalculate_feasibility(file):
+    par, gd, i_w_all = __setup(file)
+
+    for i_w in np.unique(i_w_all):
+        with tictoc(text=f'World {i_w}') as _:
+            recalculate_feasibility(file=file, par=par, i_w=(i_w, i_w_all))
 
 
 def main_test_splines(file):
@@ -399,11 +414,12 @@ if __name__ == '__main__':
     _robot_id = 'Justin19'
     _file = data.get_file(robot_id=_robot_id)
 
+    main_recalculate_feasibility(file=_file)
     # main_test_splines(file=_file)
-    main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
-    tmp_numpy2sql(file=_file)
-    from wzk.gcp.gcloud2 import gsutil_cp
-    gsutil_cp(src=_file, dst=f'gs://tenh_jo/{_robot_id}/{_robot_id}_vX.db')
+    # main_refine_chomp(file=_file, ray_perc=100, mode='save_numpy')
+    # tmp_numpy2sql(file=_file)
+    # from wzk.gcp.gcloud2 import gsutil_cp
+    # gsutil_cp(src=_file, dst=f'gs://tenh_jo/{_robot_id}/{_robot_id}_vX.db')
 
     # iw_all = sql2.get_values_sql(file=_file, table=data.T_PATHS, columns=data.C_WORLD_I(), rows=-1, values_only=True)
     # iw_list = np.unique(iw_all)
