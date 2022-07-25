@@ -219,7 +219,7 @@ def main_separate_easy_hard(file: str):
     print(f"Total: {n}")
 
     print(f"Load all world indices")
-    iw_all = sql2.get_values_sql(file=file_easy, table=data.T_PATHS, rows=-1, columns=[data.T_PATHS.C_WORLD_I()],
+    iw_all = sql2.get_values_sql(file=file_easy, table=data.T_PATHS(), rows=-1, columns=[data.T_PATHS.C_WORLD_I()],
                                  values_only=True)
 
     iw_all = iw_all.astype(np.int32)
