@@ -306,14 +306,15 @@ def delete_half():
 
 
 if __name__ == '__main__':
-    fire.Fire({
-        'combine': main_combine_files,
-        'separate': main_separate_easy_hard,
-        'choose_best': main_choose_best,
-    })
+    # fire.Fire({
+    #     'combine': main_combine_files,
+    #     'separate': main_separate_easy_hard,
+    #     'choose_best': main_choose_best,
+    # })
 
-    # main_combine_files_hard2()
-    # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
+    _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07.db"
+    main_separate_easy_hard(file=_file)
+
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file_hard2)}.db", dst=f"{_file_hard2}.db")
@@ -335,7 +336,9 @@ if __name__ == '__main__':
     # _file_hard2 = _file + '_hard2'
     # gcloud2.gsutil_cp(src=f"gs://tenh_jo/{os.path.basename(_file)}.db", dst=f"{_file}.db")
     #
-    # main_separate_easy_hard(file=_file)
+    # _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/Justin19_combined_0-80_hard2"
+
+
     #
     # #
     # print('sort easy')
