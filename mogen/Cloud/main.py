@@ -10,7 +10,7 @@ def create_instances_and_start(mode='genpath', n=10, n0=0,
                                sleep=600):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
-    snapshot_size = 30
+    snapshot_size = 500
     startup_script = startup.make_startup_file(user=GCP_USER,
                                                bash_file=f"/home/{GCP_USER}/src/mogen/mogen/Cloud/Startup/{mode}.sh")
 
@@ -27,8 +27,8 @@ def create_instances_and_start(mode='genpath', n=10, n0=0,
                         machine=machine, disks_new=disk_boot, disks_old=None, disks_local=None,
                         startup_script=startup_script, labels=GCP_USER_LABEL)
 
-        cmd_disks.append(create_disk_cmd(disk))
-        cmd_instances.append(create_instance_cmd(instance))
+        cmd_disks.append(create_disk_cmd(disk=disk))
+        cmd_instances.append(create_instance_cmd(config=instance))
         cmd_attach_disks.append(attach_disk_cmd(instance=instance, disk=disk))
 
     popen_list(cmd_list=cmd_disks)
