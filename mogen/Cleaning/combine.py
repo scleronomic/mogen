@@ -89,7 +89,7 @@ def combine_files(old_files, new_file, clean_s0, table):
 
 def separate_easy_hard(file, i):
 
-    i_s, q = sql2.get_values_sql(file=file, table=data.T_PATHS.names(), rows=i,
+    i_s, q = sql2.get_values_sql(file=file, table=data.T_PATHS(), rows=i,
                                  columns=[data.T_PATHS.C_SAMPLE_I(), data.T_PATHS.C_Q_F()])
     q0 = q[:, 0]
     xu = q0 + i_s * np.random.random()
@@ -111,8 +111,7 @@ def separate_easy_hard(file, i):
 
 
 def delete_not_s0(file):
-    table = data.T_PATHS()
-    w, s = sql2.get_values_sql(file=file, table=table, rows=-1,
+    w, s = sql2.get_values_sql(file=file, table=data.T_PATHS(), rows=-1,
                                columns=[data.T_PATHS.C_WORLD_I(), data.T_PATHS.C_SAMPLE_I()])
 
     s_not0 = np.nonzero(s != 0)[0]
@@ -120,7 +119,7 @@ def delete_not_s0(file):
     if np.size(s_not0) > 0:
         i = s_not0[-1]
         assert i < 10000
-        sql2.delete_rows(file=file, table=table,  rows=np.arange(i+1))
+        sql2.delete_rows(file=file, table=data.T_PATHS(),  rows=np.arange(i+1))
 
 
 def test_separate_easy_hard():
