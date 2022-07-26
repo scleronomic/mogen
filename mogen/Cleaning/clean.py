@@ -4,6 +4,7 @@ from wzk import sql2
 from mogen.Generation import data, parameter
 
 T_PATHS = data.T_PATHS
+T_WORLDS = data.T_WORLDS
 
 
 def sort(file):
@@ -95,15 +96,52 @@ def check_consistency(robot,
     raise NotImplementedError
 
 
+def add_dist_img_column(file, robot_id):
+    from mopla.World.obstacle_distance import img2dist_img
+    from wzk import image, limits2cell_size, print_progress, tic, toc
+
+    gen = parameter.init_par(robot_id=robot_id)
+
+    limits = gen.par.world.limits
+    shape = gen.par.world.shape
+    voxel_size = limits2cell_size(shape=shape, limits=limits)
+
+    dimg = []
+    img_cmp = data.sql2.get_values_sql(file=file, rows=np.arange(10000), table=T_WORLDS(), columns=T_WORLDS.C_IMG_CMP())
+    
+    for i, cimg_i in enumerate(img_cmp):
+        print_progress(i=i, n=len(img_cmp))
+        bimg_i = image.compressed2img(img_cmp=cimg_i, shape=shape, dtype='bool')
+        dimg_i = img2dist_img(img=bimg_i, voxel_size=voxel_size, add_boundary=False)
+        cimg_i = image.img2compressed(img=dimg_i)
+        dimg.append(cimg_i)
+
+    sql2.add_column(file=file, table=T_WORLDS(), column='dimg_cmp', dtype=sql2.TYPE_BLOB)
+    sql2.set_values_sql(file, table=T_WORLDS(), columns='dimg_cmp', values=(dimg,), rows=-1, lock=None)
+
+    # test
+    # tic()
+    # dimg_cmp = data.sql2.get_values_sql(file=file, rows=np.arange(10000), table=T_WORLDS(), columns='dimg_cmp')
+    # dimg = []
+    # for i, cimg_i in enumerate(dimg_cmp):
+    #     print_progress(i=i, n=len(dimg_cmp))
+    #     dimg_i = image.compressed2img(img_cmp=cimg_i, shape=shape, dtype='float')
+    #     dimg.append(dimg_i)
+    # toc()
+
+
 if __name__ == '__main__':
 
-    _robot_id = 'Justin19'
-    _file = data.get_file(robot_id=_robot_id)
-    # _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
+    _robot_id = 'JustinArm07'
+    # _file = data.get_file(robot_id=_robot_id)
+    # _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}_worlds0.db"
+    _file = '/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard2.db'
+    add_dist_img_column(file=_file, robot_id=_robot_id)
+
     # set_dtypes(_file)
     # sort(_file)
 
-    remove_infeasible(file=_file)
+    # remove_infeasible(file=_file)
     # reset_sample_i32(file=_file)
 
     # SingleSphere02
