@@ -172,8 +172,9 @@ def main_choose_best(file):
     copy(file, file2)
 
     print('Load data')
-    i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=table, rows=-1,
-                                         columns=['world_i32', 'sample_i32', 'objective_f32', 'feasible_b'],
+    i_w, i_s, o, f = sql2.get_values_sql(file=file2, table=data.T_PATHS(), rows=-1,
+                                         columns=[data.T_PATHS.C_WORLD_I(), data.T_PATHS.C_SAMPLE_I(),
+                                                  data.T_PATHS.C_OBJECTIVE_F(), data.T_PATHS.C_FEASIBLE_I()],
                                          values_only=True)
     i_w, i_s, o, f = squeeze_all(i_w, i_s, o, f)
 
@@ -195,7 +196,7 @@ def main_choose_best(file):
 
     print('Delete worst & infeasible paths')
     j_delete = np.delete(np.arange(n_old), j)
-    sql2.delete_rows(file=file2, table=table, rows=j_delete)
+    sql2.delete_rows(file=file2, table=data.T_PATHS(), rows=j_delete)
 
     clean.reset_sample_i32(file2)
     print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
@@ -311,8 +312,9 @@ if __name__ == '__main__':
     #     'choose_best': main_choose_best,
     # })
 
-    _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07.db"
-    main_separate_easy_hard(file=_file)
+    _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard.db"
+    # main_separate_easy_hard(file=_file)
+    main_choose_best(file=_file)
 
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)

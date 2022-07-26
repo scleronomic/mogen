@@ -222,7 +222,7 @@ def refine_chomp(file, par, gd,
 
     b_fb, b_nfb, b_rest = get_b_improvements(o0=o0, o1=o1, f0=f0, f1=f1)
     j = print_improvements(q0=q0, q1=q1, o0=o0, o1=o1, f0=f0, f1=f1, b_fb=b_fb, verbose=verbose)
-    plot_redo(q1=q1[j], q0=q0[j], q_pred=q_pred[j], f=f1[j], i=j, par=par)
+    # plot_redo(q1=q1[j], q0=q0[j], q_pred=q_pred[j], f=f1[j], i=j, par=par)
 
     q1[b_rest] = q0[b_rest]
     o1[b_rest] = o0[b_rest]
