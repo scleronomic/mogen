@@ -50,6 +50,7 @@ def reset_sample_i32_0(file):
 
 def remove_infeasible(file):
     f = sql2.get_values_sql(file=file, table=data.T_PATHS(), rows=-1, columns=[data.T_PATHS.C_FEASIBLE_I()])
+    print(np.unique(f, return_counts=True))
     feasible = f == +1
     print(f"feasible {feasible.sum()}/{feasible.size} ~ {np.round(feasible.mean(), 3)}")
     if not np.all(feasible):
@@ -97,10 +98,10 @@ if __name__ == '__main__':
     _robot_id = 'Justin19'
     _file = data.get_file(robot_id=_robot_id)
     # _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}.db"
-    set_dtypes(_file)
-    sort(_file)
+    # set_dtypes(_file)
+    # sort(_file)
 
-    # remove_infeasible(file=_file)
+    remove_infeasible(file=_file)
     # reset_sample_i32(file=_file)
 
     # SingleSphere02
