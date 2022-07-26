@@ -199,7 +199,7 @@ def main_choose_best(file):
     sql2.delete_rows(file=file2, table=data.T_PATHS(), rows=j_delete)
 
     clean.reset_sample_i32(file2)
-    print(f"old {n_old} | tries per sample {m} -> old {n_old//m} | new {n_new}")
+    print(f"all tries {n_old} | tries per sample {m} -> best tries {n_old//m} | feasible best tries {n_new}")
 
 
 def main_separate_easy_hard(file: str):
