@@ -98,7 +98,7 @@ def recalculate_feasibility(file, par, i=None, i_w=None):
     i, q, img = data.get_samples_for_world(file=file, par=par, i=i, i_w=i_w)
 
     f = feasibility_check(q=q, par=par) == +1
-    print(f"Feasibility: {f.sum()}")
+    print(f"Feasibility: {f.sum()} / {f.size}")
     sql2.set_values_sql(file=file, table=data.T_PATHS(), values=(f,), columns=[data.T_PATHS.C_FEASIBLE_I()], rows=i)
 
 
