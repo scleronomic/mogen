@@ -6,8 +6,8 @@ from wzk.gcp import startup
 
 
 def create_instances_and_start(mode='genpath', n=10, n0=0,
-                               disk_size=20,
-                               sleep=600):
+                               disk_size=50,
+                               sleep=300):
     machine = 'c2-standard-60'
     snapshot = 'tenh-setup-cpu'
     snapshot_size = 30
