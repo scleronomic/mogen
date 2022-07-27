@@ -83,6 +83,7 @@ def generate_path(gen, i_world, i_sample, img_cmp, verbose=0):
     if verbose > 0:
         tic()
 
+    # TODO think about gd.n_steps for this case
     df0 = __chomp0(q0=q0, q_start=q_start, q_end=q_end, gen=gen, i_world=i_world, i_sample=i_sample)
     if np.all(np.frombuffer(df0.feasible_b[0], dtype=bool)):
         if verbose > 0:
@@ -134,7 +135,7 @@ def main(robot_id: str, iw_list=None, n_samples_per_world=1000, s0=0, ra='append
 
 def main_loop(robot_id):
     copy_init_world(robot_id)
-    worlds = np.arange(10000)
+    worlds = np.arange(12500)
 
     for i in range(100000):
         print(i)

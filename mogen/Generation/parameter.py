@@ -36,10 +36,12 @@ def init_par(robot_id: str):
         par, gd, staircase = get_par_justin19()
 
     else:
-        raise ValueError
+        raise ValueError(f"Unknown robot id: {robot_id}")
 
     bee_rate = 0.0
+    n_steps_bee = 50
 
+    gd.n_steps = n_steps_bee
     gen = Generation()
     gen.par = par
     gen.gd = gd

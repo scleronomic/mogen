@@ -214,6 +214,7 @@ def refine_chomp(file, par, gd,
 
     f0 = feasibility_check(q=q0, par=par)
     f1 = feasibility_check(q=q1, par=par)
+    res_debug = f1.copy()  # TODO remove
 
     o0 = objectives.o_len.len_q_cost(q0, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
     o1 = objectives.o_len.len_q_cost(q1, is_periodic=par.robot.is_periodic, joint_weighting=par.weighting.joint_motion)
@@ -227,6 +228,8 @@ def refine_chomp(file, par, gd,
     q1[b_rest] = q0[b_rest]
     o1[b_rest] = o0[b_rest]
     f1[b_rest] = f0[b_rest]
+
+    f1 = ~res_debug  # TODO to remove direct paths
 
     if mode is None:
         print('no set_values')
@@ -244,6 +247,8 @@ def refine_chomp(file, par, gd,
 
     else:
         raise ValueError
+
+    return res_debug
 
 
 def refine_adjust_steps(file, par, i=None, i_w=None):

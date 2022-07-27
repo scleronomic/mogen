@@ -99,7 +99,7 @@ def main():
     # par = get_par_singlesphere02()[0]  # threshold=0.40
 
     # file = f"/home/johannes_tenhumberg/sdb/{par.robot.id}.db"
-    file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds.db"
+    file = f"/Users/jote/Documents/DLR/Data/mogen/{par.robot.id}/{par.robot.id}_worlds0.db"
     # file = "/Users/jote/Documents/DLR/Data/mogen/ik_Justin19/ik_Justin19.db"
     # file = "/home_local/tenh_jo/ik_Justin19.db"
     # file = '/Users/jote/Documents/DLR/Data/mogen/ik2_Justin19/ik_Justin19.db'
@@ -107,7 +107,7 @@ def main():
     # copy(file, file2)
 
     # print(get_robot_max_reach(robot))
-    df = sample_worlds(par=par, n=10000, mode='perlin', kwargs_perlin=dict(res=2, threshold=0.28, mode='old'), verbose=1)
+    df = sample_worlds(par=par, n=12500, mode='perlin', kwargs_perlin=dict(res=2, threshold=0.28, mode='old'), verbose=1)
     df2sql(df=df, file=file, table=data.T_WORLDS(), dtype=data.T_WORLDS.types_dict_sql(), if_exists='replace')
     # TODO add meta table where all the robot parameters are listed
 

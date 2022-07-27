@@ -120,22 +120,25 @@ def add_dist_img_column(file, robot_id):
     sql2.set_values_sql(file, table=T_WORLDS(), columns='dimg_cmp', values=(dimg,), rows=-1, lock=None)
 
     # test
-    # tic()
-    # dimg_cmp = data.sql2.get_values_sql(file=file, rows=np.arange(10000), table=T_WORLDS(), columns='dimg_cmp')
-    # dimg = []
-    # for i, cimg_i in enumerate(dimg_cmp):
-    #     print_progress(i=i, n=len(dimg_cmp))
-    #     dimg_i = image.compressed2img(img_cmp=cimg_i, shape=shape, dtype='float')
-    #     dimg.append(dimg_i)
-    # toc()
+    tic()
+    dimg_cmp = data.sql2.get_values_sql(file=file, rows=np.arange(10000), table=T_WORLDS(), columns='dimg_cmp')
+    dimg = []
+    for i, cimg_i in enumerate(dimg_cmp):
+        print_progress(i=i, n=len(dimg_cmp))
+        dimg_i = image.compressed2img(img_cmp=cimg_i, shape=shape, dtype='float')
+        dimg.append(dimg_i)
+    toc()
+
+
+
 
 
 if __name__ == '__main__':
 
     _robot_id = 'JustinArm07'
-    # _file = data.get_file(robot_id=_robot_id)
-    # _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}_worlds0.db"
-    _file = '/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard2.db'
+    _file = data.get_file(robot_id=_robot_id)
+    _file = f"/Users/jote/Documents/DLR/Data/mogen/{_robot_id}/{_robot_id}_worlds0.db"
+    # _file = '/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard2.db'
     add_dist_img_column(file=_file, robot_id=_robot_id)
 
     # set_dtypes(_file)
