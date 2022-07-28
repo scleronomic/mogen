@@ -306,15 +306,15 @@ def delete_half():
 
 
 if __name__ == '__main__':
-    # fire.Fire({
-    #     'combine': main_combine_files,
-    #     'separate': main_separate_easy_hard,
-    #     'choose_best': main_choose_best,
-    # })
+    fire.Fire({
+        'combine': main_combine_files,
+        'separate': main_separate_easy_hard,
+        'choose_best': main_choose_best,
+    })
 
-    _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard.db"
+    # _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard.db"
     # main_separate_easy_hard(file=_file)
-    main_choose_best(file=_file)
+    # main_choose_best(file=_file)
 
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
