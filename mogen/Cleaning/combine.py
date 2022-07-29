@@ -321,9 +321,9 @@ if __name__ == '__main__':
 
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_easy)}")
-    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard)}")
-    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard2)}")
+    gcloud2.gsutil_cp(src=f"{_file_easy}", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_easy)}")
+    gcloud2.gsutil_cp(src=f"{_file_hard}", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard)}")
+    gcloud2.gsutil_cp(src=f"{_file_hard2}", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard2)}")
 
     # robot_id = 'SingleSphere02'
     # # i = np.arange(60, 80)
