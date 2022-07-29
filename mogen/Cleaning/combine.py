@@ -312,18 +312,18 @@ if __name__ == '__main__':
     #     'choose_best': main_choose_best,
     # })
 
-    _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07.db"
+    # _file = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07.db"
     _file_easy = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_easy.db"
     _file_hard = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard.db"
     _file_hard2 = "/home/johannes_tenhumberg_gmail_com/sdb/JustinArm07_hard2.db"
-    main_separate_easy_hard(file=_file)
-    main_choose_best(file=_file_hard)
+    # main_separate_easy_hard(file=_file)
+    # main_choose_best(file=_file_hard)
 
     # sql2.sort_table(file=_file_hard2, table='paths', order_by=['world_i32', 'sample_i32', 'ROWID'])
     # reset_sample_i32(file=_file_hard2)
-    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_easy)}.db")
-    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard)}.db")
-    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard2)}.db")
+    gcloud2.gsutil_cp(src=f"{_file_easy}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_easy)}")
+    gcloud2.gsutil_cp(src=f"{_file_hard}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard)}")
+    gcloud2.gsutil_cp(src=f"{_file_hard2}.db", dst=f"gs://tenh_jo/JustinArm07/{os.path.basename(_file_hard2)}")
 
     # robot_id = 'SingleSphere02'
     # # i = np.arange(60, 80)
